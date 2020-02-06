@@ -34,6 +34,7 @@ std::unique_ptr<sf::RenderTexture> Player::draw() {
     texture->clear(sf::Color::Transparent);
     
     texture->draw(m_bodyShape);
+    texture->display();
     
     return texture;
 }
