@@ -9,6 +9,8 @@
 #define Maze_hpp
 
 # include <iostream>
+# include <cmath>
+# include <algorithm>
 
 # include <SFML/Graphics.hpp>
 

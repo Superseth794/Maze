@@ -37,6 +37,7 @@ void Maze::lauch() {
         
         // update
         update();
+        updateCamera();
         m_gameClock.restart();
         
         // Display
@@ -53,8 +54,14 @@ void Maze::update() {
     m_player.update(timeElpased);
 }
 
-void updateCamera() {
-    
+void Maze::updateCamera() {
+    constexpr float marging = 0.4f; // Marging not allowed
+    sf::Vector2f margingAllowed = {
+        (1.f - marging) * m_width / 2.f,
+        (1.f - marging) * m_height / 2.f
+    };
+    m_cameraPosition.x = std::clamp(m_cameraPosition.x, m_player.getPosition().x - margingAllowed.x, m_player.getPosition().x + margingAllowed.x);
+    m_cameraPosition.y = std::clamp(m_cameraPosition.y, m_player.getPosition().y - margingAllowed.y, m_player.getPosition().y + margingAllowed.y);
 }
 
 void Maze::display() {
