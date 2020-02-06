@@ -11,8 +11,8 @@
 
 int main(int argc, const char * argv[]) {
     
-    constexpr unsigned int windowWidth = 3200;
-    constexpr unsigned int windowHeight = 1800;
+    constexpr unsigned int windowWidth = 2800;
+    constexpr unsigned int windowHeight = 1600;
     
     mz::Maze maze(windowWidth, windowHeight);
     

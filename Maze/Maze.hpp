@@ -12,6 +12,8 @@
 
 # include <SFML/Graphics.hpp>
 
+# include "Entity/DrawableEntity/Player.hpp"
+
 namespace mz {
 
 class Maze {
@@ -27,12 +29,23 @@ public:
     
 private:
     void update();
+    void updateCamera();
+    
+    void display();
+    void drawEntity(DrawableEntity const& entity, sf::Sprite & entitySprite);
     
     void handleEvent(sf::Event const& event);
     
 private:
     unsigned int m_width;
     unsigned int m_height;
+    
+    sf::RenderWindow m_window;
+    sf::Clock m_gameClock;
+    
+    sf::Vector2f m_cameraPosition;
+    
+    Player m_player;
     
 };
 
