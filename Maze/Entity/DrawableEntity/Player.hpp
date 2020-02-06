@@ -9,18 +9,33 @@
 #define Player_hpp
 
 # include <cmath>
+# include <unordered_set>
+# include <iostream>
 
-class Player {
+# include "../../Utils/Orientation.hpp"
+# include "DrawableEntity.hpp"
+
+namespace mz {
+
+class Player : public DrawableEntity {
 public:
-    Player() = default;
-    ~Player() = default;
+    Player(float width);
     
-    Player(Player const& player) = delete;
-    Player(Player && player) = delete;
-    Player& operator=(Player const& player) = delete;
+    virtual void update(sf::Time timeElapsed);
+    virtual std::unique_ptr<sf::RenderTexture> draw();
+    
+    void move(Orientation const& orientation, bool isMoving);
     
 private:
+    float m_width;
+    float m_speed = 20.f;
     
+    std::unordered_set<std::string> m_directions;
+    
+    sf::CircleShape m_bodyShape;
 };
+
+
+}
 
 #endif /* Player_hpp */
