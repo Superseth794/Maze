@@ -1,0 +1,8 @@
+# ignores XCode files
+*.xcodeproj
+*.xcodeproj/*
+.DS_Store
+
+# ignores exec files
+*/DEBUG
+*/DEBUG/*
