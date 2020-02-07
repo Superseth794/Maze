@@ -19,8 +19,12 @@ m_cameraPosition(0.f, 0.f)
 {}
 
 void Maze::lauch() {
+    constexpr bool show_fps = true;
+    
     m_window.setFramerateLimit(60);
     m_gameClock.restart();
+    
+    init();
     
     while (m_window.isOpen()) {
         
@@ -35,6 +39,10 @@ void Maze::lauch() {
             
         }
         
+        if (show_fps) {
+            std::cout << "fps: " << 1.f / m_gameClock.getElapsedTime().asSeconds() << "\n";
+        }
+        
         // update
         update();
         updateCamera();
@@ -47,6 +55,80 @@ void Maze::lauch() {
         
         m_window.display();
     }
+}
+
+void Maze::init() {
+    generateMaze();
+}
+
+void Maze::generateMaze() {
+    constexpr unsigned int width = 25;
+    constexpr unsigned int height = 25;
+    
+    struct Cell {
+        int x, y;
+        bool visited = false;
+    };
+    
+    std::vector<Cell> cells;
+    
+    for (int y = 0; y < height + 2; ++y) {
+        for (int x = 0; x < width + 2; ++x) {
+            m_walls.push_back(std::make_unique<Wall>(m_wallWidth, m_wallHeight, x * m_wallWidth, y * m_wallHeight));
+            m_walls[x + y * (width + 2)]->setFilled(true);
+            cells.push_back({x, y, (x == 0 || y == 0 || x == width + 1 || y == height + 1)});
+        }
+    }
+    
+    std::stack<Cell> toVisitCells;
+     toVisitCells.push({1, 1});
+    
+    auto pickRandomOrientation = [&cells, &width, &height](Cell const& cell) -> Orientation {
+        std::vector<Orientation> orientationsAvailables;
+        for (int dy = -1; dy <= 1; ++dy) {
+            for (int dx = -1; dx <= 1; ++dx) {
+                if ((dx != 0 && dy != 0) || dx == dy)
+                    continue;
+                else if (cell.x + 2 * dx < 0 || cell.x + 2 * dx >= width + 2 || cell.y + 2 * dy < 0 || cell.y + 2 * dy >= height + 2)
+                    continue;
+                else if (!cells[cell.x + 2 * dx + (cell.y + 2 * dy) * (width + 2)].visited)
+                    orientationsAvailables.push_back(Orientation::getOrientation(sf::Vector2i{dx, dy}));
+            }
+        }
+        
+        if (orientationsAvailables.size() == 0)
+            return Orientation::UNDEFINED;
+        else
+            return orientationsAvailables[rand() % orientationsAvailables.size()];
+    };
+    
+    while (!toVisitCells.empty()) {
+        Cell currentCell {toVisitCells.top()};
+        currentCell.visited = true;
+        m_walls[currentCell.x + currentCell.y * (width + 2)]->setFilled(false);
+        auto orientation {pickRandomOrientation(currentCell)};
+        std::cout << currentCell.x << " " << currentCell.y << " " << orientation.getName() << std::endl;
+        assert(!(currentCell.x == 0 || currentCell.y == 0 || currentCell.x == width + 1 || currentCell.y == height + 1 || currentCell.x % 2 == 0 || currentCell.y % 2 == 0));
+        if (orientation != Orientation::UNDEFINED) {
+            m_walls[currentCell.x + orientation.toVector().x + (currentCell.y + orientation.toVector().y) * (width + 2)]->setFilled(false);
+            cells[currentCell.x + orientation.toVector().x * 2 + (currentCell.y + orientation.toVector().y * 2) * (width + 2)].visited = true;
+            toVisitCells.push({static_cast<int>(currentCell.x + orientation.toVector().x * 2), static_cast<int>(currentCell.y + orientation.toVector().y * 2)});
+        } else {
+            toVisitCells.pop();
+        }
+    }
+    
+    m_backgroundMazeTexture = std::make_unique<sf::RenderTexture>();
+    m_backgroundMazeTexture->create((width + 2) * m_wallWidth, (height + 2) * m_wallHeight);
+    m_backgroundMazeTexture->clear(sf::Color::Red);
+    for (auto const& wall : m_walls) {
+        auto wallTexture {wall->draw()};
+        sf::Sprite wallSprite;
+        wallSprite.setTexture(wallTexture->getTexture());
+        wallSprite.setPosition(wall->getPosition().x, wall->getPosition().y);
+        m_backgroundMazeTexture->draw(wallSprite);
+    }
+    m_backgroundMazeTexture->display();
 }
 
 void Maze::update() {
@@ -65,6 +147,13 @@ void Maze::updateCamera() {
 }
 
 void Maze::display() {
+    // Draws walls
+    sf::Sprite backgroundSprite;
+    backgroundSprite.setTexture(m_backgroundMazeTexture->getTexture());
+    backgroundSprite.setPosition(m_width / 2.f - m_cameraPosition.x, m_height / 2.f - m_cameraPosition.y);
+    m_window.draw(backgroundSprite);
+    
+    // Draws player
     auto playerTexture {m_player.draw()};
     sf::Sprite playerSprite;
     playerSprite.setTexture(playerTexture->getTexture());

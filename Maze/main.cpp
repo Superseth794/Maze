@@ -6,10 +6,13 @@
 //
 
 #include <iostream>
+#include <time.h>
 
 #include "Maze.hpp"
 
 int main(int argc, const char * argv[]) {
+    
+    srand(static_cast<unsigned int>(time(nullptr)));
     
     constexpr unsigned int windowWidth = 2800;
     constexpr unsigned int windowHeight = 1600;

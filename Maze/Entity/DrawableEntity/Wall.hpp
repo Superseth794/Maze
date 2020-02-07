@@ -20,6 +20,7 @@ public:
     virtual std::unique_ptr<sf::RenderTexture> draw();
     
     void setFilled(bool filled);
+    bool isFilled();
     
 private:
     void updateTexture();

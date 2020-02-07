@@ -36,13 +36,17 @@ std::unique_ptr<sf::RenderTexture> Wall::draw() {
 
 void Wall::setFilled(bool filled) {
     if (m_isFilled != filled) {
+        m_isFilled = filled;
         updateTexture();
     }
-    m_isFilled = filled;
+}
+
+bool Wall::isFilled() {
+    return m_isFilled;
 }
 
 void Wall::updateTexture() {
-    m_bodyShape.setFillColor((m_isFilled ? sf::Color::Black : sf::Color::White));
+    m_bodyShape.setFillColor((m_isFilled ? sf::Color::White : sf::Color::Black));
 }
 
 
