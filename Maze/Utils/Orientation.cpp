@@ -29,6 +29,14 @@ sf::Vector2f const& Orientation::toVector() const{
     return m_direction;
 }
 
+bool Orientation::operator==(Orientation const& orientation) const {
+    return m_direction == orientation.m_direction;
+}
+
+bool Orientation::operator!=(Orientation const& orientation) const {
+    return m_direction != orientation.m_direction;
+}
+
 Orientation const& Orientation::getOrientation(std::string const& name) {
     if (name == UP.getName())
         return UP;
@@ -53,6 +61,10 @@ Orientation const& Orientation::getOrientation(sf::Vector2f const& direction) {
         return LEFT;
     else
         return UNDEFINED;
+}
+
+Orientation const& Orientation::getOrientation(sf::Vector2i const& direction) {
+    return getOrientation(sf::Vector2f(direction.x, direction.y));
 }
 
 }
