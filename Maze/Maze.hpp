@@ -50,6 +50,8 @@ private:
 private:
     unsigned int m_width;
     unsigned int m_height;
+    static constexpr int m_mazeWidth = 25;
+    static constexpr int m_mazeHeight = 25;
     static constexpr float m_wallWidth = 240.f;
     static constexpr float m_wallHeight = 240.f;
     
