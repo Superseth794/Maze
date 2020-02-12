@@ -59,6 +59,8 @@ void Maze::lauch() {
 
 void Maze::init() {
     generateMaze();
+    
+    m_player.move(sf::Vector2f{m_wallWidth * 1.5f, m_wallHeight * 1.5f});
 }
 
 void Maze::generateMaze() {
@@ -117,10 +119,12 @@ void Maze::generateMaze() {
     auto filledWallTexture {std::make_shared<sf::RenderTexture>()};
     filledWallTexture->create(m_wallWidth, m_wallHeight);
     filledWallTexture->clear(sf::Color::White);
+    filledWallTexture->display();
     
     auto emptyWallTexture {std::make_shared<sf::RenderTexture>()};
     emptyWallTexture->create(m_wallWidth, m_wallHeight);
     emptyWallTexture->clear(sf::Color::Black);
+    emptyWallTexture->display();
     
     auto filledWallModel {std::make_shared<TileModel>(m_wallWidth, m_wallHeight, std::move(filledWallTexture))};
     auto emptyWallModel {std::make_shared<TileModel>(m_wallWidth, m_wallHeight, std::move(emptyWallTexture))};
@@ -130,18 +134,6 @@ void Maze::generateMaze() {
             m_tiles.push_back(std::make_unique<Tile>(x * m_wallWidth, y * m_wallHeight, (walls[x + y * (m_mazeWidth + 2)] ? filledWallModel : emptyWallModel)));
         }
     }
-    
-    m_backgroundMazeTexture = std::make_unique<sf::RenderTexture>();
-    m_backgroundMazeTexture->create((m_mazeWidth + 3) * m_wallWidth, (m_mazeHeight + 3) * m_wallHeight);
-    m_backgroundMazeTexture->clear(sf::Color::Red);
-    for (auto const& tile : m_tiles) {
-        auto tileTexture {tile->draw()};
-        sf::Sprite tileSprite;
-        tileSprite.setTexture(tileTexture->getTexture());
-        tileSprite.setPosition(tile->getPosition().x, tile->getPosition().y);
-        m_backgroundMazeTexture->draw(tileSprite);
-    }
-    m_backgroundMazeTexture->display();
 }
 
 void Maze::update() {
@@ -193,23 +185,23 @@ void Maze::drawEntity(DrawableEntity const& entity, sf::Sprite & entitySprite) {
 void Maze::handleEvent(sf::Event const& event) {
     if (event.type == sf::Event::KeyPressed) {
         if (event.key.code == sf::Keyboard::Up) {
-            m_player.move(Orientation::UP, true);
+            m_player.orientedMove(Orientation::UP, true);
         } else if (event.key.code == sf::Keyboard::Right) {
-            m_player.move(Orientation::RIGHT, true);
+            m_player.orientedMove(Orientation::RIGHT, true);
         } else if (event.key.code == sf::Keyboard::Down) {
-            m_player.move(Orientation::DOWN, true);
+            m_player.orientedMove(Orientation::DOWN, true);
         } else if (event.key.code == sf::Keyboard::Left) {
-            m_player.move(Orientation::LEFT, true);
+            m_player.orientedMove(Orientation::LEFT, true);
         }
     } else if (event.type == sf::Event::KeyReleased) {
         if (event.key.code == sf::Keyboard::Up) {
-            m_player.move(Orientation::UP, false);
+            m_player.orientedMove(Orientation::UP, false);
         } else if (event.key.code == sf::Keyboard::Right) {
-            m_player.move(Orientation::RIGHT, false);
+            m_player.orientedMove(Orientation::RIGHT, false);
         } else if (event.key.code == sf::Keyboard::Down) {
-            m_player.move(Orientation::DOWN, false);
+            m_player.orientedMove(Orientation::DOWN, false);
         } else if (event.key.code == sf::Keyboard::Left) {
-            m_player.move(Orientation::LEFT, false);
+            m_player.orientedMove(Orientation::LEFT, false);
         }
     }
 }
