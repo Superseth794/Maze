@@ -68,11 +68,11 @@ void Maze::generateMaze() {
     };
     
     std::vector<Cell> cells;
+    std::vector<bool> walls;
     
     for (int y = 0; y < m_mazeHeight + 2; ++y) {
         for (int x = 0; x < m_mazeWidth + 2; ++x) {
-            m_walls.push_back(std::make_unique<Wall>(m_wallWidth, m_wallHeight, x * m_wallWidth, y * m_wallHeight));
-            m_walls[x + y * (m_mazeWidth + 2)]->setFilled(true);
+            walls.push_back(true);
             cells.push_back({x, y, (x == 0 || y == 0 || x == m_mazeWidth + 1 || y == m_mazeHeight + 1)});
         }
     }
@@ -102,11 +102,11 @@ void Maze::generateMaze() {
     while (!toVisitCells.empty()) {
         Cell currentCell {toVisitCells.top()};
         currentCell.visited = true;
-        m_walls[currentCell.x + currentCell.y * (m_mazeWidth + 2)]->setFilled(false);
+        walls[currentCell.x + currentCell.y * (m_mazeWidth + 2)] = false;
         auto orientation {pickRandomOrientation(currentCell)};
         std::cout << currentCell.x << " " << currentCell.y << " " << orientation.getName() << std::endl;
         if (orientation != Orientation::UNDEFINED) {
-            m_walls[currentCell.x + orientation.toVector().x + (currentCell.y + orientation.toVector().y) * (m_mazeWidth + 2)]->setFilled(false);
+            walls[currentCell.x + orientation.toVector().x + (currentCell.y + orientation.toVector().y) * (m_mazeWidth + 2)] = false;
             cells[currentCell.x + orientation.toVector().x * 2 + (currentCell.y + orientation.toVector().y * 2) * (m_mazeWidth + 2)].visited = true;
             toVisitCells.push({static_cast<int>(currentCell.x + orientation.toVector().x * 2), static_cast<int>(currentCell.y + orientation.toVector().y * 2)});
         } else {
@@ -114,15 +114,32 @@ void Maze::generateMaze() {
         }
     }
     
+    auto filledWallTexture {std::make_shared<sf::RenderTexture>()};
+    filledWallTexture->create(m_wallWidth, m_wallHeight);
+    filledWallTexture->clear(sf::Color::White);
+    
+    auto emptyWallTexture {std::make_shared<sf::RenderTexture>()};
+    emptyWallTexture->create(m_wallWidth, m_wallHeight);
+    emptyWallTexture->clear(sf::Color::Black);
+    
+    auto filledWallModel {std::make_shared<TileModel>(m_wallWidth, m_wallHeight, std::move(filledWallTexture))};
+    auto emptyWallModel {std::make_shared<TileModel>(m_wallWidth, m_wallHeight, std::move(emptyWallTexture))};
+    
+    for (int y = 0; y < m_mazeHeight + 2; ++y) {
+        for (int x = 0; x < m_mazeWidth + 2; ++x) {
+            m_tiles.push_back(std::make_unique<Tile>(x * m_wallWidth, y * m_wallHeight, (walls[x + y * (m_mazeWidth + 2)] ? filledWallModel : emptyWallModel)));
+        }
+    }
+    
     m_backgroundMazeTexture = std::make_unique<sf::RenderTexture>();
     m_backgroundMazeTexture->create((m_mazeWidth + 3) * m_wallWidth, (m_mazeHeight + 3) * m_wallHeight);
     m_backgroundMazeTexture->clear(sf::Color::Red);
-    for (auto const& wall : m_walls) {
-        auto wallTexture {wall->draw()};
-        sf::Sprite wallSprite;
-        wallSprite.setTexture(wallTexture->getTexture());
-        wallSprite.setPosition(wall->getPosition().x, wall->getPosition().y);
-        m_backgroundMazeTexture->draw(wallSprite);
+    for (auto const& tile : m_tiles) {
+        auto tileTexture {tile->draw()};
+        sf::Sprite tileSprite;
+        tileSprite.setTexture(tileTexture->getTexture());
+        tileSprite.setPosition(tile->getPosition().x, tile->getPosition().y);
+        m_backgroundMazeTexture->draw(tileSprite);
     }
     m_backgroundMazeTexture->display();
 }
@@ -149,11 +166,13 @@ void Maze::updateCamera() {
 }
 
 void Maze::display() {
-    // Draws walls
-    sf::Sprite backgroundSprite;
-    backgroundSprite.setTexture(m_backgroundMazeTexture->getTexture());
-    backgroundSprite.setPosition(m_width / 2.f - m_cameraPosition.x, m_height / 2.f - m_cameraPosition.y);
-    m_window.draw(backgroundSprite);
+    // Draws tiles
+    for (auto const& tile : m_tiles) {
+        auto tileTexture {tile->draw()};
+        sf::Sprite tileSprite;
+        tileSprite.setTexture(tileTexture->getTexture());
+        drawEntity(*tile, tileSprite);
+    }
     
     // Draws player
     auto playerTexture {m_player.draw()};

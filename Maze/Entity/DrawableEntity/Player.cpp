@@ -27,8 +27,8 @@ void Player::update(sf::Time timeElapsed) {
     }
 }
 
-std::unique_ptr<sf::RenderTexture> Player::draw() {
-    auto texture {std::make_unique<sf::RenderTexture>()};
+std::shared_ptr<sf::RenderTexture> Player::draw() {
+    auto texture {std::make_shared<sf::RenderTexture>()};
     
     texture->create(m_width, m_width);
     texture->clear(sf::Color::Transparent);

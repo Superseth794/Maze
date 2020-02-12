@@ -1,0 +1,33 @@
+//
+//  TileModel.hpp
+//  Maze
+//
+//  Created by Jaraxus on 12/02/2020.
+//
+
+#ifndef TileModel_hpp
+# define TileModel_hpp
+
+# include <memory>
+
+# include <SFML/Graphics.hpp>
+
+namespace mz {
+
+class Tile;
+
+class TileModel {
+    friend Tile;
+    
+public:
+    TileModel(float width, float height, std::shared_ptr<sf::RenderTexture> && texture);
+    
+private:
+    float m_width;
+    float m_height;
+    std::shared_ptr<sf::RenderTexture> m_texture;
+};
+
+}
+
+#endif /* TileModel_hpp */

@@ -20,7 +20,7 @@
 # include <SFML/Graphics.hpp>
 
 # include "Entity/DrawableEntity/Player.hpp"
-# include "Entity/DrawableEntity/Wall.hpp"
+# include "Entity/DrawableEntity/Tile/Tile.hpp"
 
 namespace mz {
 
@@ -62,7 +62,7 @@ private:
     
     Player m_player;
     
-    std::vector<std::unique_ptr<Wall>> m_walls;
+    std::vector<std::unique_ptr<Tile>> m_tiles;
     
     std::unique_ptr<sf::RenderTexture> m_backgroundMazeTexture;
     

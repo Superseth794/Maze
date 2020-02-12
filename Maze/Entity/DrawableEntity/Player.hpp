@@ -22,7 +22,7 @@ public:
     Player(float width);
     
     virtual void update(sf::Time timeElapsed);
-    virtual std::unique_ptr<sf::RenderTexture> draw();
+    virtual std::shared_ptr<sf::RenderTexture> draw();
     
     void move(Orientation const& orientation, bool isMoving);
     
