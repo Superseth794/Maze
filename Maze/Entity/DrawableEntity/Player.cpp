@@ -39,7 +39,7 @@ std::shared_ptr<sf::RenderTexture> Player::draw() {
     return texture;
 }
 
-void Player::move(Orientation const& orientation, bool isMoving) {
+void Player::orientedMove(Orientation const& orientation, bool isMoving) {
     if (isMoving) {
         m_directions.insert(orientation.getName());
     } else {

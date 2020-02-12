@@ -24,7 +24,7 @@ public:
     virtual void update(sf::Time timeElapsed);
     virtual std::shared_ptr<sf::RenderTexture> draw();
     
-    void move(Orientation const& orientation, bool isMoving);
+    void orientedMove(Orientation const& orientation, bool isMoving);
     
 private:
     float m_width;
