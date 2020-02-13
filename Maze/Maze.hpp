@@ -21,6 +21,7 @@
 
 # include "Entity/DrawableEntity/Player.hpp"
 # include "Entity/DrawableEntity/Tile/Tile.hpp"
+# include "Physics/PhysicsWorld.hpp"
 
 namespace mz {
 
@@ -61,8 +62,9 @@ private:
     sf::Vector2f m_cameraPosition;
     
     Player m_player;
-    
     std::vector<std::unique_ptr<Tile>> m_tiles;
+    
+    PhysicsWorld m_physicsWorld;
 };
 
 

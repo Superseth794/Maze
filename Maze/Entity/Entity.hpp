@@ -26,9 +26,9 @@ public:
     
     sf::Vector2f getPosition() const;
     
-    void move(sf::Vector2f direction);
-    void moveX(float dx);
-    void moveY(float dy);
+    virtual void move(sf::Vector2f direction);
+    virtual void moveX(float dx);
+    virtual void moveY(float dy);
     
     virtual void update(sf::Time timeElapsed) = 0;
     

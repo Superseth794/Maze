@@ -15,7 +15,8 @@ m_height(height),
 m_window(sf::VideoMode(m_width, m_height), "Maze"),
 m_gameClock(),
 m_player(width / 50.f),
-m_cameraPosition(0.f, 0.f)
+m_cameraPosition(0.f, 0.f),
+m_physicsWorld()
 {}
 
 void Maze::lauch() {
