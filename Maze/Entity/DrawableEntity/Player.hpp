@@ -14,17 +14,21 @@
 
 # include "../../Utils/Orientation.hpp"
 # include "DrawableEntity.hpp"
+# include "../../Physics/PhysicsWorld.hpp"
+# include "../../Physics/CirclePhysicsBody.hpp"
 
 namespace mz {
 
 class Player : public DrawableEntity {
 public:
-    Player(float width);
+    Player(float width, PhysicsWorld* parentWorld);
     
     virtual void update(sf::Time timeElapsed);
     virtual std::shared_ptr<sf::RenderTexture> draw();
     
     void orientedMove(Orientation const& orientation, bool isMoving);
+    
+    PhysicsBody* getPhysicsBody();
     
 private:
     float m_width;
@@ -33,6 +37,9 @@ private:
     std::unordered_set<std::string> m_directions;
     
     sf::CircleShape m_bodyShape;
+    std::shared_ptr<sf::RenderTexture> m_texture;
+    
+    CirclePhysicsBody m_physicsBody;
 };
 
 

@@ -13,10 +13,10 @@ Maze::Maze(unsigned int width, unsigned int height) :
 m_width(width),
 m_height(height),
 m_window(sf::VideoMode(m_width, m_height), "Maze"),
+m_physicsWorld(),
 m_gameClock(),
-m_player(width / 50.f),
-m_cameraPosition(0.f, 0.f),
-m_physicsWorld()
+m_player(width / 50.f, &m_physicsWorld),
+m_cameraPosition(0.f, 0.f)
 {}
 
 void Maze::lauch() {
@@ -63,6 +63,7 @@ void Maze::init() {
     generateMaze();
     
     m_player.move(sf::Vector2f{m_wallWidth * 1.5f, m_wallHeight * 1.5f});
+    m_physicsWorld.addBody(m_player.getPhysicsBody());
 }
 
 void Maze::generateMaze() {

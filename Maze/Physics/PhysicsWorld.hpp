@@ -8,6 +8,7 @@
 #ifndef PhysicsWorld_hpp
 # define PhysicsWorld_hpp
 
+# include <iostream>
 # include <cmath>
 # include <array>
 # include <vector>
