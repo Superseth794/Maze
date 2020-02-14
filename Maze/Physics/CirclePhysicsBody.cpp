@@ -103,4 +103,19 @@ PhysicsBody* CirclePhysicsBody::clone() const {
     return new CirclePhysicsBody(*this);
 }
 
+void CirclePhysicsBody::generateDebugTexture() {
+    m_debugTexture = std::make_shared<sf::RenderTexture>();
+    m_debugTexture->create(m_radius * 2.f, m_radius * 2.f);
+    m_debugTexture->clear(sf::Color::Transparent);
+    
+    sf::CircleShape debugShape{m_radius};
+    debugShape.setFillColor(DEBUG_PHYSICS_FILL_COLOR);
+    debugShape.setPosition(0.f, 0.f);
+    debugShape.setOutlineThickness(1.f);
+    debugShape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
+    m_debugTexture->draw(debugShape);
+    
+    m_debugTexture->display();
+}
+
 }

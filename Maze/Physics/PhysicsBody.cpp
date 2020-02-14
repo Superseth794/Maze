@@ -49,4 +49,14 @@ PhysicsWorld* PhysicsBody::getParentWorld() const {
     return m_parentWorld;
 }
 
+std::shared_ptr<sf::RenderTexture> const PhysicsBody::getDebugTexture() {
+    if (!m_debugTextureLoaded)
+        generateDebugTexture();
+    m_debugTextureLoaded = true;
+    return m_debugTexture;
+}
+
+const sf::Color PhysicsBody::DEBUG_PHYSICS_FILL_COLOR = sf::Color(101, 184, 127, 125);
+const sf::Color PhysicsBody::DEBUG_PHYSICS_OUTLINE_COLOR = sf::Color{58, 158, 65, 187};
+
 }

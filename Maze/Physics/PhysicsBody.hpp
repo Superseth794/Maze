@@ -74,8 +74,19 @@ public:
     
     PhysicsWorld* getParentWorld() const;
     
+    std::shared_ptr<sf::RenderTexture> const getDebugTexture();
+    
+protected:
+    virtual void generateDebugTexture() = 0;
+    
 protected:
     AABB m_frame;
+    
+    std::shared_ptr<sf::RenderTexture> m_debugTexture;
+    bool m_debugTextureLoaded = false;
+    
+    static const sf::Color DEBUG_PHYSICS_FILL_COLOR;
+    static const sf::Color DEBUG_PHYSICS_OUTLINE_COLOR;
     
 private:
     sf::Vector2f m_center;

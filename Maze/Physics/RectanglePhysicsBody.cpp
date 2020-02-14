@@ -133,4 +133,23 @@ sf::Vector2f RectanglePhysicsBody::getBottomLeftCorner() const {
     return sf::Vector2f{std::min(m_firstCorner.x, m_secondCorner.x), std::max(m_firstCorner.y, m_secondCorner.y)};
 }
 
+void RectanglePhysicsBody::generateDebugTexture() {
+    m_debugTexture = std::make_shared<sf::RenderTexture>();
+    
+    float width = getTopRightCorner().x - getTopLeftCorner().x;
+    float height = getBottomLeftCorner().y - getTopLeftCorner().y;
+    
+    m_debugTexture->create(width, height);
+    m_debugTexture->clear(sf::Color::Transparent);
+    
+    sf::RectangleShape debugShape{sf::Vector2f{width, height}};
+    debugShape.setFillColor(DEBUG_PHYSICS_FILL_COLOR);
+    debugShape.setPosition(0.f, 0.f);
+    debugShape.setOutlineThickness(1.f);
+    debugShape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
+    m_debugTexture->draw(debugShape);
+    
+    m_debugTexture->display();
+}
+
 }

@@ -13,7 +13,7 @@ Maze::Maze(unsigned int width, unsigned int height) :
 m_width(width),
 m_height(height),
 m_window(sf::VideoMode(m_width, m_height), "Maze"),
-m_physicsWorld(),
+m_physicsWorld(true),
 m_gameClock(),
 m_player(width / 50.f, &m_physicsWorld),
 m_cameraPosition(0.f, 0.f)
@@ -144,6 +144,7 @@ void Maze::generateMaze() {
 void Maze::update() {
     auto timeElpased {m_gameClock.getElapsedTime()};
     m_player.update(timeElpased);
+    m_physicsWorld.simulate();
 }
 
 void Maze::updateCamera() {
@@ -176,6 +177,13 @@ void Maze::display() {
     sf::Sprite playerSprite;
     playerSprite.setTexture(playerTexture->getTexture());
     drawEntity(m_player, playerSprite);
+    
+    // Draw physics
+    auto physicsTexture {m_physicsWorld.getPhysicsDebugTexture(m_width, m_height, m_cameraPosition)};
+    sf::Sprite physicsSprite;
+    physicsSprite.setTexture(physicsTexture->getTexture());
+    physicsSprite.setPosition(0.f, 0.f);
+    m_window.draw(physicsSprite);
 }
 
 void Maze::drawEntity(DrawableEntity const& entity, sf::Sprite & entitySprite) {

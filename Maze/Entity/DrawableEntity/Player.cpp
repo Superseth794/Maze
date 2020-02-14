@@ -25,7 +25,8 @@ m_physicsBody(width / 2.f, sf::Vector2f{width / 2.f, width / 2.f}, parentWorld)
     sf::RectangleShape physicsBodyShape {sf::Vector2f{m_physicsBody.getFrame().width, m_physicsBody.getFrame().height}};
     physicsBodyShape.setFillColor(sf::Color(101, 184, 127, 125));
     physicsBodyShape.setPosition(0.f, 0.f);
-    m_texture->draw(physicsBodyShape);
+//    m_texture->draw(physicsBodyShape);
+    
     m_texture->display();
 }
 
@@ -41,15 +42,6 @@ void Player::update(sf::Time timeElapsed) {
 }
 
 std::shared_ptr<sf::RenderTexture> Player::draw() {
-//    auto texture {std::make_shared<sf::RenderTexture>()};
-//
-//    texture->create(m_width, m_width);
-//    texture->clear(sf::Color::Transparent);
-//
-//    texture->draw(m_bodyShape);
-//    texture->display();
-//
-//    return texture;
     return m_texture;
 }
 

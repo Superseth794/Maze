@@ -34,7 +34,7 @@ class PhysicsWorld {
     using Collision = std::tuple<PhysicsBody*, std::unique_ptr<std::vector<sf::Vector2f>>>;
     
 public:
-    PhysicsWorld();
+    PhysicsWorld(bool showPhysics);
     
     void addBody(PhysicsBody* body);
     void removeBody(PhysicsBody* body);
@@ -42,10 +42,19 @@ public:
     std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, sf::Vector2f const& anchor = sf::Vector2f{0.f, 0.f});
     
     int getBodiesCount();
+    std::unique_ptr<sf::RenderTexture> getPhysicsDebugTexture(float width, float height, sf::Vector2f const& anchor);
+    
+    void simulate();
     
 private:
     Node m_root;
     int m_bodiesCount = 0;
+    
+    bool m_showPhysics = false;
+    std::vector<Collision> m_debugCollisions;
+    
+    static const sf::Color DEBUG_COLLISION_FILL_COLOR;
+    static const sf::Color DEBUG_COLLISION_OUTLINE_COLOR;
 };
 
 }

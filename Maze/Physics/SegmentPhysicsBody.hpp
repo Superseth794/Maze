@@ -41,6 +41,9 @@ public:
     float getLength() const;
     float getLength2() const;
     
+protected:
+    virtual void generateDebugTexture();
+    
 private:
     sf::Vector2f m_startPos;
     sf::Vector2f m_endPos;

@@ -40,6 +40,9 @@ public:
     sf::Vector2f getBottomRightCorner() const;
     sf::Vector2f getBottomLeftCorner() const;
     
+protected:
+    virtual void generateDebugTexture();
+    
 private:
     sf::Vector2f m_firstCorner;
     sf::Vector2f m_secondCorner;

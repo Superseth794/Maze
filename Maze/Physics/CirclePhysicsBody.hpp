@@ -33,6 +33,9 @@ public:
     
     virtual PhysicsBody* clone() const;
     
+protected:
+    virtual void generateDebugTexture();
+    
 private:
     float m_radius;
 };

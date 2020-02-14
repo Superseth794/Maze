@@ -98,4 +98,24 @@ float SegmentPhysicsBody::getLength2() const {
     return (m_endPos.x - m_startPos.x) * (m_endPos.x - m_startPos.x) + (m_endPos.y - m_startPos.y) * (m_endPos.y - m_startPos.y);
 }
 
+void SegmentPhysicsBody::generateDebugTexture() {
+    m_debugTexture = std::make_shared<sf::RenderTexture>();
+    
+    float width = std::abs(m_endPos.x - m_startPos.x);
+    float height = std::abs(m_endPos.y - m_startPos.y);
+    sf::Vector2f anchor {std::min(m_startPos.x, m_endPos.x), std::min(m_startPos.y, m_endPos.y)};
+    
+    m_debugTexture->create(width, height);
+    m_debugTexture->clear(sf::Color::Transparent);
+    
+    sf::Vertex vertexes[2] = {};
+    vertexes[0].position = sf::Vector2f{m_startPos.x - anchor.x, m_startPos.y - anchor.y};
+    vertexes[0].color = DEBUG_PHYSICS_OUTLINE_COLOR;
+    vertexes[1].position = sf::Vector2f{m_endPos.x - anchor.x, m_endPos.y - anchor.y};
+    vertexes[1].color = DEBUG_PHYSICS_OUTLINE_COLOR;
+    m_debugTexture->draw(vertexes, 2, sf::Lines);
+    
+    m_debugTexture->display();
+}
+
 }
