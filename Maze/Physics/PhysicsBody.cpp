@@ -16,10 +16,16 @@ bool isCollisionBetweenAABB(AABB const& b1, AABB const& b2) {
              b1.getTopRightCorner().y < b2.origin.y);
 }
 
-PhysicsBody::PhysicsBody(sf::Vector2f const& center) :
+PhysicsBody::PhysicsBody(sf::Vector2f const& center, PhysicsWorld* parentWorld) :
+m_parentWorld(parentWorld),
 m_center(center),
 m_frame(AABB{{0.f, 0.f}, 0.f, 0.f})
 {
+}
+
+PhysicsBody::~PhysicsBody() {
+    if (m_parentWorld)
+        m_parentWorld->removeBody(this);
 }
 
 sf::Vector2f const& PhysicsBody::getCenter() const {
@@ -33,6 +39,10 @@ void PhysicsBody::move(sf::Vector2f const& delta) {
 
 void PhysicsBody::setCenter(sf::Vector2f const& center) {
     m_center = center;
+}
+
+PhysicsWorld* PhysicsBody::getParentWorld() const {
+    return m_parentWorld;
 }
 
 }

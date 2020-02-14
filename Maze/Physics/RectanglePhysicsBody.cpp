@@ -9,8 +9,8 @@
 
 namespace mz {
 
-RectanglePhysicsBody::RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner) :
-PhysicsBody(sf::Vector2f{(firstCorner.x + secondCorner.x) / 2.f, (firstCorner.y + secondCorner.y) / 2.f}),
+RectanglePhysicsBody::RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, PhysicsWorld* parentWorld) :
+PhysicsBody(sf::Vector2f{(firstCorner.x + secondCorner.x) / 2.f, (firstCorner.y + secondCorner.y) / 2.f}, parentWorld),
 m_firstCorner(firstCorner),
 m_secondCorner(secondCorner)
 {
@@ -19,8 +19,8 @@ m_secondCorner(secondCorner)
     RectanglePhysicsBody::updateFrame();
 }
 
-RectanglePhysicsBody::RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin) :
-RectanglePhysicsBody(origin, sf::Vector2f{origin.x + std::cos(rotation) * width, origin.y + std::sin(rotation) * height})
+RectanglePhysicsBody::RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin, PhysicsWorld* parentWorld) :
+RectanglePhysicsBody(origin, sf::Vector2f{origin.x + std::cos(rotation) * width, origin.y + std::sin(rotation) * height}, parentWorld)
 {
 }
 
@@ -111,6 +111,10 @@ bool RectanglePhysicsBody::isPositionInside(sf::Vector2f const& position) const 
              position.x >= getTopRightCorner().x ||
              position.y <= getTopLeftCorner().y ||
              position.y >= getBottomRightCorner().y);
+}
+
+PhysicsBody* RectanglePhysicsBody::clone() const {
+    return new RectanglePhysicsBody(*this);
 }
 
 sf::Vector2f RectanglePhysicsBody::getTopLeftCorner() const {

@@ -18,8 +18,10 @@ namespace mz {
 
 class RectanglePhysicsBody : public PhysicsBody {
 public:
-    RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner);
-    RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin);
+    RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, PhysicsWorld* parentWorld = nullptr);
+    RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin, PhysicsWorld* parentWorld = nullptr);
+    
+    RectanglePhysicsBody(RectanglePhysicsBody const& body) = default;
     
     virtual void updateFrame();
     
@@ -30,6 +32,8 @@ public:
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithRectangle(RectanglePhysicsBody* rectangle);
     
     virtual bool isPositionInside(sf::Vector2f const& position) const;
+    
+    virtual PhysicsBody* clone() const;
     
     sf::Vector2f getTopLeftCorner() const;
     sf::Vector2f getTopRightCorner() const;

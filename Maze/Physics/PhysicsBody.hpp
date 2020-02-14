@@ -12,7 +12,11 @@
 
 # include <SFML/Graphics.hpp>
 
+# include "PhysicsWorld.hpp"
+
 namespace mz {
+
+class PhysicsWorld;
 
 class SegmentPhysicsBody;
 class CirclePhysicsBody;
@@ -44,12 +48,12 @@ bool isCollisionBetweenAABB(AABB const& b1, AABB const& b2);
 
 class PhysicsBody {
 public:
-    PhysicsBody(sf::Vector2f const& center = sf::Vector2f{0.f, 0.f});
+    PhysicsBody(sf::Vector2f const& center = sf::Vector2f{0.f, 0.f}, PhysicsWorld* parentWorld = nullptr);
     PhysicsBody(PhysicsBody && body) = default;
-    virtual ~PhysicsBody() = default;
+    virtual ~PhysicsBody();
     
-    PhysicsBody(PhysicsBody const& body) = delete;
-    PhysicsBody& operator=(PhysicsBody const& body) = delete;
+    PhysicsBody(PhysicsBody const& body) = default;
+    PhysicsBody& operator=(PhysicsBody const& body) = default;
     
     AABB const& getFrame();
     virtual void updateFrame() = 0;
@@ -62,15 +66,20 @@ public:
     
     virtual bool isPositionInside(sf::Vector2f const& position) const = 0;
     
+    virtual PhysicsBody* clone() const = 0;
+    
     sf::Vector2f const& getCenter() const;
     void move(sf::Vector2f const& delta);
     void setCenter(sf::Vector2f const& center);
+    
+    PhysicsWorld* getParentWorld() const;
     
 protected:
     AABB m_frame;
     
 private:
     sf::Vector2f m_center;
+    PhysicsWorld* m_parentWorld;
 };
 
 

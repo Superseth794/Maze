@@ -19,6 +19,8 @@
 
 namespace mz {
 
+class PhysicsBody;
+
 struct Node {
     sf::Vector2f origin;
     sf::Vector2f size;
@@ -38,8 +40,11 @@ public:
     
     std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, sf::Vector2f const& anchor = sf::Vector2f{0.f, 0.f});
     
+    int getBodiesCount();
+    
 private:
     Node m_root;
+    int m_bodiesCount = 0;
 };
 
 }

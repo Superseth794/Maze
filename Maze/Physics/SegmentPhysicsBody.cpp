@@ -9,8 +9,8 @@
 
 namespace mz {
 
-SegmentPhysicsBody::SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& endPos) :
-PhysicsBody(sf::Vector2f{(endPos.x + startPos.x) / 2.f, (endPos.y + startPos.y) / 2.f}),
+SegmentPhysicsBody::SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& endPos, PhysicsWorld* parentWorld) :
+PhysicsBody(sf::Vector2f{(endPos.x + startPos.x) / 2.f, (endPos.y + startPos.y) / 2.f}, parentWorld),
 m_startPos(startPos),
 m_endPos(endPos)
 {
@@ -19,8 +19,8 @@ m_endPos(endPos)
     SegmentPhysicsBody::updateFrame();
 }
 
-SegmentPhysicsBody::SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& direction, float length) :
-SegmentPhysicsBody(startPos, sf::Vector2f{startPos.x + normalize(direction).x * length, startPos.y + normalize(direction).y * length})
+SegmentPhysicsBody::SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& direction, float length, PhysicsWorld* parentWorld) :
+SegmentPhysicsBody(startPos, sf::Vector2f{startPos.x + normalize(direction).x * length, startPos.y + normalize(direction).y * length}, parentWorld)
 {
 }
 
@@ -72,6 +72,10 @@ bool SegmentPhysicsBody::isPositionInside(sf::Vector2f const& position) const {
     sf::Vector2f vect {position.x - m_startPos.x, position.y - m_startPos.y};
     float scalar = getVector().x * vect.x + getVector().y * vect.y;
     return (scalar < 0 || scalar * scalar > getLength2());
+}
+
+PhysicsBody* SegmentPhysicsBody::clone() const {
+    return new SegmentPhysicsBody(*this);
 }
 
 sf::Vector2f const& SegmentPhysicsBody::getStartPos() const {

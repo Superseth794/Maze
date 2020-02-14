@@ -15,6 +15,12 @@ m_root({sf::Vector2f{0.f, 0.f}, sf::Vector2f{0.f, 0.f}, {}, {}})
 }
 
 void PhysicsWorld::addBody(PhysicsBody* body) {
+    if (!body)
+        return;
+    
+    ++m_bodiesCount;
+    
+    // TODO implement quadtree
     m_root.bodies.push_back(body);
 }
 
@@ -22,6 +28,7 @@ void PhysicsWorld::removeBody(PhysicsBody* body) {
     for (int i = 0; i < m_root.bodies.size(); ++i) {
         if (m_root.bodies[i] == body) {
             m_root.bodies.erase(m_root.bodies.begin() + i);
+            --m_bodiesCount;
             break;
         }
     }
@@ -44,6 +51,10 @@ std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollisi
     body->move(sf::Vector2f{-anchor.x, -anchor.y});
     
     return collisions;
+}
+
+int PhysicsWorld::getBodiesCount() {
+    return m_bodiesCount;
 }
 
 }

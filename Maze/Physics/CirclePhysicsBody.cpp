@@ -9,8 +9,8 @@
 
 namespace mz {
 
-CirclePhysicsBody::CirclePhysicsBody(float radius, sf::Vector2f const& center) :
-PhysicsBody(center),
+CirclePhysicsBody::CirclePhysicsBody(float radius, sf::Vector2f const& center, PhysicsWorld* parentWorld) :
+PhysicsBody(center, parentWorld),
 m_radius(radius)
 {
     CirclePhysicsBody::updateFrame();
@@ -97,6 +97,10 @@ std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWithRectang
 bool CirclePhysicsBody::isPositionInside(sf::Vector2f const& position) const {
     float distance2 = (getCenter().x - position.x) * (getCenter().x - position.x) + (getCenter().y - position.y) * (getCenter().y - position.y);
     return distance2 <= m_radius * m_radius;
+}
+
+PhysicsBody* CirclePhysicsBody::clone() const {
+    return new CirclePhysicsBody(*this);
 }
 
 }

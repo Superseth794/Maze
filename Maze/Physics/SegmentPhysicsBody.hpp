@@ -17,8 +17,10 @@ namespace mz {
 
 class SegmentPhysicsBody : public PhysicsBody {
 public:
-    SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& endPos);
-    SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& direction, float length);
+    SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& endPos, PhysicsWorld* parentWorld = nullptr);
+    SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& direction, float length, PhysicsWorld* parentWorld = nullptr);
+    
+    SegmentPhysicsBody(SegmentPhysicsBody const& body) = default;
     
     virtual void updateFrame();
     
@@ -29,6 +31,8 @@ public:
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithRectangle(RectanglePhysicsBody* rectangle);
     
     bool isPositionInside(sf::Vector2f const& position) const;
+    
+    virtual PhysicsBody* clone() const;
     
     sf::Vector2f const& getStartPos() const;
     sf::Vector2f const& getEndPos() const;

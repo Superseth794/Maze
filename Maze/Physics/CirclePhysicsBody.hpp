@@ -17,9 +17,11 @@ namespace mz {
 
 class CirclePhysicsBody : public PhysicsBody {
 public:
-    CirclePhysicsBody(float radius, sf::Vector2f const& center = sf::Vector2f{0.f, 0.f});
+    CirclePhysicsBody(float radius, sf::Vector2f const& center, PhysicsWorld* parentWorld = nullptr);
     
-    virtual void updateFrame() = 0;
+    CirclePhysicsBody(CirclePhysicsBody const& body) = default;
+    
+    virtual void updateFrame();
     
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(PhysicsBody* body);
     
@@ -28,6 +30,8 @@ public:
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithRectangle(RectanglePhysicsBody* rectangle);
     
     virtual bool isPositionInside(sf::Vector2f const& position) const;
+    
+    virtual PhysicsBody* clone() const;
     
 private:
     float m_radius;
