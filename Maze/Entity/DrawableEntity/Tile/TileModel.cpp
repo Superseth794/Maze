@@ -9,12 +9,17 @@
 
 namespace mz {
 
-TileModel::TileModel(float width, float height, std::shared_ptr<sf::RenderTexture> && texture) :
+TileModel::TileModel(float width, float height, std::shared_ptr<sf::RenderTexture> && texture, PhysicsBody* physicsBody) :
 m_width(width),
 m_height(height),
-m_texture(std::move(texture))
+m_texture(std::move(texture)),
+m_physicsBody(physicsBody)
 {
-    
+}
+
+TileModel::~TileModel() {
+    if (m_physicsBody)
+        delete m_physicsBody;
 }
 
 }

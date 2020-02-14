@@ -21,7 +21,9 @@
 
 # include "Entity/DrawableEntity/Player.hpp"
 # include "Entity/DrawableEntity/Tile/Tile.hpp"
+
 # include "Physics/PhysicsWorld.hpp"
+# include "Physics/RectanglePhysicsBody.hpp"
 
 namespace mz {
 

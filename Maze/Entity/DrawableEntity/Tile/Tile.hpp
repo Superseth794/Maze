@@ -12,18 +12,23 @@
 
 # include "../DrawableEntity.hpp"
 # include "TileModel.hpp"
+# include "../../../Physics/PhysicsBody.hpp"
 
 namespace mz {
 
 class Tile : public DrawableEntity {
 public:
     Tile(float x, float y, std::shared_ptr<TileModel> model);
+    ~Tile();
     
     virtual void update(sf::Time timeElapsed);
     virtual std::shared_ptr<sf::RenderTexture> draw();
     
+    PhysicsBody* getPhysicsBody();
+    
 private:
     std::shared_ptr<TileModel> m_model;
+    PhysicsBody* m_physicsBody;
 };
 
 }

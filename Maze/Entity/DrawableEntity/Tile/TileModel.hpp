@@ -12,6 +12,8 @@
 
 # include <SFML/Graphics.hpp>
 
+# include "../../../Physics/PhysicsBody.hpp"
+
 namespace mz {
 
 class Tile;
@@ -20,11 +22,13 @@ class TileModel {
     friend Tile;
     
 public:
-    TileModel(float width, float height, std::shared_ptr<sf::RenderTexture> && texture);
+    TileModel(float width, float height, std::shared_ptr<sf::RenderTexture> && texture, PhysicsBody* physicsBody);
+    ~TileModel();
     
 private:
     float m_width;
     float m_height;
+    PhysicsBody* m_physicsBody;
     std::shared_ptr<sf::RenderTexture> m_texture;
 };
 

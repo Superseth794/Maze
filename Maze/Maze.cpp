@@ -43,6 +43,7 @@ void Maze::lauch() {
         if (show_fps) {
             std::cout << "fps: " << 1.f / m_gameClock.getElapsedTime().asSeconds() << "\n";
         }
+        std::cout << m_physicsWorld.getBodiesCount() << " bodies\n";
         
         // update
         update();
@@ -107,7 +108,6 @@ void Maze::generateMaze() {
         currentCell.visited = true;
         walls[currentCell.x + currentCell.y * (m_mazeWidth + 2)] = false;
         auto orientation {pickRandomOrientation(currentCell)};
-        std::cout << currentCell.x << " " << currentCell.y << " " << orientation.getName() << std::endl;
         if (orientation != Orientation::UNDEFINED) {
             walls[currentCell.x + orientation.toVector().x + (currentCell.y + orientation.toVector().y) * (m_mazeWidth + 2)] = false;
             cells[currentCell.x + orientation.toVector().x * 2 + (currentCell.y + orientation.toVector().y * 2) * (m_mazeWidth + 2)].visited = true;
@@ -121,18 +121,21 @@ void Maze::generateMaze() {
     filledWallTexture->create(m_wallWidth, m_wallHeight);
     filledWallTexture->clear(sf::Color::White);
     filledWallTexture->display();
+    auto filledPhysicsBody = new RectanglePhysicsBody(m_wallWidth, m_wallHeight, 0.f, sf::Vector2f{0.f, 0.f}, &m_physicsWorld);
     
     auto emptyWallTexture {std::make_shared<sf::RenderTexture>()};
     emptyWallTexture->create(m_wallWidth, m_wallHeight);
     emptyWallTexture->clear(sf::Color::Black);
     emptyWallTexture->display();
+    auto emptyPhysicsBody = nullptr;
     
-    auto filledWallModel {std::make_shared<TileModel>(m_wallWidth, m_wallHeight, std::move(filledWallTexture))};
-    auto emptyWallModel {std::make_shared<TileModel>(m_wallWidth, m_wallHeight, std::move(emptyWallTexture))};
+    auto filledWallModel {std::make_shared<TileModel>(m_wallWidth, m_wallHeight, std::move(filledWallTexture), filledPhysicsBody)};
+    auto emptyWallModel {std::make_shared<TileModel>(m_wallWidth, m_wallHeight, std::move(emptyWallTexture), emptyPhysicsBody)};
     
     for (int y = 0; y < m_mazeHeight + 2; ++y) {
         for (int x = 0; x < m_mazeWidth + 2; ++x) {
             m_tiles.push_back(std::make_unique<Tile>(x * m_wallWidth, y * m_wallHeight, (walls[x + y * (m_mazeWidth + 2)] ? filledWallModel : emptyWallModel)));
+            m_physicsWorld.addBody(m_tiles.back()->getPhysicsBody());
         }
     }
 }
