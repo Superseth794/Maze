@@ -23,6 +23,10 @@ m_frame(AABB{{0.f, 0.f}, 0.f, 0.f})
 {
 }
 
+AABB const& PhysicsBody::getFrame() const {
+    return m_frame;
+}
+
 PhysicsBody::~PhysicsBody() {
     if (m_parentWorld)
         m_parentWorld->removeBody(this);

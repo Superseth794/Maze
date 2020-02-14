@@ -20,7 +20,7 @@ m_secondCorner(secondCorner)
 }
 
 RectanglePhysicsBody::RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin, PhysicsWorld* parentWorld) :
-RectanglePhysicsBody(origin, sf::Vector2f{origin.x + std::cos(rotation) * width, origin.y + std::sin(rotation) * height}, parentWorld)
+RectanglePhysicsBody(origin, sf::Vector2f{origin.x + std::cos(rotation) * width + std::sin(rotation) * height, origin.y + std::cos(rotation) * height + std::sin(rotation) * width}, parentWorld)
 {
 }
 

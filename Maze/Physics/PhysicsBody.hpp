@@ -55,7 +55,7 @@ public:
     PhysicsBody(PhysicsBody const& body) = default;
     PhysicsBody& operator=(PhysicsBody const& body) = default;
     
-    AABB const& getFrame();
+    AABB const& getFrame() const;
     virtual void updateFrame() = 0;
     
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(PhysicsBody* body) = 0;
