@@ -13,6 +13,7 @@
 # include <SFML/Graphics.hpp>
 
 # include "PhysicsWorld.hpp"
+# include "AABB.hpp"
 
 namespace mz {
 
@@ -21,30 +22,6 @@ class PhysicsWorld;
 class SegmentPhysicsBody;
 class CirclePhysicsBody;
 class RectanglePhysicsBody;
-
-struct AABB {
-    sf::Vector2f origin;
-    float width;
-    float height;
-    
-    sf::Vector2f getTopLeftCorner() const {
-        return sf::Vector2f{origin.x, origin.y};
-    }
-    
-    sf::Vector2f getTopRightCorner() const {
-        return sf::Vector2f{origin.x + width, origin.y};
-    }
-    
-    sf::Vector2f getBottomRightCorner() const {
-        return sf::Vector2f{origin.x + width, origin.y + height};
-    }
-    
-    sf::Vector2f getBottomLeftCorner() const {
-        return sf::Vector2f{origin.x, origin.y + height};
-    }
-};
-
-bool isCollisionBetweenAABB(AABB const& b1, AABB const& b2);
 
 class PhysicsBody {
 public:
@@ -59,6 +36,8 @@ public:
     virtual void updateFrame() = 0;
     
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(PhysicsBody* body) = 0;
+    
+    virtual bool isInsideAABB(AABB const& box) const = 0;
     
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithSegment(SegmentPhysicsBody* segment) = 0;
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithCircle(CirclePhysicsBody* circle) = 0;

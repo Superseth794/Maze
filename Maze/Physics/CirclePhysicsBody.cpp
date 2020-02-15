@@ -28,6 +28,14 @@ std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWith(Physic
     return body->collideWithCircle(this);
 }
 
+bool CirclePhysicsBody::isInsideAABB(AABB const& box) const {
+    return (isPositionInsideAABB(box, getCenter()) &&
+            isPositionInsideAABB(box, sf::Vector2f{getCenter().x + m_radius, getCenter().y}) &&
+            isPositionInsideAABB(box, sf::Vector2f{getCenter().x, getCenter().y + m_radius}) &&
+            isPositionInsideAABB(box, sf::Vector2f{getCenter().x - m_radius, getCenter().y}) &&
+            isPositionInsideAABB(box, sf::Vector2f{getCenter().x, getCenter().y - m_radius}));
+}
+
 std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWithSegment(SegmentPhysicsBody* segment) {
     auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
     

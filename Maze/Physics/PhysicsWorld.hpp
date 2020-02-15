@@ -13,9 +13,11 @@
 # include <array>
 # include <vector>
 # include <tuple>
+# include <queue>
 
 # include <SFML/Graphics.hpp>
 
+# include "AABB.hpp"
 # include "PhysicsBody.hpp"
 
 namespace mz {
@@ -23,11 +25,16 @@ namespace mz {
 class PhysicsBody;
 
 struct Node {
-    sf::Vector2f origin;
-    sf::Vector2f size;
+    AABB box;
     std::array<std::unique_ptr<Node>, 4> childs;
     std::vector<PhysicsBody*> bodies;
+    
+    Node(AABB const& box) {
+        this->box = box;
+    };
 };
+
+bool isBodyInsideNode(PhysicsBody* body, Node* node);
 
 class PhysicsWorld {
     
@@ -35,6 +42,7 @@ class PhysicsWorld {
     
 public:
     PhysicsWorld(bool showPhysics);
+    void init(float width, float height);
     
     void addBody(PhysicsBody* body);
     void removeBody(PhysicsBody* body);
@@ -47,12 +55,18 @@ public:
     void simulate();
     
 private:
+    void addBody(PhysicsBody* body, Node* node);
+    
+private:
     Node m_root;
     int m_bodiesCount = 0;
     
     bool m_showPhysics = false;
     std::vector<Collision> m_debugCollisions;
     
+    static constexpr std::size_t MAX_BODIES_PER_NODE = 10;
+    
+    static const sf::Color DEBUG_QUADTREE_NODES_COLOR;
     static const sf::Color DEBUG_COLLISION_FILL_COLOR;
     static const sf::Color DEBUG_COLLISION_OUTLINE_COLOR;
 };

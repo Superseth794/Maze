@@ -9,13 +9,6 @@
 
 namespace mz {
 
-bool isCollisionBetweenAABB(AABB const& b1, AABB const& b2) {
-    return !(b1.origin.x > b2.getTopLeftCorner().x ||
-             b1.getBottomRightCorner().x < b2.origin.x ||
-             b1.origin.y > b2.getTopLeftCorner().y ||
-             b1.getTopRightCorner().y < b2.origin.y);
-}
-
 PhysicsBody::PhysicsBody(sf::Vector2f const& center, PhysicsWorld* parentWorld) :
 m_parentWorld(parentWorld),
 m_center(center),
@@ -39,10 +32,12 @@ sf::Vector2f const& PhysicsBody::getCenter() const {
 void PhysicsBody::move(sf::Vector2f const& delta) {
     m_center.x += delta.x;
     m_center.y += delta.y;
+    updateFrame();
 }
 
 void PhysicsBody::setCenter(sf::Vector2f const& center) {
     m_center = center;
+    updateFrame();
 }
 
 PhysicsWorld* PhysicsBody::getParentWorld() const {

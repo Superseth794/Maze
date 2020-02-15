@@ -13,19 +13,23 @@
 # include "PhysicsBody.hpp"
 # include "CirclePhysicsBody.hpp"
 # include "SegmentPhysicsBody.hpp"
+# include "AABB.hpp"
+# include "../Utils/ExtraMaths.hpp"
 
 namespace mz {
 
 class RectanglePhysicsBody : public PhysicsBody {
 public:
-    RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, PhysicsWorld* parentWorld = nullptr);
     RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin, PhysicsWorld* parentWorld = nullptr);
+    RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, float rotation, PhysicsWorld* parentWorld = nullptr);
     
     RectanglePhysicsBody(RectanglePhysicsBody const& body) = default;
     
     virtual void updateFrame();
     
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(PhysicsBody* body);
+    
+    virtual bool isInsideAABB(AABB const& box) const;
     
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithSegment(SegmentPhysicsBody* segment);
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithCircle(CirclePhysicsBody* circle);
@@ -44,8 +48,9 @@ protected:
     virtual void generateDebugTexture();
     
 private:
-    sf::Vector2f m_firstCorner;
-    sf::Vector2f m_secondCorner;
+    float m_width;
+    float m_heigth;
+    float m_rotation;
 };
 
 }

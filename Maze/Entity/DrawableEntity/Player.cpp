@@ -22,11 +22,6 @@ m_physicsBody(width / 2.f, sf::Vector2f{width / 2.f, width / 2.f}, parentWorld)
     m_texture->clear(sf::Color::Transparent);
     m_texture->draw(m_bodyShape);
     
-    sf::RectangleShape physicsBodyShape {sf::Vector2f{m_physicsBody.getFrame().width, m_physicsBody.getFrame().height}};
-    physicsBodyShape.setFillColor(sf::Color(101, 184, 127, 125));
-    physicsBodyShape.setPosition(0.f, 0.f);
-//    m_texture->draw(physicsBodyShape);
-    
     m_texture->display();
 }
 

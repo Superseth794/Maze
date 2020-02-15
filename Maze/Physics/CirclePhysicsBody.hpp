@@ -12,6 +12,7 @@
 # include "RectanglePhysicsBody.hpp"
 # include "SegmentPhysicsBody.hpp"
 # include "../Utils/ExtraMaths.hpp"
+# include "AABB.hpp"
 
 namespace mz {
 
@@ -24,6 +25,8 @@ public:
     virtual void updateFrame();
     
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(PhysicsBody* body);
+    
+    virtual bool isInsideAABB(AABB const& box) const;
     
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithSegment(SegmentPhysicsBody* segment);
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithCircle(CirclePhysicsBody* circle);

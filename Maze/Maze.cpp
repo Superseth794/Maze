@@ -60,9 +60,13 @@ void Maze::lauch() {
 }
 
 void Maze::init() {
+    m_physicsWorld.init((m_mazeWidth + 2) * m_wallWidth, (m_mazeHeight + 2) * m_wallHeight);
+    
     generateMaze();
     
     m_player.move(sf::Vector2f{m_wallWidth * 1.5f, m_wallHeight * 1.5f});
+    m_physicsWorld.addBody(m_player.getPhysicsBody());
+    m_physicsWorld.removeBody(m_player.getPhysicsBody());
     m_physicsWorld.addBody(m_player.getPhysicsBody());
 }
 

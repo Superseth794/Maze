@@ -34,6 +34,11 @@ std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(Physi
     return body->collideWithSegment(this);
 }
 
+bool SegmentPhysicsBody::isInsideAABB(AABB const& box) const {
+    return (isPositionInsideAABB(box, m_startPos) &&
+            isPositionInsideAABB(box, m_endPos));
+}
+
 std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWithSegment(SegmentPhysicsBody* segment) {
     auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
     sf::Vector2f AO {segment->getStartPos().x - m_startPos.x, segment->getStartPos().y - m_startPos.y};
