@@ -63,10 +63,10 @@ private:
     
     sf::Vector2f m_cameraPosition;
     
+    PhysicsWorld m_physicsWorld;
+    
     Player m_player;
     std::vector<std::unique_ptr<Tile>> m_tiles;
-    
-    PhysicsWorld m_physicsWorld;
 };
 
 

@@ -13,11 +13,12 @@ Maze::Maze(unsigned int width, unsigned int height) :
 m_width(width),
 m_height(height),
 m_window(sf::VideoMode(m_width, m_height), "Maze"),
-m_physicsWorld(true),
+m_physicsWorld(false, true),
 m_gameClock(),
-m_player(width / 50.f, &m_physicsWorld),
+m_player(width / 50.f, m_physicsWorld.generateBodyId(), &m_physicsWorld),
 m_cameraPosition(0.f, 0.f)
-{}
+{
+}
 
 void Maze::lauch() {
     constexpr bool show_fps = true;
@@ -66,8 +67,8 @@ void Maze::init() {
     
     m_player.move(sf::Vector2f{m_wallWidth * 1.5f, m_wallHeight * 1.5f});
     m_physicsWorld.addBody(m_player.getPhysicsBody());
-    m_physicsWorld.removeBody(m_player.getPhysicsBody());
-    m_physicsWorld.addBody(m_player.getPhysicsBody());
+    m_physicsWorld.addBodyDebugUpdateDispay(m_player.getPhysicsBody());
+//    m_physicsWorld.addBodyDebugAdditionDisplay(m_player.getPhysicsBody());
 }
 
 void Maze::generateMaze() {
@@ -152,7 +153,7 @@ void Maze::update() {
 }
 
 void Maze::updateCamera() {
-    constexpr float marging = 0.4f; // Marging not allowed
+    constexpr float marging = 0.4f;
     sf::Vector2f margingAllowed = {
         (1.f - marging) * m_width / 2.f,
         (1.f - marging) * m_height / 2.f

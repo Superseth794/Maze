@@ -21,7 +21,9 @@ public:
     SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& endPos, PhysicsWorld* parentWorld = nullptr);
     SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& direction, float length, PhysicsWorld* parentWorld = nullptr);
     
-    SegmentPhysicsBody(SegmentPhysicsBody const& body) = default;
+    SegmentPhysicsBody(SegmentPhysicsBody const& body);
+    
+    virtual ~SegmentPhysicsBody();
     
     virtual void updateFrame();
     

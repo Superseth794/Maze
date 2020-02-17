@@ -9,18 +9,27 @@
 
 namespace mz {
 
-bool isBodyInsideNode(PhysicsBody* body, Node* node) {
+bool isBodyInsideNode(PhysicsBody* body, QuadtreeNode* node) {
     return body->isInsideAABB(node->box);
 }
 
-PhysicsWorld::PhysicsWorld(bool showPhysics) :
+PhysicsWorld::PhysicsWorld(bool showPhysics, bool showQuadtree) :
 m_root({AABB{sf::Vector2f{0.f, 0.f}, 0.f, 0.f}}),
-m_showPhysics(showPhysics)
+m_showPhysics(showPhysics),
+m_showQuadtree(showQuadtree)
 {
 }
 
+PhysicsWorld::~PhysicsWorld() {
+    int bodiesLeft = getBodiesCount();
+    if (bodiesLeft > 0)
+        std::cout << "\nError: " << bodiesLeft << " bodie" << (bodiesLeft > 1 ? "s" : "") << " not removed from physics world" << std::endl;
+    else
+        std::cout << "\nSuccessfully removed all physics bodies from physics world" << std::endl;
+}
+
 void PhysicsWorld::init(float width, float height) {
-    m_root = Node{AABB{sf::Vector2f{0.f, 0.f}, width, height}};
+    m_root = QuadtreeNode{AABB{sf::Vector2f{0.f, 0.f}, width, height}};
 }
 
 void PhysicsWorld::addBody(PhysicsBody* body) {
@@ -31,34 +40,57 @@ void PhysicsWorld::addBody(PhysicsBody* body) {
 }
 
 void PhysicsWorld::removeBody(PhysicsBody* body) {
-    Node* currentNode = &m_root;
+    auto found {findBody(body, body->getParentNode())};
     
-    while (currentNode) {
-        for (int bodyId = 0; bodyId < currentNode->bodies.size(); ++bodyId) {
-            if (currentNode->bodies[bodyId] == body) {
-                currentNode->bodies.erase(currentNode->bodies.begin() + bodyId);
-                std::cout << "Successfully removed physicsBody\n";
-                return;
-            }
-        }
-        
-        if (!currentNode->childs[0].get())
-            break;
-        
-        bool childFound = false;
-        for (int childId = 0; childId < 4; ++childId) {
-            if (isBodyInsideNode(body, currentNode->childs[childId].get())) {
-                currentNode = currentNode->childs[childId].get();
-                childFound = true;
-                break;
-            }
-        }
-        
-        if (!childFound)
-            break;
+    if (!std::get<0>(found)) {
+        std::cout << "Could not find body " << body->getId() << " to erase\n";
+    } else {
+        QuadtreeNode* parent = std::get<0>(std::get<1>(found));
+        parent->bodies.erase(parent->bodies.begin() + std::get<1>(std::get<1>(found)));
+        --m_bodiesCount;
+        std::cout << "Successufully removed body " << body->getId() << " \n";
+    }
+}
+
+void PhysicsWorld::updateBody(PhysicsBody* body) {
+    auto found {findBody(body, body->getParentNode())};
+    
+    if (!std::get<0>(found)) {
+        std::cout << "Body " << body->getId() << " not found for update\n";
+        return;
     }
     
-    std::cout << "Could not find body to erase\n";
+    QuadtreeNode* currentNode = std::get<0>(std::get<1>(found));
+    currentNode->bodies.erase(currentNode->bodies.begin() + std::get<1>(std::get<1>(found)));
+    
+    // Updates body debug node if needed
+    for (auto& debugPair : m_debugBodiesUpdateDisplay) {
+        if (*debugPair.first == *body)
+            debugPair.second = currentNode;
+    }
+    
+    if (body->isInsideAABB(currentNode->box)) {
+        addBody(body, currentNode);
+    } else {
+        addBody(body, currentNode->parent);
+    }
+}
+
+void PhysicsWorld::addBodyDebugAdditionDisplay(PhysicsBody* body) {
+    if (!body || !m_showQuadtree)
+        return;
+    m_debugBodiesAdditionDisplay.push_back(body);
+}
+
+void PhysicsWorld::addBodyDebugUpdateDispay(PhysicsBody* body) {
+    if (!body || !m_showQuadtree)
+        return;
+    m_debugBodiesUpdateDisplay.push_back({body, nullptr});
+}
+
+std::uint64_t PhysicsWorld::generateBodyId() {
+    std::cerr << "Body id generated: " << m_currentBodyId << "\n";
+    return m_currentBodyId++;
 }
 
 std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollision(PhysicsBody* body, sf::Vector2f const& anchor) {
@@ -89,11 +121,11 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
     texture->create(width, height);
     texture->clear(sf::Color::Transparent);
     
-    if (!m_showPhysics) {
+    if (!m_showPhysics && !m_showQuadtree) {
         return texture;
     }
     
-    // lambda to show physics bodies
+    // lambda to draw physics bodies
     auto drawBody = [&width, &height, &anchor, &texture] (PhysicsBody* body) -> sf::Sprite {
         auto bodyTexture {body->getDebugTexture()};
         
@@ -109,27 +141,48 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
     };
     
     // Shows Quadtree
-    std::queue<Node*> toDrawNodes;
+    std::queue<QuadtreeNode*> toDrawNodes;
     std::vector<sf::Sprite> toDrawBodiesSprites;
     toDrawNodes.push(&m_root);
     while (!toDrawNodes.empty()) {
-        Node* currentNode = toDrawNodes.front();
+        QuadtreeNode* currentNode = toDrawNodes.front();
         toDrawNodes.pop();
         
         sf::Vector2f shapePosition {
             currentNode->box.origin.x - anchor.x + width / 2.f,
             currentNode->box.origin.y - anchor.y + height / 2.f
         };
-
-        sf::RectangleShape nodeShape {sf::Vector2f{currentNode->box.width, currentNode->box.height}};
-        nodeShape.setPosition(shapePosition);
-        nodeShape.setFillColor(DEBUG_QUADTREE_NODES_COLOR);
-        nodeShape.setOutlineColor(sf::Color::Black);
-        nodeShape.setOutlineThickness(3.f);
-        texture->draw(nodeShape);
         
-        for (auto& body : currentNode->bodies) {
-            toDrawBodiesSprites.emplace_back(drawBody(body));
+        if (m_showQuadtree) {
+            sf::RectangleShape nodeShape {sf::Vector2f{currentNode->box.width, currentNode->box.height}};
+            nodeShape.setPosition(shapePosition);
+            nodeShape.setFillColor(DEBUG_QUADTREE_NODES_COLOR);
+            nodeShape.setOutlineColor(sf::Color::Black);
+            
+            // Displays node as debug node where body update happened
+            for (auto const& debugUpdateStruct : m_debugBodiesUpdateDisplay) {
+                if (debugUpdateStruct.second && *debugUpdateStruct.second == *currentNode) {
+                    nodeShape.setFillColor(DEBUG_QUADTREE_UPDATE_COLOR);
+                    break;
+                }
+            }
+            
+            // Displays node as debug node where body addition happened
+            for (auto const& debugBody : m_debugBodiesAdditionDisplay) {
+                if (*debugBody->getParentNode() == *currentNode) {
+                    nodeShape.setFillColor(DEBUG_QUADTREE_ADDITION_COLOR);
+                    break;
+                }
+            }
+            
+            nodeShape.setOutlineThickness(3.f);
+            texture->draw(nodeShape);
+        }
+        
+        if (m_showPhysics) {
+            for (auto& body : currentNode->bodies) {
+                toDrawBodiesSprites.emplace_back(drawBody(body));
+            }
         }
 
         if (currentNode->childs[0].get()) {
@@ -144,17 +197,19 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
     }
     
     // Shows collisisons
-    for (auto& collision : m_debugCollisions) {
-        for (auto& collisionPosition : *std::get<1>(collision)) {
-            sf::Vector2f debugSpritePosition {
-                collisionPosition.x - 10.f - anchor.x + width / 2.f,
-                collisionPosition.y - 10.f - anchor.y + height / 2.f
-            };
-            sf::CircleShape debugCollisionSprite {10.f};
-            debugCollisionSprite.setFillColor(DEBUG_COLLISION_FILL_COLOR);
-            debugCollisionSprite.setOutlineColor(DEBUG_COLLISION_OUTLINE_COLOR);
-            debugCollisionSprite.setPosition(debugSpritePosition);
-            texture->draw(debugCollisionSprite);
+    if (m_showPhysics) {
+        for (auto& collision : m_debugCollisions) {
+            for (auto& collisionPosition : *std::get<1>(collision)) {
+                sf::Vector2f debugSpritePosition {
+                    collisionPosition.x - 10.f - anchor.x + width / 2.f,
+                    collisionPosition.y - 10.f - anchor.y + height / 2.f
+                };
+                sf::CircleShape debugCollisionSprite {10.f};
+                debugCollisionSprite.setFillColor(DEBUG_COLLISION_FILL_COLOR);
+                debugCollisionSprite.setOutlineColor(DEBUG_COLLISION_OUTLINE_COLOR);
+                debugCollisionSprite.setPosition(debugSpritePosition);
+                texture->draw(debugCollisionSprite);
+            }
         }
     }
     
@@ -176,7 +231,10 @@ void PhysicsWorld::simulate() {
     }
 }
 
-void PhysicsWorld::addBody(PhysicsBody* body, Node* node) {
+void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
+    if (!node)
+        return;
+    
     if (node->childs[0].get()) {
         for (int childId = 0; childId < 4; ++childId) {
             if (isBodyInsideNode(body, node->childs[childId].get())){
@@ -188,23 +246,24 @@ void PhysicsWorld::addBody(PhysicsBody* body, Node* node) {
     
     if (node->bodies.size() < MAX_BODIES_PER_NODE || node->childs[0].get()) {
         node->bodies.emplace_back(body);
+        body->setParentNode(node);
         return;
     }
     
     const float subNodeWidth = node->box.width / 2.f;
     const float subNodeHeigth = node->box.height / 2.f;
     
-    node->childs[0] = std::make_unique<Node>(
-            AABB{node->box.origin, subNodeWidth, subNodeHeigth}
+    node->childs[0] = std::make_unique<QuadtreeNode>(
+            AABB{node->box.origin, subNodeWidth, subNodeHeigth}, node->depth + 1, node
     );
-    node->childs[1] = std::make_unique<Node>(
-            AABB{sf::Vector2f{node->box.origin.x + subNodeWidth, node->box.origin.y}, subNodeWidth, subNodeHeigth}
+    node->childs[1] = std::make_unique<QuadtreeNode>(
+            AABB{sf::Vector2f{node->box.origin.x + subNodeWidth, node->box.origin.y}, subNodeWidth, subNodeHeigth}, node->depth + 1, node
     );
-    node->childs[2] = std::make_unique<Node>(
-            AABB{sf::Vector2f{node->box.origin.x, node->box.origin.y + subNodeHeigth}, subNodeWidth, subNodeHeigth}
+    node->childs[2] = std::make_unique<QuadtreeNode>(
+            AABB{sf::Vector2f{node->box.origin.x, node->box.origin.y + subNodeHeigth}, subNodeWidth, subNodeHeigth}, node->depth + 1, node
     );
-    node->childs[3] = std::make_unique<Node>(
-            AABB{sf::Vector2f{node->box.origin.x + subNodeWidth, node->box.origin.y + subNodeHeigth}, subNodeWidth, subNodeHeigth}
+    node->childs[3] = std::make_unique<QuadtreeNode>(
+            AABB{sf::Vector2f{node->box.origin.x + subNodeWidth, node->box.origin.y + subNodeHeigth}, subNodeWidth, subNodeHeigth}, node->depth + 1, node
     );
     
     std::vector<PhysicsBody*> bodies;
@@ -215,8 +274,37 @@ void PhysicsWorld::addBody(PhysicsBody* body, Node* node) {
     }
 }
 
+std::tuple<bool, PhysicsWorld::QuadtreeLocation> PhysicsWorld::findBody(PhysicsBody* body, QuadtreeNode* rootNode) {
+    QuadtreeNode* currentNode = rootNode;
+    bool nextNodeFound = true;
+    
+    while (currentNode && nextNodeFound) {
+        for (int i = 0; i < currentNode->bodies.size(); ++i) {
+            if (*body == *currentNode->bodies[i]) {
+                return std::make_tuple(true, std::make_tuple(currentNode, i));
+            }
+        }
+        
+        if (!(currentNode->childs[0].get()))
+            break;
+        
+        nextNodeFound = false;
+        for (int i = 0; i < 4; ++i) {
+            if (body->isInsideAABB(currentNode->childs[i]->box)) {
+                currentNode = currentNode->childs[i].get();
+                nextNodeFound = true;
+                break;
+            }
+        }
+    }
+    return std::make_tuple(false, std::make_tuple(nullptr, 0));
+}
+
 const sf::Color PhysicsWorld::DEBUG_COLLISION_FILL_COLOR = sf::Color{255, 0, 0, 200};
 const sf::Color PhysicsWorld::DEBUG_COLLISION_OUTLINE_COLOR = sf::Color{255, 145, 130};
 const sf::Color PhysicsWorld::DEBUG_QUADTREE_NODES_COLOR = sf::Color{255, 140, 255, 75};
+
+const sf::Color PhysicsWorld::DEBUG_QUADTREE_ADDITION_COLOR = sf::Color(255, 0, 0, 200);
+const sf::Color PhysicsWorld::DEBUG_QUADTREE_UPDATE_COLOR = sf::Color(255, 255, 0, 200);
 
 }

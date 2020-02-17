@@ -9,7 +9,7 @@
 
 namespace mz {
 
-Player::Player(float width, PhysicsWorld* parentWorld) :
+Player::Player(float width, std::uint64_t bodyId, PhysicsWorld* parentWorld) :
 m_width(width),
 m_bodyShape(m_width / 2.f),
 m_texture(std::make_shared<sf::RenderTexture>()),
@@ -34,6 +34,7 @@ void Player::update(sf::Time timeElapsed) {
         });
     }
     m_physicsBody.setCenter(sf::Vector2f{getPosition().x + m_width / 2.f, getPosition().y + m_width / 2.f});
+    m_physicsBody.updateInWorld();
 }
 
 std::shared_ptr<sf::RenderTexture> Player::draw() {

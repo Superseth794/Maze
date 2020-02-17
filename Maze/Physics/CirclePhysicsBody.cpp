@@ -18,6 +18,17 @@ m_radius(radius)
     m_frame.width = 2 * m_radius;
 }
 
+CirclePhysicsBody::CirclePhysicsBody(CirclePhysicsBody const& body) :
+PhysicsBody(body),
+m_radius(body.m_radius)
+{    
+}
+
+CirclePhysicsBody::~CirclePhysicsBody() {
+    if (getParentWorld())
+        getParentWorld()->removeBody(this);
+}
+
 void CirclePhysicsBody::updateFrame() {
     sf::Vector2f boxOrigin {getCenter().x - m_radius, getCenter().y - m_radius};
     if (boxOrigin != m_frame.origin)

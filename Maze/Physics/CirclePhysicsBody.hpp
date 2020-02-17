@@ -20,7 +20,9 @@ class CirclePhysicsBody : public PhysicsBody {
 public:
     CirclePhysicsBody(float radius, sf::Vector2f const& center, PhysicsWorld* parentWorld = nullptr);
     
-    CirclePhysicsBody(CirclePhysicsBody const& body) = default;
+    CirclePhysicsBody(CirclePhysicsBody const& body);
+    
+    virtual ~CirclePhysicsBody();
     
     virtual void updateFrame();
     

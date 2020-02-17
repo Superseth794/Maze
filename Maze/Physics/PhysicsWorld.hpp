@@ -14,6 +14,7 @@
 # include <vector>
 # include <tuple>
 # include <queue>
+# include <utility>
 
 # include <SFML/Graphics.hpp>
 
@@ -24,28 +25,45 @@ namespace mz {
 
 class PhysicsBody;
 
-struct Node {
+struct QuadtreeNode {
     AABB box;
-    std::array<std::unique_ptr<Node>, 4> childs;
+    std::array<std::unique_ptr<QuadtreeNode>, 4> childs;
     std::vector<PhysicsBody*> bodies;
+    QuadtreeNode* parent;
+    int depth;
     
-    Node(AABB const& box) {
+    QuadtreeNode(AABB const& box, int depth = 0, QuadtreeNode* parent = nullptr) {
         this->box = box;
+        this->depth = depth;
+        this->parent = parent;
     };
+    
+    bool operator==(QuadtreeNode const& node) const {
+        return (box.origin == node.box.origin && depth == node.depth);
+    }
 };
 
-bool isBodyInsideNode(PhysicsBody* body, Node* node);
+bool isBodyInsideNode(PhysicsBody* body, QuadtreeNode* node);
 
 class PhysicsWorld {
     
     using Collision = std::tuple<PhysicsBody*, std::unique_ptr<std::vector<sf::Vector2f>>>;
+    using QuadtreeLocation = std::pair<QuadtreeNode*, std::size_t>;
     
 public:
-    PhysicsWorld(bool showPhysics);
+    PhysicsWorld(bool showPhysics, bool showQuadtree);
+    ~PhysicsWorld();
+    
     void init(float width, float height);
     
     void addBody(PhysicsBody* body);
     void removeBody(PhysicsBody* body);
+    void updateBody(PhysicsBody* body);
+    
+    void addBodyDebugAdditionDisplay(PhysicsBody* body);
+    void addBodyDebugUpdateDispay(PhysicsBody* body);
+    
+    std::uint64_t generateBodyId();
     
     std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, sf::Vector2f const& anchor = sf::Vector2f{0.f, 0.f});
     
@@ -55,20 +73,30 @@ public:
     void simulate();
     
 private:
-    void addBody(PhysicsBody* body, Node* node);
+    void addBody(PhysicsBody* body, QuadtreeNode* node);
+    std::tuple<bool, QuadtreeLocation> findBody(PhysicsBody* body, QuadtreeNode* rootNode);
     
 private:
-    Node m_root;
+    QuadtreeNode m_root;
     int m_bodiesCount = 0;
     
+    std::uint64_t m_currentBodyId = 1;
+    
     bool m_showPhysics = false;
+    bool m_showQuadtree = false;
     std::vector<Collision> m_debugCollisions;
+    std::vector<PhysicsBody*> m_debugBodiesAdditionDisplay;
+    std::vector<std::pair<PhysicsBody*, QuadtreeNode*>> m_debugBodiesUpdateDisplay;
     
     static constexpr std::size_t MAX_BODIES_PER_NODE = 10;
     
     static const sf::Color DEBUG_QUADTREE_NODES_COLOR;
     static const sf::Color DEBUG_COLLISION_FILL_COLOR;
     static const sf::Color DEBUG_COLLISION_OUTLINE_COLOR;
+    
+    static const sf::Color DEBUG_QUADTREE_ADDITION_COLOR;
+    static const sf::Color DEBUG_QUADTREE_UPDATE_COLOR;
+    
 };
 
 }

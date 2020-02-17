@@ -14,15 +14,43 @@ m_parentWorld(parentWorld),
 m_center(center),
 m_frame(AABB{{0.f, 0.f}, 0.f, 0.f})
 {
+    if (parentWorld)
+        m_id = parentWorld->generateBodyId();
+}
+
+bool PhysicsBody::operator==(PhysicsBody* body) const {
+    return m_id == body->m_id;
+}
+
+bool PhysicsBody::operator==(PhysicsBody const& body) const {
+    return m_id == body.m_id;
+}
+
+bool PhysicsBody::operator!=(PhysicsBody* body) const {
+    return m_id != body->m_id;
+}
+
+bool PhysicsBody::operator!=(PhysicsBody const& body) const {
+    return m_id != body.m_id;
+}
+
+PhysicsBody::PhysicsBody(PhysicsBody const& body) :
+m_frame(body.m_frame),
+m_center(body.m_center),
+m_parentWorld(body.m_parentWorld),
+m_debugTexture(body.m_debugTexture),
+m_debugTextureLoaded(body.m_debugTextureLoaded)
+{
+    if (m_parentWorld)
+        m_id = m_parentWorld->generateBodyId();
+}
+
+PhysicsBody::~PhysicsBody() {
+    m_parentWorld = nullptr;
 }
 
 AABB const& PhysicsBody::getFrame() const {
     return m_frame;
-}
-
-PhysicsBody::~PhysicsBody() {
-    if (m_parentWorld)
-        m_parentWorld->removeBody(this);
 }
 
 sf::Vector2f const& PhysicsBody::getCenter() const {
@@ -42,6 +70,24 @@ void PhysicsBody::setCenter(sf::Vector2f const& center) {
 
 PhysicsWorld* PhysicsBody::getParentWorld() const {
     return m_parentWorld;
+}
+
+std::uint64_t PhysicsBody::getId() const {
+    return m_id;
+}
+
+QuadtreeNode* PhysicsBody::getParentNode() {
+    return m_parentNode;
+}
+
+void PhysicsBody::setParentNode(QuadtreeNode* parentNode) {
+    assert(parentNode);
+    m_parentNode = parentNode;
+}
+
+void PhysicsBody::updateInWorld() {
+    if (m_parentWorld)
+        m_parentWorld->updateBody(this);
 }
 
 std::shared_ptr<sf::RenderTexture> const PhysicsBody::getDebugTexture() {

@@ -24,6 +24,18 @@ SegmentPhysicsBody(startPos, sf::Vector2f{startPos.x + normalize(direction).x * 
 {
 }
 
+SegmentPhysicsBody::SegmentPhysicsBody(SegmentPhysicsBody const& body) :
+PhysicsBody(body),
+m_startPos(body.m_startPos),
+m_endPos(body.m_endPos)
+{
+}
+
+SegmentPhysicsBody::~SegmentPhysicsBody() {
+    if (getParentWorld())
+        getParentWorld()->removeBody(this);
+}
+
 void SegmentPhysicsBody::updateFrame() {
     sf::Vector2f origin {std::min(m_startPos.x, m_endPos.x), std::min(m_startPos.y, m_endPos.y)};
     if (m_frame.origin != origin)

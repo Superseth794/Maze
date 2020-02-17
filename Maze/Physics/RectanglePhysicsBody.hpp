@@ -23,7 +23,9 @@ public:
     RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin, PhysicsWorld* parentWorld = nullptr);
     RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, float rotation, PhysicsWorld* parentWorld = nullptr);
     
-    RectanglePhysicsBody(RectanglePhysicsBody const& body) = default;
+    RectanglePhysicsBody(RectanglePhysicsBody const& body);
+    
+    virtual ~RectanglePhysicsBody();
     
     virtual void updateFrame();
     

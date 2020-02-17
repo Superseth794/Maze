@@ -10,7 +10,7 @@
 namespace mz {
 
 RectanglePhysicsBody::RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin, PhysicsWorld* parentWorld) :
-PhysicsBody(origin + sf::Vector2f{std::cos(rotation) * width + std::sin(rotation) * height, std::sin(rotation) * width - std::cos(rotation) * height} / 2.f),
+PhysicsBody(origin + sf::Vector2f{std::cos(rotation) * width + std::sin(rotation) * height, std::sin(rotation) * width - std::cos(rotation) * height} / 2.f, parentWorld),
 m_width(width),
 m_heigth(height),
 m_rotation(rotation)
@@ -33,6 +33,19 @@ m_rotation(rotation)
     m_frame.width = std::cos(rotation) * m_width + std::sin(rotation) * m_heigth;
     m_frame.height = std::sin(rotation) * m_width + std::cos(rotation) * m_heigth;
     RectanglePhysicsBody::updateFrame();
+}
+
+RectanglePhysicsBody::RectanglePhysicsBody(RectanglePhysicsBody const& body) :
+PhysicsBody(body),
+m_width(body.m_width),
+m_heigth(body.m_heigth),
+m_rotation(body.m_rotation)
+{
+}
+
+RectanglePhysicsBody::~RectanglePhysicsBody() {
+    if (getParentWorld())
+        getParentWorld()->removeBody(this);
 }
 
 void RectanglePhysicsBody::updateFrame() {

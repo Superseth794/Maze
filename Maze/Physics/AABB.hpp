@@ -17,6 +17,10 @@ struct AABB {
     float width;
     float height;
     
+    bool operator==(AABB const& box) {
+        return (origin == box.origin && width == box.width && height == box.height);
+    }
+    
     sf::Vector2f getTopLeftCorner() const {
         return sf::Vector2f{origin.x, origin.y};
     }

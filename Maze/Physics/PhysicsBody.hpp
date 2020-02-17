@@ -23,13 +23,21 @@ class SegmentPhysicsBody;
 class CirclePhysicsBody;
 class RectanglePhysicsBody;
 
+struct QuadtreeNode;
+
 class PhysicsBody {
 public:
     PhysicsBody(sf::Vector2f const& center = sf::Vector2f{0.f, 0.f}, PhysicsWorld* parentWorld = nullptr);
     PhysicsBody(PhysicsBody && body) = default;
-    virtual ~PhysicsBody();
     
-    PhysicsBody(PhysicsBody const& body) = default;
+    virtual ~PhysicsBody() = 0;
+    
+    bool operator==(PhysicsBody* body) const;
+    bool operator==(PhysicsBody const& body) const;
+    bool operator!=(PhysicsBody* body) const;
+    bool operator!=(PhysicsBody const& body) const;
+    
+    PhysicsBody(PhysicsBody const& body);
     PhysicsBody& operator=(PhysicsBody const& body) = default;
     
     AABB const& getFrame() const;
@@ -52,6 +60,11 @@ public:
     void setCenter(sf::Vector2f const& center);
     
     PhysicsWorld* getParentWorld() const;
+    void updateInWorld();
+    std::uint64_t getId() const;
+    
+    QuadtreeNode* getParentNode();
+    void setParentNode(QuadtreeNode* parentNode);
     
     std::shared_ptr<sf::RenderTexture> const getDebugTexture();
     
@@ -68,8 +81,11 @@ protected:
     static const sf::Color DEBUG_PHYSICS_OUTLINE_COLOR;
     
 private:
+    std::uint64_t m_id = 0;
     sf::Vector2f m_center;
+    
     PhysicsWorld* m_parentWorld;
+    QuadtreeNode* m_parentNode = nullptr;
 };
 
 
