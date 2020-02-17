@@ -9,7 +9,7 @@
 
 namespace mz {
 
-Player::Player(float width, std::uint64_t bodyId, PhysicsWorld* parentWorld) :
+Player::Player(float width, PhysicsWorld* parentWorld) :
 m_width(width),
 m_bodyShape(m_width / 2.f),
 m_texture(std::make_shared<sf::RenderTexture>()),
