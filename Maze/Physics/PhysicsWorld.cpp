@@ -69,11 +69,7 @@ void PhysicsWorld::updateBody(PhysicsBody* body) {
             debugPair.second = currentNode;
     }
     
-    if (body->isInsideAABB(currentNode->box)) {
-        addBody(body, currentNode);
-    } else {
-        addBody(body, currentNode->parent);
-    }
+    addBody(body, currentNode);
 }
 
 void PhysicsWorld::addBodyDebugAdditionDisplay(PhysicsBody* body) {
@@ -96,16 +92,7 @@ std::uint64_t PhysicsWorld::generateBodyId() {
 std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollision(PhysicsBody* body, sf::Vector2f const& anchor) {
     body->move(anchor);
     
-    auto collisions {std::make_unique<std::vector<Collision>>()};
-    
-    for (auto bodyB : m_root.bodies) {
-        if (body == bodyB)
-            continue;
-        auto intersections {bodyB->collideWith(body)};
-        if (intersections->size() == 0)
-            continue;
-        collisions->push_back({bodyB, std::move(intersections)});
-    }
+    auto collisions {checkCollision(body, std::get<0>(std::get<1>(findBody(body, body->getParentNode()))))};
     
     body->move(sf::Vector2f{-anchor.x, -anchor.y});
     
@@ -185,7 +172,7 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
             }
         }
 
-        if (currentNode->childs[0].get()) {
+        if (currentNode->hasChildren()) {
             for (int childId = 0; childId < 4; ++childId)
                 toDrawNodes.push(currentNode->childs[childId].get());
         }
@@ -210,6 +197,7 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
                 debugCollisionSprite.setPosition(debugSpritePosition);
                 texture->draw(debugCollisionSprite);
             }
+            std::get<0>(collision)->setCollisionTriggered(false);
         }
     }
     
@@ -219,23 +207,44 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
 }
 
 void PhysicsWorld::simulate() {
-    if (!m_showPhysics || true)
+    if (!m_showPhysics)
         return;
     
     m_debugCollisions.clear();
+    
     for (auto& body : m_root.bodies) {
-        auto collisions {checkCollision(body)};
+        QuadtreeNode* bodyParent = std::get<0>(std::get<1>(findBody(body, body->getParentNode())));
+        
+        if (!bodyParent)
+            continue;
+        
+        auto collisions {checkCollision(body, bodyParent)};
         for (int i = 0; i < collisions->size(); ++i) {
             m_debugCollisions.emplace_back(std::move((*collisions)[i]));
         }
     }
+    
+    std::cout << m_debugCollisions.size() << " collisions found !\n";
 }
 
 void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
     if (!node)
         return;
     
-    if (node->childs[0].get()) {
+    // Adds body to parent node
+    if (!body->isInsideAABB(node->box)) {
+        if (!node->parent) {
+            addParent(node, body->getCenter());
+            addBody(body, node);
+            
+        } else {
+            addBody(body, node->parent);
+        }
+        return;
+    }
+    
+    // Adds body to child node
+    if (node->hasChildren()) {
         for (int childId = 0; childId < 4; ++childId) {
             if (isBodyInsideNode(body, node->childs[childId].get())){
                 addBody(body, node->childs[childId].get());
@@ -244,15 +253,22 @@ void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
         }
     }
     
-    if (node->bodies.size() < MAX_BODIES_PER_NODE || node->childs[0].get()) {
+    // Adds body to current node
+    if (node->bodies.size() < MAX_BODIES_PER_NODE || node->hasChildren()) {
         node->bodies.emplace_back(body);
         body->setParentNode(node);
         return;
     }
     
+    // Adds children if needed
+    addChildrens(node);
+    addBody(body, node);
+}
+
+void PhysicsWorld::addChildrens(QuadtreeNode* node) {
     const float subNodeWidth = node->box.width / 2.f;
     const float subNodeHeigth = node->box.height / 2.f;
-    
+
     node->childs[0] = std::make_unique<QuadtreeNode>(
             AABB{node->box.origin, subNodeWidth, subNodeHeigth}, node->depth + 1, node
     );
@@ -268,10 +284,110 @@ void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
     
     std::vector<PhysicsBody*> bodies;
     std::swap(bodies, node->bodies);
-    bodies.emplace_back(body);
     for (int bodyId = 0; bodyId < bodies.size(); ++bodyId) {
         addBody(bodies[bodyId], node);
     }
+}
+
+void PhysicsWorld::addParent(QuadtreeNode* node, sf::Vector2f const& bodyPosition) {
+    float width = node->box.width;
+    float height = node->box.height;
+    
+    float extendedWidth = width * 2.f;
+    float extendedHeight = height * 2.f;
+    
+    sf::Vector2f originDirection {
+        (bodyPosition.x < node->box.origin.x + node->box.width / 2.f ? -1.f : 0.f),
+        (bodyPosition.y < node->box.origin.y + node->box.height / 2.f ? -1.f : 0.f)
+    };
+    
+    QuadtreeNode newRoot {AABB{sf::Vector2f{
+        width * originDirection.x + node->box.origin.x,
+        height * originDirection.y + node->box.origin.y
+    }, extendedWidth, extendedHeight}, 0};
+    
+    for (int dy = 0; dy < 2; ++dy) {
+        for (int dx = 0; dx < 2; ++dx) {
+            sf::Vector2f subAnchor {
+                (originDirection.x + dx) * width + node->box.origin.x,
+                (originDirection.y + dy) * height + node->box.origin.y
+            };
+            
+            if (subAnchor == node->box.origin) {
+                auto newNode {std::make_unique<QuadtreeNode>(AABB{subAnchor, width, height}, 1, node)}; // prevents errors from newRoot move
+                newNode->bodies = std::move(node->bodies);
+                newNode->childs = std::move(node->childs);
+                
+                if (newNode->hasChildren()) {
+                    for (auto& child : newNode->childs) {
+                        child->parent = newNode.get();
+                    }
+                }
+                
+                for (auto& body : newNode->bodies) {
+                    body->setParentNode(newNode.get());
+                }
+                
+                std::stack<QuadtreeNode*> toIncreaseDepthNode;
+                toIncreaseDepthNode.push(newNode.get());
+                while (!toIncreaseDepthNode.empty()) {
+                    auto n = toIncreaseDepthNode.top();
+                    toIncreaseDepthNode.pop();
+                    if (n->hasChildren()) {
+                        for (int i = 0; i < 4; ++i) {
+                            ++n->childs[i].get()->depth;
+                            toIncreaseDepthNode.push(n->childs[i].get());
+                        }
+                    }
+                }
+                
+                newRoot.childs[dx + dy * 2] = std::move(newNode);
+            } else {
+                newRoot.childs[dx + dy * 2] = std::make_unique<QuadtreeNode>(AABB{subAnchor, width, height}, 1, node); // prevents errors from newRoot move
+            }
+        }
+    }
+    
+    *node = std::move(newRoot);
+}
+
+std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollision(PhysicsBody* body, QuadtreeNode* node, bool recursiveSearch) {
+    auto collisions {std::make_unique<std::vector<Collision>>()};
+    
+    if (!node)
+        return collisions;
+    
+    // Computes collisions inside current node
+    for (auto bodyB : node->bodies) {
+        if (*body == *bodyB)
+            continue;
+        auto intersections {bodyB->collideWith(body)};
+        if (intersections->size() == 0)
+            continue;
+        bodyB->setCollisionTriggered(true);
+        collisions->push_back({bodyB, std::move(intersections)});
+    }
+    
+    if (!recursiveSearch)
+        return collisions;
+    
+    // Computes collisions inside child nodes
+    if (node->hasChildren()) {
+        for (int childId = 0; childId < 4; ++childId) {
+            QuadtreeNode* childNode = node->childs[childId].get();
+            
+            // Prevents search when collision is impossible
+            if (!body->isInsideAABB(childNode->box))
+                continue;
+            
+            auto newCollisions {checkCollision(body, node->childs[childId].get())};
+            for (int collisionId = 0; collisionId < newCollisions->size(); ++collisionId) {
+                collisions->emplace_back(std::move((*newCollisions)[collisionId]));
+            }
+        }
+    }
+    
+    return collisions;
 }
 
 std::tuple<bool, PhysicsWorld::QuadtreeLocation> PhysicsWorld::findBody(PhysicsBody* body, QuadtreeNode* rootNode) {
@@ -285,7 +401,7 @@ std::tuple<bool, PhysicsWorld::QuadtreeLocation> PhysicsWorld::findBody(PhysicsB
             }
         }
         
-        if (!(currentNode->childs[0].get()))
+        if (!(currentNode->hasChildren()))
             break;
         
         nextNodeFound = false;

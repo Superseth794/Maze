@@ -14,6 +14,7 @@
 # include <vector>
 # include <tuple>
 # include <queue>
+# include <stack>
 # include <utility>
 
 # include <SFML/Graphics.hpp>
@@ -27,6 +28,7 @@ class PhysicsBody;
 
 struct QuadtreeNode {
     AABB box;
+    
     std::array<std::unique_ptr<QuadtreeNode>, 4> childs;
     std::vector<PhysicsBody*> bodies;
     QuadtreeNode* parent;
@@ -37,6 +39,10 @@ struct QuadtreeNode {
         this->depth = depth;
         this->parent = parent;
     };
+    
+    bool hasChildren() {
+        return (childs[0].get());
+    }
     
     bool operator==(QuadtreeNode const& node) const {
         return (box.origin == node.box.origin && depth == node.depth);
@@ -64,16 +70,22 @@ public:
     void addBodyDebugUpdateDispay(PhysicsBody* body);
     
     std::uint64_t generateBodyId();
+    int getBodiesCount();
     
     std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, sf::Vector2f const& anchor = sf::Vector2f{0.f, 0.f});
     
-    int getBodiesCount();
     std::unique_ptr<sf::RenderTexture> getPhysicsDebugTexture(float width, float height, sf::Vector2f const& anchor);
     
     void simulate();
     
 private:
     void addBody(PhysicsBody* body, QuadtreeNode* node);
+    
+    void addChildrens(QuadtreeNode* node);
+    void addParent(QuadtreeNode* node, sf::Vector2f const& bodyPosition);
+    
+    std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, QuadtreeNode* node, bool recursiveSearch = true);
+    
     std::tuple<bool, QuadtreeLocation> findBody(PhysicsBody* body, QuadtreeNode* rootNode);
     
 private:
