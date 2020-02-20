@@ -13,9 +13,9 @@ Maze::Maze(unsigned int width, unsigned int height) :
 m_width(width),
 m_height(height),
 m_window(sf::VideoMode(m_width, m_height), "Maze"),
-m_physicsWorld(false, true),
+m_physicsWorld(true, false),
 m_gameClock(),
-m_player(width / 50.f, &m_physicsWorld),
+m_player(width / 50.f, PLAYER_CATEGORY_BITMASK, &m_physicsWorld),
 m_cameraPosition(0.f, 0.f)
 {
 }
@@ -41,14 +41,15 @@ void Maze::lauch() {
             
         }
         
-        if (show_fps) {
-            std::cout << "fps: " << 1.f / m_gameClock.getElapsedTime().asSeconds() << "\n";
-        }
-        std::cout << m_physicsWorld.getBodiesCount() << " bodies\n";
-        
         // update
         update();
         updateCamera();
+        
+        if (show_fps) {
+            std::cout << "fps: " << 1.f / m_gameClock.getElapsedTime().asMilliseconds() * 1000.f << "\n";
+        }
+        std::cout << m_physicsWorld.getBodiesCount() << " bodies\n";
+        
         m_gameClock.restart();
         
         // Display
@@ -66,8 +67,9 @@ void Maze::init() {
     generateMaze();
     
     m_player.move(sf::Vector2f{m_wallWidth * 1.5f, m_wallHeight * 1.5f});
+    m_player.getPhysicsBody()->addContactTestBitMask(FILLED_TILE_CATEGORY_BITMASK);
     m_physicsWorld.addBody(m_player.getPhysicsBody());
-    m_physicsWorld.addBodyDebugUpdateDispay(m_player.getPhysicsBody());
+//    m_physicsWorld.addBodyDebugUpdateDispay(m_player.getPhysicsBody());
 //    m_physicsWorld.addBodyDebugAdditionDisplay(m_player.getPhysicsBody());
 }
 
@@ -127,7 +129,7 @@ void Maze::generateMaze() {
     filledWallTexture->create(m_wallWidth, m_wallHeight);
     filledWallTexture->clear(sf::Color::White);
     filledWallTexture->display();
-    auto filledPhysicsBody = new RectanglePhysicsBody(m_wallWidth, m_wallHeight, 0.f, sf::Vector2f{0.f, 0.f}, &m_physicsWorld);
+    auto filledPhysicsBody = new RectanglePhysicsBody(m_wallWidth, m_wallHeight, 0.f, sf::Vector2f{0.f, 0.f}, FILLED_TILE_CATEGORY_BITMASK, &m_physicsWorld);
     
     auto emptyWallTexture {std::make_shared<sf::RenderTexture>()};
     emptyWallTexture->create(m_wallWidth, m_wallHeight);

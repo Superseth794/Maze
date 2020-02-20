@@ -67,6 +67,9 @@ private:
     
     Player m_player;
     std::vector<std::unique_ptr<Tile>> m_tiles;
+    
+    static constexpr std::uint32_t FILLED_TILE_CATEGORY_BITMASK = 1;
+    static constexpr std::uint32_t PLAYER_CATEGORY_BITMASK = 2;
 };
 
 
