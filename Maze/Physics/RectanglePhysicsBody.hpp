@@ -20,8 +20,8 @@ namespace mz {
 
 class RectanglePhysicsBody : public PhysicsBody {
 public:
-    RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin, PhysicsWorld* parentWorld = nullptr);
-    RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, float rotation, PhysicsWorld* parentWorld = nullptr);
+    RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin, std::uint32_t categoryBitMask = 0, PhysicsWorld* parentWorld = nullptr);
+    RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, float rotation, std::uint32_t categoryBitMask = 0, PhysicsWorld* parentWorld = nullptr);
     
     RectanglePhysicsBody(RectanglePhysicsBody const& body);
     

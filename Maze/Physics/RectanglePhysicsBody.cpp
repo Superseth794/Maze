@@ -9,8 +9,8 @@
 
 namespace mz {
 
-RectanglePhysicsBody::RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin, PhysicsWorld* parentWorld) :
-PhysicsBody(origin + sf::Vector2f{std::cos(rotation) * width + std::sin(rotation) * height, std::sin(rotation) * width - std::cos(rotation) * height} / 2.f, parentWorld),
+RectanglePhysicsBody::RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
+PhysicsBody(origin + sf::Vector2f{std::cos(rotation) * width + std::sin(rotation) * height, std::sin(rotation) * width - std::cos(rotation) * height} / 2.f, categoryBitMask, parentWorld),
 m_width(width),
 m_heigth(height),
 m_rotation(rotation)
@@ -20,8 +20,8 @@ m_rotation(rotation)
     RectanglePhysicsBody::updateFrame();
 }
 
-RectanglePhysicsBody::RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, float rotation, PhysicsWorld* parentWorld) :
-PhysicsBody(sf::Vector2f{(firstCorner.x + secondCorner.x) / 2.f, (firstCorner.y + secondCorner.y) / 2.f}, parentWorld),
+RectanglePhysicsBody::RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, float rotation, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
+PhysicsBody(sf::Vector2f{(firstCorner.x + secondCorner.x) / 2.f, (firstCorner.y + secondCorner.y) / 2.f}, categoryBitMask, parentWorld),
 m_rotation(rotation)
 {
     float dist = std::sqrt((firstCorner.x - secondCorner.x) * (firstCorner.x - secondCorner.x) + (firstCorner.y - secondCorner.y) * (firstCorner.y - secondCorner.y));
@@ -196,7 +196,7 @@ void RectanglePhysicsBody::generateDebugTexture() {
     
     sf::ConvexShape debugShape;
     debugShape.setPointCount(4);
-    debugShape.setFillColor(DEBUG_PHYSICS_FILL_COLOR);
+    debugShape.setFillColor(m_collisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_FILL_COLOR);
     debugShape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
     debugShape.setOutlineThickness(2.f);
     
@@ -206,13 +206,9 @@ void RectanglePhysicsBody::generateDebugTexture() {
     };
     
     debugShape.setPoint(0, getTopLeftCorner() - anchor);
-    std::cout << "Top left x: " << getTopLeftCorner().x - anchor.x << " y: " << getTopLeftCorner().y - anchor.y << std::endl;
     debugShape.setPoint(1, getTopRightCorner() - anchor);
-    std::cout << "Top right x: " << getTopRightCorner().x - anchor.x << " y: " << getTopRightCorner().y - anchor.y << std::endl;
     debugShape.setPoint(2, getBottomRightCorner() - anchor);
-    std::cout << "Bottom right x: " << getBottomRightCorner().x - anchor.x << " y: " << getBottomRightCorner().y - anchor.y << std::endl;;
     debugShape.setPoint(3, getBottomLeftCorner() - anchor);
-    std::cout << "Bottom left x: " << getBottomLeftCorner().x - anchor.x << " y: " << getBottomLeftCorner().y - anchor.y << std::endl;
     
     m_debugTexture->draw(debugShape);
     

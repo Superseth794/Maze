@@ -9,8 +9,8 @@
 
 namespace mz {
 
-SegmentPhysicsBody::SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& endPos, PhysicsWorld* parentWorld) :
-PhysicsBody(sf::Vector2f{(endPos.x + startPos.x) / 2.f, (endPos.y + startPos.y) / 2.f}, parentWorld),
+SegmentPhysicsBody::SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& endPos, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
+PhysicsBody(sf::Vector2f{(endPos.x + startPos.x) / 2.f, (endPos.y + startPos.y) / 2.f}, categoryBitMask, parentWorld),
 m_startPos(startPos),
 m_endPos(endPos)
 {
@@ -19,8 +19,8 @@ m_endPos(endPos)
     SegmentPhysicsBody::updateFrame();
 }
 
-SegmentPhysicsBody::SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& direction, float length, PhysicsWorld* parentWorld) :
-SegmentPhysicsBody(startPos, sf::Vector2f{startPos.x + normalize(direction).x * length, startPos.y + normalize(direction).y * length}, parentWorld)
+SegmentPhysicsBody::SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& direction, float length, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
+SegmentPhysicsBody(startPos, sf::Vector2f{startPos.x + normalize(direction).x * length, startPos.y + normalize(direction).y * length}, categoryBitMask, parentWorld)
 {
 }
 
@@ -127,9 +127,9 @@ void SegmentPhysicsBody::generateDebugTexture() {
     
     sf::Vertex vertexes[2] = {};
     vertexes[0].position = sf::Vector2f{m_startPos.x - anchor.x, m_startPos.y - anchor.y};
-    vertexes[0].color = DEBUG_PHYSICS_OUTLINE_COLOR;
+    vertexes[0].color = (m_collisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_OUTLINE_COLOR);
     vertexes[1].position = sf::Vector2f{m_endPos.x - anchor.x, m_endPos.y - anchor.y};
-    vertexes[1].color = DEBUG_PHYSICS_OUTLINE_COLOR;
+    vertexes[1].color = (m_collisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_OUTLINE_COLOR);
     m_debugTexture->draw(vertexes, 2, sf::Lines);
     
     m_debugTexture->display();

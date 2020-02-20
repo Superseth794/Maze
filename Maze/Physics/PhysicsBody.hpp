@@ -9,6 +9,7 @@
 # define PhysicsBody_hpp
 
 # include <cmath>
+# include <algorithm>
 
 # include <SFML/Graphics.hpp>
 
@@ -25,9 +26,11 @@ class RectanglePhysicsBody;
 
 struct QuadtreeNode;
 
+// TODO add debug did_collide status for debug display
+
 class PhysicsBody {
 public:
-    PhysicsBody(sf::Vector2f const& center = sf::Vector2f{0.f, 0.f}, PhysicsWorld* parentWorld = nullptr);
+    PhysicsBody(sf::Vector2f const& center = sf::Vector2f{0.f, 0.f}, std::uint32_t categoryBitMask = 0, PhysicsWorld* parentWorld = nullptr);
     PhysicsBody(PhysicsBody && body) = default;
     
     virtual ~PhysicsBody() = 0;
@@ -66,6 +69,13 @@ public:
     QuadtreeNode* getParentNode();
     void setParentNode(QuadtreeNode* parentNode);
     
+    void setCollisionTriggered(bool triggered);
+    
+    std::uint32_t getCategoryBitMask() const;
+    void addContactTestBitMask(std::uint32_t bitMask);
+    std::vector<std::uint32_t> getContactTestBitMasks() const;
+    bool shouldTestCollisionWithBitMask(std::uint32_t bitMask) const;
+    
     std::shared_ptr<sf::RenderTexture> const getDebugTexture();
     
 protected:
@@ -79,6 +89,9 @@ protected:
     
     static const sf::Color DEBUG_PHYSICS_FILL_COLOR;
     static const sf::Color DEBUG_PHYSICS_OUTLINE_COLOR;
+    static const sf::Color DEBUG_DID_COLLIDE_BODY_FILL_COLOR;
+    
+    bool m_collisionTriggered = false;
     
 private:
     std::uint64_t m_id = 0;
@@ -86,6 +99,10 @@ private:
     
     PhysicsWorld* m_parentWorld;
     QuadtreeNode* m_parentNode = nullptr;
+    
+    std::uint32_t m_categoryBitMask;
+    std::vector<std::uint32_t> m_contactTestBitMasks;
+    
 };
 
 

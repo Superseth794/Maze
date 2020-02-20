@@ -92,7 +92,7 @@ std::uint64_t PhysicsWorld::generateBodyId() {
 std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollision(PhysicsBody* body, sf::Vector2f const& anchor) {
     body->move(anchor);
     
-    auto collisions {checkCollision(body, std::get<0>(std::get<1>(findBody(body, body->getParentNode()))))};
+    auto collisions {checkCollision(body, &m_root)};
     
     body->move(sf::Vector2f{-anchor.x, -anchor.y});
     
@@ -127,7 +127,7 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
         return bodySprite;
     };
     
-    // Shows Quadtree
+    // Inspects Quadtree
     std::queue<QuadtreeNode*> toDrawNodes;
     std::vector<sf::Sprite> toDrawBodiesSprites;
     toDrawNodes.push(&m_root);
@@ -135,12 +135,12 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
         QuadtreeNode* currentNode = toDrawNodes.front();
         toDrawNodes.pop();
         
-        sf::Vector2f shapePosition {
-            currentNode->box.origin.x - anchor.x + width / 2.f,
-            currentNode->box.origin.y - anchor.y + height / 2.f
-        };
-        
         if (m_showQuadtree) {
+            sf::Vector2f shapePosition {
+                currentNode->box.origin.x - anchor.x + width / 2.f,
+                currentNode->box.origin.y - anchor.y + height / 2.f
+            };
+            
             sf::RectangleShape nodeShape {sf::Vector2f{currentNode->box.width, currentNode->box.height}};
             nodeShape.setPosition(shapePosition);
             nodeShape.setFillColor(DEBUG_QUADTREE_NODES_COLOR);
@@ -156,7 +156,7 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
             
             // Displays node as debug node where body addition happened
             for (auto const& debugBody : m_debugBodiesAdditionDisplay) {
-                if (*debugBody->getParentNode() == *currentNode) {
+                if (debugBody && *debugBody->getParentNode() == *currentNode) {
                     nodeShape.setFillColor(DEBUG_QUADTREE_ADDITION_COLOR);
                     break;
                 }
@@ -212,19 +212,36 @@ void PhysicsWorld::simulate() {
     
     m_debugCollisions.clear();
     
-    for (auto& body : m_root.bodies) {
-        QuadtreeNode* bodyParent = std::get<0>(std::get<1>(findBody(body, body->getParentNode())));
+    std::stack<QuadtreeNode*> toInspectNodes;
+    toInspectNodes.push(&m_root);
+    
+    while (!toInspectNodes.empty()) {
+        QuadtreeNode* currentNode = toInspectNodes.top();
+        toInspectNodes.pop();
         
-        if (!bodyParent)
-            continue;
+        for (auto& body : currentNode->bodies) {
+            auto collisions {checkCollision(body)};
+            
+            if (collisions->size() == 0)
+                continue;
+            
+            if (m_showPhysics) {
+                for (int i = 0; i < collisions->size(); ++i) {
+                    std::get<0>((*collisions)[i])->setCollisionTriggered(true);
+                    m_debugCollisions.emplace_back(std::move((*collisions)[i]));
+                }
+            }
+            
+            // TODO throw callbacks
+        }
         
-        auto collisions {checkCollision(body, bodyParent)};
-        for (int i = 0; i < collisions->size(); ++i) {
-            m_debugCollisions.emplace_back(std::move((*collisions)[i]));
+        if (currentNode->hasChildren()) {
+            for (int i = 0; i < 4; ++i)
+                toInspectNodes.push(currentNode->childs[i].get());
         }
     }
     
-    std::cout << m_debugCollisions.size() << " collisions found !\n";
+//    std::cout << m_debugCollisions.size() << " collisions found !\n";
 }
 
 void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
@@ -359,12 +376,18 @@ std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollisi
     
     // Computes collisions inside current node
     for (auto bodyB : node->bodies) {
+        // Prevents body from colliding with itself
         if (*body == *bodyB)
             continue;
+        
+        // Prevents non-requested collisions tests
+        if (!body->shouldTestCollisionWithBitMask(bodyB->getCategoryBitMask()))
+            continue;
+        
+        // Computes collision
         auto intersections {bodyB->collideWith(body)};
         if (intersections->size() == 0)
             continue;
-        bodyB->setCollisionTriggered(true);
         collisions->push_back({bodyB, std::move(intersections)});
     }
     

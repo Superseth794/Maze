@@ -9,8 +9,8 @@
 
 namespace mz {
 
-CirclePhysicsBody::CirclePhysicsBody(float radius, sf::Vector2f const& center, PhysicsWorld* parentWorld) :
-PhysicsBody(center, parentWorld),
+CirclePhysicsBody::CirclePhysicsBody(float radius, sf::Vector2f const& center, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
+PhysicsBody(center, categoryBitMask, parentWorld),
 m_radius(radius)
 {
     CirclePhysicsBody::updateFrame();
@@ -128,7 +128,7 @@ void CirclePhysicsBody::generateDebugTexture() {
     m_debugTexture->clear(sf::Color::Transparent);
     
     sf::CircleShape debugShape{m_radius};
-    debugShape.setFillColor(DEBUG_PHYSICS_FILL_COLOR);
+    debugShape.setFillColor(m_collisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_FILL_COLOR);
     debugShape.setPosition(0.f, 0.f);
     debugShape.setOutlineThickness(1.f);
     debugShape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);

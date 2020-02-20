@@ -18,7 +18,7 @@ namespace mz {
 
 class CirclePhysicsBody : public PhysicsBody {
 public:
-    CirclePhysicsBody(float radius, sf::Vector2f const& center, PhysicsWorld* parentWorld = nullptr);
+    CirclePhysicsBody(float radius, sf::Vector2f const& center, std::uint32_t categoryBitMask = 0, PhysicsWorld* parentWorld = nullptr);
     
     CirclePhysicsBody(CirclePhysicsBody const& body);
     

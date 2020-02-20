@@ -18,8 +18,8 @@ namespace mz {
 
 class SegmentPhysicsBody : public PhysicsBody {
 public:
-    SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& endPos, PhysicsWorld* parentWorld = nullptr);
-    SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& direction, float length, PhysicsWorld* parentWorld = nullptr);
+    SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& endPos, std::uint32_t categoryBitMask = 0, PhysicsWorld* parentWorld = nullptr);
+    SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& direction, float length, std::uint32_t categoryBitMask = 0, PhysicsWorld* parentWorld = nullptr);
     
     SegmentPhysicsBody(SegmentPhysicsBody const& body);
     
