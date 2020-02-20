@@ -130,8 +130,8 @@ std::shared_ptr<sf::RenderTexture> const PhysicsBody::getDebugTexture() {
     return m_debugTexture;
 }
 
-const sf::Color PhysicsBody::DEBUG_PHYSICS_FILL_COLOR = sf::Color(101, 184, 127, 125);
-const sf::Color PhysicsBody::DEBUG_PHYSICS_OUTLINE_COLOR = sf::Color{58, 158, 65, 187};
+const sf::Color PhysicsBody::DEBUG_PHYSICS_FILL_COLOR = sf::Color(56, 128, 78, 175);
+const sf::Color PhysicsBody::DEBUG_PHYSICS_OUTLINE_COLOR = sf::Color{22, 64, 25, 187};
 const sf::Color PhysicsBody::DEBUG_DID_COLLIDE_BODY_FILL_COLOR = sf::Color{255, 0, 0, 135};
 
 }

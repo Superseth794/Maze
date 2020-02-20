@@ -130,7 +130,7 @@ void CirclePhysicsBody::generateDebugTexture() {
     sf::CircleShape debugShape{m_radius};
     debugShape.setFillColor(m_collisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_FILL_COLOR);
     debugShape.setPosition(0.f, 0.f);
-    debugShape.setOutlineThickness(1.f);
+    debugShape.setOutlineThickness(-3.f);
     debugShape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
     m_debugTexture->draw(debugShape);
     

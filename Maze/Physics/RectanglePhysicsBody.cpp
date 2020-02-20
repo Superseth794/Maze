@@ -198,7 +198,7 @@ void RectanglePhysicsBody::generateDebugTexture() {
     debugShape.setPointCount(4);
     debugShape.setFillColor(m_collisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_FILL_COLOR);
     debugShape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
-    debugShape.setOutlineThickness(2.f);
+    debugShape.setOutlineThickness(-3.f);
     
     sf::Vector2f anchor {
         getCenter().x - m_width / 2.f,
