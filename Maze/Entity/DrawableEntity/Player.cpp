@@ -9,11 +9,11 @@
 
 namespace mz {
 
-Player::Player(float width, PhysicsWorld* parentWorld) :
+Player::Player(float width, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
 m_width(width),
 m_bodyShape(m_width / 2.f),
 m_texture(std::make_shared<sf::RenderTexture>()),
-m_physicsBody(width / 2.f, sf::Vector2f{width / 2.f, width / 2.f}, parentWorld)
+m_physicsBody(width / 2.f, sf::Vector2f{width / 2.f, width / 2.f}, categoryBitMask, parentWorld)
 {
     m_bodyShape.setFillColor(sf::Color::Red);
     m_bodyShape.setPosition(0.f, 0.f);
@@ -26,6 +26,9 @@ m_physicsBody(width / 2.f, sf::Vector2f{width / 2.f, width / 2.f}, parentWorld)
 }
 
 void Player::update(sf::Time timeElapsed) {
+    
+    auto previousPosition {getPosition()};
+    
     for (auto it = m_directions.begin(); it != m_directions.end(); ++it) {
         auto delta {Orientation::getOrientation(*it).toVector()};
         Entity::move({
@@ -33,8 +36,21 @@ void Player::update(sf::Time timeElapsed) {
             delta.y * timeElapsed.asMilliseconds() * m_speed * 0.1f
         });
     }
+    
     m_physicsBody.setCenter(sf::Vector2f{getPosition().x + m_width / 2.f, getPosition().y + m_width / 2.f});
     m_physicsBody.updateInWorld();
+    
+//    if (m_physicsBody.getParentWorld()->checkCollision(&m_physicsBody)->size() == 0) {
+//        std::cout << "No collisions with player\n";
+//    } else {
+//        std::cout << "Collision with player found !\n";
+//    }
+    
+    if (m_physicsBody.getParentWorld()->checkCollision(&m_physicsBody)->size() != 0) {
+        move(previousPosition - getPosition());
+        m_physicsBody.setCenter(sf::Vector2f{getPosition().x + m_width / 2.f, getPosition().y + m_width / 2.f});
+        m_physicsBody.updateInWorld();
+    }
 }
 
 std::shared_ptr<sf::RenderTexture> Player::draw() {

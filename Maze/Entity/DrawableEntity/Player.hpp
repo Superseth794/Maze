@@ -21,7 +21,7 @@ namespace mz {
 
 class Player : public DrawableEntity {
 public:
-    Player(float width, PhysicsWorld* parentWorld);
+    Player(float width, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld);
     
     virtual void update(sf::Time timeElapsed);
     virtual std::shared_ptr<sf::RenderTexture> draw();
