@@ -207,10 +207,9 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
 }
 
 void PhysicsWorld::simulate() {
-    if (!m_showPhysics)
-        return;
-    
     m_debugCollisions.clear();
+    
+    int computedCollisionsCount = 0;
     
     std::stack<QuadtreeNode*> toInspectNodes;
     toInspectNodes.push(&m_root);
@@ -220,6 +219,7 @@ void PhysicsWorld::simulate() {
         toInspectNodes.pop();
         
         for (auto& body : currentNode->bodies) {
+            computedCollisionsCount++;
             auto collisions {checkCollision(body)};
             
             if (collisions->size() == 0)
@@ -241,7 +241,8 @@ void PhysicsWorld::simulate() {
         }
     }
     
-//    std::cout << m_debugCollisions.size() << " collisions found !\n";
+    std::cout << computedCollisionsCount << " collisions computed !\n";
+    std::cout << m_debugCollisions.size() << " collisions found !\n";
 }
 
 void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
@@ -374,6 +375,12 @@ std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollisi
     if (!node)
         return collisions;
     
+    if (!body)
+        return collisions;
+    
+    if (body->getContactTestMasksCount() == 0 || body->getCategoryMask() == 0)
+        return collisions;
+    
     // Computes collisions inside current node
     for (auto bodyB : node->bodies) {
         // Prevents body from colliding with itself
@@ -381,7 +388,7 @@ std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollisi
             continue;
         
         // Prevents non-requested collisions tests
-        if (!body->shouldTestCollisionWithBitMask(bodyB->getCategoryBitMask()))
+        if (!body->shouldTestCollisionWithMask(bodyB->getCategoryMask()))
             continue;
         
         // Computes collision

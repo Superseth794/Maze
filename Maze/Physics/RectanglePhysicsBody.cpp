@@ -49,9 +49,13 @@ RectanglePhysicsBody::~RectanglePhysicsBody() {
 }
 
 void RectanglePhysicsBody::updateFrame() {
+//    sf::Vector2f origin {
+//        getCenter().x - m_width / 2.f,
+//        getCenter().y - m_heigth / 2.f
+//    };
     sf::Vector2f origin {
-        getCenter().x - m_width / 2.f,
-        getCenter().y - m_heigth / 2.f
+        std::min(std::min(getTopLeftCorner().x, getTopRightCorner().x), std::min(getBottomLeftCorner().x, getBottomRightCorner().x)),
+        std::min(std::min(getTopLeftCorner().y, getTopRightCorner().y), std::min(getBottomLeftCorner().y, getBottomRightCorner().y))
     };
     if (m_frame.origin != origin)
         m_frame.origin = origin;
@@ -185,6 +189,10 @@ sf::Vector2f RectanglePhysicsBody::getBottomLeftCorner() const {
     };
 }
 
+float RectanglePhysicsBody::getRotation() const {
+    return m_rotation;
+}
+
 void RectanglePhysicsBody::generateDebugTexture() {
     m_debugTexture = std::make_shared<sf::RenderTexture>();
     
@@ -192,18 +200,21 @@ void RectanglePhysicsBody::generateDebugTexture() {
     float height = m_width * std::sin(m_rotation) + m_heigth * std::cos(m_rotation);
     
     m_debugTexture->create(width, height);
-    m_debugTexture->clear(sf::Color::Transparent);
+//    m_debugTexture->clear(sf::Color::Transparent);
+    m_debugTexture->clear(sf::Color(125, 125, 55, 255));
     
     sf::ConvexShape debugShape;
     debugShape.setPointCount(4);
-    debugShape.setFillColor(m_collisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_FILL_COLOR);
+    debugShape.setFillColor(m_debugCollisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_FILL_COLOR);
     debugShape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
     debugShape.setOutlineThickness(-3.f);
     
-    sf::Vector2f anchor {
-        getCenter().x - m_width / 2.f,
-        getCenter().y - m_heigth / 2.f
-    };
+//    sf::Vector2f anchor {
+//        getCenter().x - m_width / 2.f * std::cos(m_rotation) - m_heigth / 2.f * std::sin(m_rotation),
+//        getCenter().y - m_heigth / 2.f * std::cos(m_rotation) - m_width / 2.f * std::cos(m_rotation)
+//    };
+    
+    sf::Vector2f anchor = m_frame.origin;
     
     debugShape.setPoint(0, getTopLeftCorner() - anchor);
     debugShape.setPoint(1, getTopRightCorner() - anchor);

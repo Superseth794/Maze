@@ -127,9 +127,9 @@ void SegmentPhysicsBody::generateDebugTexture() {
     
     sf::Vertex vertexes[2] = {};
     vertexes[0].position = sf::Vector2f{m_startPos.x - anchor.x, m_startPos.y - anchor.y};
-    vertexes[0].color = (m_collisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_OUTLINE_COLOR);
+    vertexes[0].color = (m_debugCollisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_OUTLINE_COLOR);
     vertexes[1].position = sf::Vector2f{m_endPos.x - anchor.x, m_endPos.y - anchor.y};
-    vertexes[1].color = (m_collisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_OUTLINE_COLOR);
+    vertexes[1].color = (m_debugCollisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_OUTLINE_COLOR);
     m_debugTexture->draw(vertexes, 2, sf::Lines);
     
     m_debugTexture->display();

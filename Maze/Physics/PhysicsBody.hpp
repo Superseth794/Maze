@@ -71,10 +71,11 @@ public:
     
     void setCollisionTriggered(bool triggered);
     
-    std::uint32_t getCategoryBitMask() const;
-    void addContactTestBitMask(std::uint32_t bitMask);
-    std::vector<std::uint32_t> getContactTestBitMasks() const;
-    bool shouldTestCollisionWithBitMask(std::uint32_t bitMask) const;
+    std::uint32_t getCategoryMask() const;
+    void addContactTestMask(std::uint32_t bitMask);
+    std::vector<std::uint32_t> getContactTestMasks() const;
+    std::size_t getContactTestMasksCount() const;
+    bool shouldTestCollisionWithMask(std::uint32_t bitMask) const;
     
     std::shared_ptr<sf::RenderTexture> const getDebugTexture();
     
@@ -86,12 +87,11 @@ protected:
     
     std::shared_ptr<sf::RenderTexture> m_debugTexture;
     bool m_debugTextureLoaded = false;
+    bool m_debugCollisionTriggered = false;
     
     static const sf::Color DEBUG_PHYSICS_FILL_COLOR;
     static const sf::Color DEBUG_PHYSICS_OUTLINE_COLOR;
     static const sf::Color DEBUG_DID_COLLIDE_BODY_FILL_COLOR;
-    
-    bool m_collisionTriggered = false;
     
 private:
     std::uint64_t m_id = 0;
@@ -100,8 +100,8 @@ private:
     PhysicsWorld* m_parentWorld;
     QuadtreeNode* m_parentNode = nullptr;
     
-    std::uint32_t m_categoryBitMask;
-    std::vector<std::uint32_t> m_contactTestBitMasks;
+    std::uint32_t m_categoryMask;
+    std::vector<std::uint32_t> m_contactTestMasks;
     
 };
 

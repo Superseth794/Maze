@@ -46,6 +46,8 @@ public:
     sf::Vector2f getBottomRightCorner() const;
     sf::Vector2f getBottomLeftCorner() const;
     
+    float getRotation() const;
+    
 protected:
     virtual void generateDebugTexture();
     
