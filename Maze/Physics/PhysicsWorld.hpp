@@ -16,6 +16,7 @@
 # include <queue>
 # include <stack>
 # include <utility>
+# include <functional>
 
 # include <SFML/Graphics.hpp>
 
@@ -111,6 +112,20 @@ private:
     static const sf::Color DEBUG_QUADTREE_ADDITION_COLOR;
     static const sf::Color DEBUG_QUADTREE_UPDATE_COLOR;
     
+private:
+    template<typename... Args> void forEachNode(std::function<void(QuadtreeNode*, Args...)>& func, Args... args) {
+        std::stack<QuadtreeNode*> toInspectNodes;
+        toInspectNodes.push(&m_root);
+        while (!toInspectNodes.empty()) {
+            QuadtreeNode* currentNode = toInspectNodes.top();
+            toInspectNodes.pop();
+            func(currentNode, args...);
+            if (currentNode->hasChildren()) {
+                for (int i = 0; i < 4; ++i)
+                    toInspectNodes.push(currentNode->childs[i].get());
+            }
+        }
+    }
 };
 
 }
