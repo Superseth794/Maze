@@ -80,6 +80,7 @@ public:
     
 private:
     void addBody(PhysicsBody* body, QuadtreeNode* node);
+    void removeAllBodies();
     
     void addChildrens(QuadtreeNode* node);
     void addParent(QuadtreeNode* node, sf::Vector2f const& bodyPosition);

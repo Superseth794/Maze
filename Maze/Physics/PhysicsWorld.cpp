@@ -21,6 +21,9 @@ m_showQuadtree(showQuadtree)
 }
 
 PhysicsWorld::~PhysicsWorld() {
+    // Clears bodies to remove buffer
+    removeAllBodies();
+    
     int bodiesLeft = getBodiesCount();
     if (bodiesLeft > 0)
         std::cout << "\nError: " << bodiesLeft << " bodie" << (bodiesLeft > 1 ? "s" : "") << " not removed from physics world" << std::endl;
@@ -199,20 +202,8 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
 }
 
 void PhysicsWorld::simulate() {
-    // Remove bodies in remove buffer
-    for (auto& body : m_toRemoveBodiesBuffer) {
-        auto found {findBody(body, body->getParentNode())};
-        
-        if (!std::get<0>(found)) {
-            std::cout << "Could not find body " << body->getId() << " to erase\n";
-        } else {
-            QuadtreeNode* parent = std::get<0>(std::get<1>(found));
-            parent->bodies.erase(parent->bodies.begin() + std::get<1>(std::get<1>(found)));
-            --m_bodiesCount;
-            std::cout << "Successufully removed body " << body->getId() << " \n";
-        }
-    }
-    m_toRemoveBodiesBuffer.clear();
+    // clears bodies in remove buffer
+    removeAllBodies();
     
     // Computes collisions
     m_debugCollisions.clear();
@@ -288,6 +279,21 @@ void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
     // Adds children if needed
     addChildrens(node);
     addBody(body, node);
+}
+
+void PhysicsWorld::removeAllBodies() {
+    for (auto& body : m_toRemoveBodiesBuffer) {
+        auto found {findBody(body, body->getParentNode())};
+        if (!std::get<0>(found)) {
+            std::cout << "Could not find body " << body->getId() << " to erase\n";
+        } else {
+            QuadtreeNode* parent = std::get<0>(std::get<1>(found));
+            parent->bodies.erase(parent->bodies.begin() + std::get<1>(std::get<1>(found)));
+            --m_bodiesCount;
+            std::cout << "Successufully removed body " << body->getId() << " \n";
+        }
+    }
+    m_toRemoveBodiesBuffer.clear();
 }
 
 void PhysicsWorld::addChildrens(QuadtreeNode* node) {
