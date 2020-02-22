@@ -40,16 +40,8 @@ void PhysicsWorld::addBody(PhysicsBody* body) {
 }
 
 void PhysicsWorld::removeBody(PhysicsBody* body) {
-    auto found {findBody(body, body->getParentNode())};
-    
-    if (!std::get<0>(found)) {
-        std::cout << "Could not find body " << body->getId() << " to erase\n";
-    } else {
-        QuadtreeNode* parent = std::get<0>(std::get<1>(found));
-        parent->bodies.erase(parent->bodies.begin() + std::get<1>(std::get<1>(found)));
-        --m_bodiesCount;
-        std::cout << "Successufully removed body " << body->getId() << " \n";
-    }
+    if (body)
+        m_toRemoveBodiesBuffer.push_back(body);
 }
 
 void PhysicsWorld::updateBody(PhysicsBody* body) {
@@ -207,8 +199,23 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
 }
 
 void PhysicsWorld::simulate() {
-    m_debugCollisions.clear();
+    // Remove bodies in remove buffer
+    for (auto& body : m_toRemoveBodiesBuffer) {
+        auto found {findBody(body, body->getParentNode())};
+        
+        if (!std::get<0>(found)) {
+            std::cout << "Could not find body " << body->getId() << " to erase\n";
+        } else {
+            QuadtreeNode* parent = std::get<0>(std::get<1>(found));
+            parent->bodies.erase(parent->bodies.begin() + std::get<1>(std::get<1>(found)));
+            --m_bodiesCount;
+            std::cout << "Successufully removed body " << body->getId() << " \n";
+        }
+    }
+    m_toRemoveBodiesBuffer.clear();
     
+    // Computes collisions
+    m_debugCollisions.clear();
     int computedCollisionsCount = 0;
     
     std::stack<QuadtreeNode*> toInspectNodes;
