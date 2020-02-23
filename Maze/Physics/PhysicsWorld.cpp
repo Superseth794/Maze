@@ -296,12 +296,17 @@ void PhysicsWorld::removeAllBodies() {
     m_toRemoveBodiesBuffer.clear();
     
     if (invalidState) {
-        
+        reorderBodies();
     }
 }
 
 void PhysicsWorld::reorderBodies() {
-    std::stack<QuadtreeNode*> toInspectNodes;
+    std::function<void(QuadtreeNode*)> reorderNode = [](QuadtreeNode* node) {
+        std::remove_if(node->bodies.begin(), node->bodies.end(), [](PhysicsBody* body) {
+            return !body;
+        });
+    };
+    forEachNode(reorderNode);
 }
 
 void PhysicsWorld::addChildrens(QuadtreeNode* node) {
