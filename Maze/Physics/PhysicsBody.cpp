@@ -88,10 +88,8 @@ void PhysicsBody::setParentNode(QuadtreeNode* parentNode) {
 }
 
 void PhysicsBody::setCollisionTriggered(bool triggered) {
-    if (m_debugCollisionTriggered != triggered) {
+    if (m_debugCollisionTriggered != triggered)
         m_debugCollisionTriggered = triggered;
-        this->generateDebugTexture();
-    }
 }
 
 std::uint32_t PhysicsBody::getCategoryMask() const {
@@ -128,9 +126,17 @@ void PhysicsBody::updateInWorld() {
 }
 
 std::shared_ptr<sf::RenderTexture> const PhysicsBody::getDebugTexture() {
-    if (!m_debugTextureLoaded)
+    if (!m_debugTextureLoaded) {
         generateDebugTexture();
-    m_debugTextureLoaded = true;
+        m_debugTextureLoaded = true;
+    }
+    
+    if (m_debugCollisionTriggered != m_debugCollisionTextureLoaded) {
+        m_debugCollisionTextureLoaded = m_debugCollisionTriggered;
+        generateDebugTexture();
+    }
+    m_debugCollisionTriggered = false;
+    
     return m_debugTexture;
 }
 

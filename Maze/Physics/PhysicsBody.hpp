@@ -87,7 +87,7 @@ protected:
     
     std::shared_ptr<sf::RenderTexture> m_debugTexture;
     bool m_debugTextureLoaded = false;
-    bool m_debugCollisionTriggered = false;
+    bool m_debugCollisionTextureLoaded = false;
     
     static const sf::Color DEBUG_PHYSICS_FILL_COLOR;
     static const sf::Color DEBUG_PHYSICS_OUTLINE_COLOR;
@@ -102,6 +102,8 @@ private:
     
     std::uint32_t m_categoryMask;
     std::vector<std::uint32_t> m_contactTestMasks;
+    
+    bool m_debugCollisionTriggered = false;
     
 };
 

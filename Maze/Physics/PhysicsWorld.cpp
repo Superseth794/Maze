@@ -25,6 +25,8 @@ PhysicsWorld::~PhysicsWorld() {
     removeAllBodies();
     
     int bodiesLeft = getBodiesCount();
+    assert(bodiesLeft == debugCountBodies());
+    
     if (bodiesLeft > 0)
         std::cout << "\nError: " << bodiesLeft << " bodie" << (bodiesLeft > 1 ? "s" : "") << " not removed from physics world" << std::endl;
     else
@@ -408,6 +410,22 @@ void PhysicsWorld::addParent(QuadtreeNode* node, sf::Vector2f const& bodyPositio
     }
     
     *node = std::move(newRoot);
+}
+
+int PhysicsWorld::debugCountBodies(bool checkvalidity) {
+    int bodiesCount = 0;
+    if (!checkvalidity) {
+        std::function<void(QuadtreeNode*, int&)> countBodies = [](QuadtreeNode* node, int& bodiesCount) {
+            bodiesCount += node->bodies.size();
+        };
+        forEachNode<int&>(countBodies, bodiesCount);
+    } else {
+        std::function<void(QuadtreeNode*, int&)> countBodies = [](QuadtreeNode* node, int& bodiesCount) {
+            bodiesCount += std::count_if(node->bodies.begin(), node->bodies.end(), [](PhysicsBody* body) -> bool {return body;});
+        };
+        forEachNode<int&>(countBodies, bodiesCount);
+    }
+    return bodiesCount;
 }
 
 std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollision(PhysicsBody* body, QuadtreeNode* node, bool recursiveSearch) {

@@ -205,7 +205,7 @@ void RectanglePhysicsBody::generateDebugTexture() {
     
     sf::ConvexShape debugShape;
     debugShape.setPointCount(4);
-    debugShape.setFillColor(m_debugCollisionTriggered ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_FILL_COLOR);
+    debugShape.setFillColor(m_debugCollisionTextureLoaded ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_FILL_COLOR);
     debugShape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
     debugShape.setOutlineThickness(-3.f);
     

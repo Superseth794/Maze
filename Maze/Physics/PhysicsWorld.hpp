@@ -87,6 +87,8 @@ private:
     void addChildrens(QuadtreeNode* node);
     void addParent(QuadtreeNode* node, sf::Vector2f const& bodyPosition);
     
+    int debugCountBodies(bool checkvalidity = false);
+    
     std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, QuadtreeNode* node, bool recursiveSearch = true);
     
     std::tuple<bool, QuadtreeLocation> findBody(PhysicsBody* body, QuadtreeNode* rootNode);
