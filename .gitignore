@@ -6,3 +6,5 @@
 # ignores exec files
 */DEBUG
 */DEBUG/*
+*/DEBUG*/
+*/DEBUG*/*
