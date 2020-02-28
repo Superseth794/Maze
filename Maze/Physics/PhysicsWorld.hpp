@@ -96,7 +96,7 @@ private:
     int m_bodiesCount = 0;
     std::uint64_t m_currentBodyId = 1;
     
-    std::vector<PhysicsBody*> m_toRemoveBodiesBuffer;
+    std::vector<QuadtreeLocation> m_roRemoveBodiesPositions;
     
     bool m_showPhysics = false;
     bool m_showQuadtree = false;

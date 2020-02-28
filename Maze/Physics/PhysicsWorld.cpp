@@ -43,8 +43,12 @@ void PhysicsWorld::addBody(PhysicsBody* body) {
 }
 
 void PhysicsWorld::removeBody(PhysicsBody* body) {
-    if (body)
-        m_toRemoveBodiesBuffer.push_back(body);
+    if (body) {
+        auto searchResult {findBody(body, body->getParentNode())};
+        if (std::get<0>(searchResult)) {
+            m_roRemoveBodiesPositions.emplace_back(std::move(std::get<1>(searchResult)));
+        }
+    }
 }
 
 void PhysicsWorld::updateBody(PhysicsBody* body) {
@@ -276,28 +280,39 @@ void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
 void PhysicsWorld::removeAllBodies() {
     bool invalidState = false;
     
-    for (auto& body : m_toRemoveBodiesBuffer) {
-        if (!body) {
+    auto compareLocations = [](QuadtreeLocation const& location1, QuadtreeLocation const& location2) -> bool {
+        if (location1.first->box.width != location2.first->box.height) {
+            return location1.first->box.width < location2.first->box.height;
+        } else if (location1.first->box.origin.x != location2.first->box.origin.x) {
+            return location1.first->box.origin.x < location2.first->box.origin.x;
+        } else if (location1.first->box.origin.y != location2.first->box.origin.y) {
+            return location1.first->box.origin.y < location2.first->box.origin.y;
+        } else {
+            return location1.second > location2.second;
+        }
+    };
+    
+    std::sort(m_roRemoveBodiesPositions.begin(), m_roRemoveBodiesPositions.end(), compareLocations);
+    
+    for (int locationId = 0; locationId < m_roRemoveBodiesPositions.size(); ++locationId) {
+        auto& location {m_roRemoveBodiesPositions[locationId]};
+        
+        if (location.second >= location.first->bodies.size()) {
             invalidState = true;
             continue;
         }
         
-        auto found {findBody(body, body->getParentNode())};
+        auto node = location.first;
+        std::swap(node->bodies[location.second], node->bodies.back());
+        node->bodies.pop_back();
         
-        if (!std::get<0>(found)) {
-            std::cout << "Could not find body " << body->getId() << " to erase\n";
-        } else {
-            QuadtreeNode* parent = std::get<0>(std::get<1>(found));
-            parent->bodies.erase(parent->bodies.begin() + std::get<1>(std::get<1>(found)));
-            --m_bodiesCount;
-            std::cout << "Successufully removed body " << body->getId() << " \n";
-        }
+        --m_bodiesCount;
     }
-    m_toRemoveBodiesBuffer.clear();
     
-    if (invalidState) {
+    m_roRemoveBodiesPositions.clear();
+    
+    if (invalidState)
         reorderBodies();
-    }
 }
 
 void PhysicsWorld::reorderBodies() {
