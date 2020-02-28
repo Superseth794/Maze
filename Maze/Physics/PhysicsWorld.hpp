@@ -27,6 +27,8 @@ namespace mz {
 
 class PhysicsBody;
 
+class Console;
+
 struct QuadtreeNode {
     AABB box;
     
@@ -56,6 +58,8 @@ class PhysicsWorld {
     
     using Collision = std::tuple<PhysicsBody*, std::unique_ptr<std::vector<sf::Vector2f>>>;
     using QuadtreeLocation = std::pair<QuadtreeNode*, std::size_t>;
+    
+    friend Console;
     
 public:
     PhysicsWorld(bool showPhysics, bool showQuadtree);
@@ -102,6 +106,7 @@ private:
     
     bool m_showPhysics = false;
     bool m_showQuadtree = false;
+    int m_computedCollisionsCount = 0;
     std::vector<Collision> m_debugCollisions;
     std::vector<PhysicsBody*> m_debugBodiesAdditionDisplay;
     std::vector<std::pair<PhysicsBody*, QuadtreeNode*>> m_debugBodiesUpdateDisplay;

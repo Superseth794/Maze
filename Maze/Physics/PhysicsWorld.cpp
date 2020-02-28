@@ -215,7 +215,7 @@ void PhysicsWorld::simulate() {
     
     // Computes collisions
     m_debugCollisions.clear();
-    int computedCollisionsCount = 0;
+    m_computedCollisionsCount = 0;
     
     std::function<void(QuadtreeNode*, PhysicsWorld*, int&)> computeCollisionsInNode = [](QuadtreeNode* node, PhysicsWorld* world, int& computedCollisionsCount) -> void {
         for (auto& body : node->bodies) {
@@ -235,10 +235,7 @@ void PhysicsWorld::simulate() {
         }
     };
     
-    forEachNode<PhysicsWorld*, int&>(computeCollisionsInNode, this, computedCollisionsCount);
-    
-    std::cout << computedCollisionsCount << " collisions computed !\n";
-    std::cout << m_debugCollisions.size() << " collisions found !\n";
+    forEachNode<PhysicsWorld*, int&>(computeCollisionsInNode, this, m_computedCollisionsCount);
 }
 
 void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {

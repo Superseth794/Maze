@@ -5,8 +5,10 @@
 //  Created by Jaraxus on 06/02/2020.
 //
 
+#pragma once
+
 #ifndef Maze_hpp
-#define Maze_hpp
+# define Maze_hpp
 
 # include <iostream>
 # include <cmath>
@@ -25,9 +27,16 @@
 # include "Physics/PhysicsWorld.hpp"
 # include "Physics/RectanglePhysicsBody.hpp"
 
+# include "Console.hpp"
+
 namespace mz {
 
+//class Console;
+
 class Maze {
+    
+    friend Console;
+    
 public:
     Maze(unsigned int width, unsigned int height);
     ~Maze() = default;
@@ -60,6 +69,10 @@ private:
     
     sf::RenderWindow m_window;
     sf::Clock m_gameClock;
+    float m_fps = 60.f;
+    
+    std::unique_ptr<Console> m_console;
+    static constexpr bool SHOW_CONSOLE = true;
     
     sf::Vector2f m_cameraPosition;
     

@@ -21,8 +21,6 @@ m_cameraPosition(0.f, 0.f)
 }
 
 void Maze::lauch() {
-    constexpr bool show_fps = true;
-    
     m_window.setFramerateLimit(60);
     m_gameClock.restart();
     
@@ -45,11 +43,7 @@ void Maze::lauch() {
         update();
         updateCamera();
         
-        if (show_fps) {
-            std::cout << "fps: " << 1.f / m_gameClock.getElapsedTime().asMilliseconds() * 1000.f << "\n";
-        }
-        std::cout << m_physicsWorld.getBodiesCount() << " bodies\n";
-        
+        m_fps = 1.f / m_gameClock.getElapsedTime().asMilliseconds() * 1000.f; // TODO show_fps debug var
         m_gameClock.restart();
         
         // Display
@@ -67,10 +61,14 @@ void Maze::init() {
     generateMaze();
     
     m_player.move(sf::Vector2f{m_wallWidth * 1.5f, m_wallHeight * 1.5f});
-    m_player.getPhysicsBody()->addContactTestBitMask(FILLED_TILE_CATEGORY_BITMASK);
+    m_player.getPhysicsBody()->addContactTestMask(FILLED_TILE_CATEGORY_BITMASK);
     m_physicsWorld.addBody(m_player.getPhysicsBody());
-//    m_physicsWorld.addBodyDebugUpdateDispay(m_player.getPhysicsBody());
-//    m_physicsWorld.addBodyDebugAdditionDisplay(m_player.getPhysicsBody());
+    m_physicsWorld.addBodyDebugUpdateDispay(m_player.getPhysicsBody());
+    
+    if (SHOW_CONSOLE) {
+        m_console = std::make_unique<Console>();
+        m_console->init(500.f, 230.f, this, &m_physicsWorld);
+    }
 }
 
 void Maze::generateMaze() {
@@ -90,7 +88,7 @@ void Maze::generateMaze() {
     }
     
     std::stack<Cell> toVisitCells;
-     toVisitCells.push({1, 1});
+    toVisitCells.push({1, 1});
     
     auto pickRandomOrientation = [&cells](Cell const& cell) -> Orientation {
         std::vector<Orientation> orientationsAvailables;
@@ -191,6 +189,15 @@ void Maze::display() {
     physicsSprite.setTexture(physicsTexture->getTexture());
     physicsSprite.setPosition(0.f, 0.f);
     m_window.draw(physicsSprite);
+    
+    // Draw console
+    if (SHOW_CONSOLE) {
+        auto consoleTexture {m_console->display()};
+        sf::Sprite consoleSprite;
+        consoleSprite.setTexture(consoleTexture->getTexture());
+        consoleSprite.setPosition(0.f, 0.f);
+        m_window.draw(consoleSprite);
+    }
 }
 
 void Maze::drawEntity(DrawableEntity const& entity, sf::Sprite & entitySprite) {
