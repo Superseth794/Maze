@@ -63,7 +63,7 @@ std::unique_ptr<sf::RenderTexture> Console::display() {
     return infosTexture;
 }
 
-std::string const Console::FONT_FILENAME = "../Resources/Fonts/Cousine/Cousine-Regular.ttf";
+std::string const Console::FONT_FILENAME = "../../Resources/Fonts/Cousine/Cousine-Regular.ttf";
 bool Console::windowCreated = false;
 
 }
