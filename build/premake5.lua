@@ -1,40 +1,35 @@
 workspace "Maze"
-   configurations { "Debug", "Release" }
+	configurations { "Debug", "Release" }
 
-   architecture "x86_64"
+	architecture "x86_64"
 
-   filter "configurations:Debug"
-      defines { "DEBUG" }
+	filter "configurations:Debug"
+		defines { "DEBUG" }
 
-   filter "configurations:Release"
-      defines { "NDEBUG" }
+	filter "configurations:Release"
+		defines { "NDEBUG" }
 
 project "Maze"
 	kind "ConsoleApp"
 
 	language "C++"
-
-	location "Debug_premake"
+	cppdialect("C++17")
 
 	files {
-		"../Maze/Physics/**.hpp",
-		"../Maze/Physics/**.cpp",
-		"../Maze/Utils/**.hpp",
-		"../Maze/Utils/**.cpp",
-		"../Maze/Entity/**.hpp",
-		"../Maze/Entity/**.cpp",
-		"../Maze/Console.hpp",
-		"../Maze/Console.cpp",
-		"../Maze/Maze.hpp",
-		"../Maze/Maze.cpp",
-		"../Maze/main.cpp",
-		-- "./Resources/**.*"
+		"../Maze/**.cpp",
+		"../Maze/**.hpp"
 	}
 
-	includedirs "../Maze/External/Catch/Catch.hpp"
+	includedirs {
+		"../SFML/include"
+	}
 
 	links {
-		"../SFML/sfml-window.framework",
-		"../SFML/sfml-graphics.framework",
-		"../SFML/sfml-system.framework"
+		"sfml-graphics",
+		"sfml-window",
+		"sfml-system"
+	}
+
+	libdirs {
+		"../SFML/lib"
 	}
