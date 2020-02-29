@@ -3,8 +3,11 @@
 *.xcodeproj/*
 .DS_Store
 
+# ignore SFML files
+SFML/*
+
 # ignores exec files
-*/DEBUG
-*/DEBUG/*
-*/DEBUG*/
-*/DEBUG*/*
+build/Makefile
+Build/*.make
+build/bin/*
+build/Obj/*
