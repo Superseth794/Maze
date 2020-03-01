@@ -13,7 +13,8 @@ PhysicsBody::PhysicsBody(sf::Vector2f const& center, std::uint32_t categoryBitMa
 m_center(center),
 m_frame(AABB{{0.f, 0.f}, 0.f, 0.f}),
 m_categoryMask(categoryBitMask),
-m_parentWorld(parentWorld)
+m_parentWorld(parentWorld),
+m_collisionCallback([](Collision const& Collision){})
 {
     if (parentWorld)
         m_id = parentWorld->generateBodyId();
@@ -41,7 +42,8 @@ m_center(body.m_center),
 m_categoryMask(body.m_categoryMask),
 m_parentWorld(body.m_parentWorld),
 m_debugTexture(body.m_debugTexture),
-m_debugTextureLoaded(body.m_debugTextureLoaded)
+m_debugTextureLoaded(body.m_debugTextureLoaded),
+m_collisionCallback([](Collision const& Collision){})
 {
     if (m_parentWorld)
         m_id = m_parentWorld->generateBodyId();
@@ -53,6 +55,10 @@ PhysicsBody::~PhysicsBody() {
 
 AABB const& PhysicsBody::getFrame() const {
     return m_frame;
+}
+
+void PhysicsBody::didCollide(Collision const& collision) {
+    m_collisionCallback(collision);
 }
 
 sf::Vector2f const& PhysicsBody::getCenter() const {
@@ -78,13 +84,21 @@ std::uint64_t PhysicsBody::getId() const {
     return m_id;
 }
 
-QuadtreeNode* PhysicsBody::getParentNode() {
+QuadtreeNode* PhysicsBody::getParentNode() const {
     return m_parentNode;
 }
 
 void PhysicsBody::setParentNode(QuadtreeNode* parentNode) {
     assert(parentNode);
     m_parentNode = parentNode;
+}
+
+void PhysicsBody::setCollisionCallback(CollisionCallback const& callback) {
+    m_collisionCallback = callback;
+}
+
+void PhysicsBody::setCollisionCallback(CollisionCallback && callback) {
+    m_collisionCallback = std::move(callback);
 }
 
 void PhysicsBody::setCollisionTriggered(bool triggered) {

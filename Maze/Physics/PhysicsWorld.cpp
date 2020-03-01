@@ -47,8 +47,8 @@ void PhysicsWorld::addBody(PhysicsBody* body) {
 void PhysicsWorld::removeBody(PhysicsBody* body) {
     if (body) {
         auto searchResult {findBody(body, body->getParentNode())};
-        if (std::get<0>(searchResult)) {
-            m_roRemoveBodiesPositions.emplace_back(std::move(std::get<1>(searchResult)));
+        if (searchResult.has_value()) {
+            m_roRemoveBodiesPositions.emplace_back(std::move(searchResult.value()));
         }
     }
 }
@@ -56,13 +56,13 @@ void PhysicsWorld::removeBody(PhysicsBody* body) {
 void PhysicsWorld::updateBody(PhysicsBody* body) {
     auto found {findBody(body, body->getParentNode())};
     
-    if (!std::get<0>(found)) {
+    if (!found.has_value()) {
         std::cout << "Body " << body->getId() << " not found for update\n";
         return;
     }
     
-    QuadtreeNode* currentNode = std::get<0>(std::get<1>(found));
-    currentNode->bodies.erase(currentNode->bodies.begin() + std::get<1>(std::get<1>(found)));
+    QuadtreeNode* currentNode = found.value().first;
+    currentNode->bodies.erase(currentNode->bodies.begin() + found.value().second);
     
     // Updates body debug node if needed
     for (auto& debugPair : m_debugBodiesUpdateDisplay) {
@@ -182,7 +182,7 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
     // Shows collisisons
     if (m_showPhysics) {
         for (auto& collision : m_debugCollisions) {
-            for (auto& collisionPosition : *std::get<1>(collision)) {
+            for (auto& collisionPosition : *collision.second) {
                 sf::Vector2f debugSpritePosition {
                     collisionPosition.x - 10.f - anchor.x + width / 2.f,
                     collisionPosition.y - 10.f - anchor.y + height / 2.f
@@ -193,7 +193,7 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
                 debugCollisionSprite.setPosition(debugSpritePosition);
                 texture->draw(debugCollisionSprite);
             }
-            std::get<0>(collision)->setCollisionTriggered(false);
+            collision.first->setCollisionTriggered(false);
         }
     }
     
@@ -224,14 +224,24 @@ void PhysicsWorld::simulate() {
             
             if (collisions->size() == 0)
                 continue;
+            
+            // Throws callbacks
+            for (auto& collision : *collisions) {
+                body->didCollide(collision);
+                
+                PhysicsBody* otherBody = collision.first;
+                collision.first = body;
+                otherBody->didCollide(collision);
+                
+                collision.first = otherBody;
+            }
 
             if (world->m_showPhysics) {
                 for (int i = 0; i < collisions->size(); ++i) {
-                    std::get<0>((*collisions)[i])->setCollisionTriggered(true);
+                    (*collisions)[i].first->setCollisionTriggered(true);
                     world->m_debugCollisions.emplace_back(std::move((*collisions)[i]));
                 }
             }
-            // TODO throw callbacks
         }
     };
     
@@ -476,14 +486,14 @@ std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollisi
     return collisions;
 }
 
-std::tuple<bool, PhysicsWorld::QuadtreeLocation> PhysicsWorld::findBody(PhysicsBody* body, QuadtreeNode* rootNode) {
+std::optional<PhysicsWorld::QuadtreeLocation> PhysicsWorld::findBody(PhysicsBody* body, QuadtreeNode* rootNode) {
     QuadtreeNode* currentNode = rootNode;
     bool nextNodeFound = true;
     
     while (currentNode && nextNodeFound) {
         for (int i = 0; i < currentNode->bodies.size(); ++i) {
             if (*body == *currentNode->bodies[i]) {
-                return std::make_tuple(true, std::make_tuple(currentNode, i));
+                return std::make_optional(std::make_tuple(currentNode, i));
             }
         }
         
@@ -499,7 +509,7 @@ std::tuple<bool, PhysicsWorld::QuadtreeLocation> PhysicsWorld::findBody(PhysicsB
             }
         }
     }
-    return std::make_tuple(false, std::make_tuple(nullptr, 0));
+    return std::nullopt;
 }
 
 const sf::Color PhysicsWorld::DEBUG_COLLISION_FILL_COLOR = sf::Color{255, 0, 0, 200};

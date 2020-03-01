@@ -26,9 +26,12 @@ class RectanglePhysicsBody;
 
 struct QuadtreeNode;
 
-// TODO add debug did_collide status for debug display
-
 class PhysicsBody {
+public:
+    
+    using Collision = std::pair<PhysicsBody*, std::unique_ptr<std::vector<sf::Vector2f>>>;
+    using CollisionCallback = std::function<void(Collision const& collision)>;
+    
 public:
     PhysicsBody(sf::Vector2f const& center = sf::Vector2f{0.f, 0.f}, std::uint32_t categoryBitMask = 0, PhysicsWorld* parentWorld = nullptr);
     PhysicsBody(PhysicsBody && body) = default;
@@ -49,14 +52,15 @@ public:
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(PhysicsBody* body) = 0;
     
     virtual bool isInsideAABB(AABB const& box) const = 0;
+    virtual bool isPositionInside(sf::Vector2f const& position) const = 0;
     
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithSegment(SegmentPhysicsBody* segment) = 0;
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithCircle(CirclePhysicsBody* circle) = 0;
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithRectangle(RectanglePhysicsBody* rectangle) = 0;
     
-    virtual bool isPositionInside(sf::Vector2f const& position) const = 0;
-    
     virtual PhysicsBody* clone() const = 0;
+    
+    void didCollide(Collision const& collision);
     
     sf::Vector2f const& getCenter() const;
     void move(sf::Vector2f const& delta);
@@ -66,10 +70,11 @@ public:
     void updateInWorld();
     std::uint64_t getId() const;
     
-    QuadtreeNode* getParentNode();
+    QuadtreeNode* getParentNode() const;
     void setParentNode(QuadtreeNode* parentNode);
     
-    void setCollisionTriggered(bool triggered);
+    void setCollisionCallback(CollisionCallback const& callback);
+    void setCollisionCallback(CollisionCallback && callback);
     
     std::uint32_t getCategoryMask() const;
     void addContactTestMask(std::uint32_t bitMask);
@@ -77,6 +82,7 @@ public:
     std::size_t getContactTestMasksCount() const;
     bool shouldTestCollisionWithMask(std::uint32_t bitMask) const;
     
+    void setCollisionTriggered(bool triggered);
     std::shared_ptr<sf::RenderTexture> const getDebugTexture();
     
 protected:
@@ -102,6 +108,8 @@ private:
     
     std::uint32_t m_categoryMask;
     std::vector<std::uint32_t> m_contactTestMasks;
+    
+    CollisionCallback m_collisionCallback;
     
     bool m_debugCollisionTriggered = false;
     

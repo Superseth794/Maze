@@ -17,6 +17,7 @@
 # include <stack>
 # include <utility>
 # include <functional>
+# include <optional>
 
 # include <SFML/Graphics.hpp>
 
@@ -56,7 +57,7 @@ bool isBodyInsideNode(PhysicsBody* body, QuadtreeNode* node);
 
 class PhysicsWorld {
     
-    using Collision = std::tuple<PhysicsBody*, std::unique_ptr<std::vector<sf::Vector2f>>>;
+    using Collision = std::pair<PhysicsBody*, std::unique_ptr<std::vector<sf::Vector2f>>>;
     using QuadtreeLocation = std::pair<QuadtreeNode*, std::size_t>;
     
     friend Console;
@@ -95,7 +96,7 @@ private:
     
     std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, QuadtreeNode* node, bool recursiveSearch = true);
     
-    std::tuple<bool, QuadtreeLocation> findBody(PhysicsBody* body, QuadtreeNode* rootNode);
+    std::optional<QuadtreeLocation> findBody(PhysicsBody* body, QuadtreeNode* rootNode);
     
 private:
     QuadtreeNode m_root;
