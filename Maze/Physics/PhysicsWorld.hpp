@@ -63,7 +63,7 @@ class PhysicsWorld {
     friend Console;
     
 public:
-    PhysicsWorld(bool showPhysics, bool showQuadtree);
+    PhysicsWorld();
     ~PhysicsWorld();
     
     void init(float width, float height);
@@ -72,17 +72,24 @@ public:
     void removeBody(PhysicsBody* body);
     void updateBody(PhysicsBody* body);
     
-    void addBodyDebugAdditionDisplay(PhysicsBody* body);
-    void addBodyDebugUpdateDispay(PhysicsBody* body);
+    void addBodyQuadtreeAdditionEvent(PhysicsBody* body);
+    void addBodyQuadtreeUpdateEvent(PhysicsBody* body);
     
     std::uint64_t generateBodyId();
     int getBodiesCount();
     
-    std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, sf::Vector2f const& anchor = sf::Vector2f{0.f, 0.f});
+    std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, sf::Vector2f const& anchor = sf::Vector2f{0.f, 0.f}, bool recursiveSearch = true);
     
-    std::unique_ptr<sf::RenderTexture> getPhysicsDebugTexture(float width, float height, sf::Vector2f const& anchor);
+    std::unique_ptr<sf::RenderTexture> getPhysicsTexture(float width, float height, sf::Vector2f const& anchor);
     
     void simulate();
+    
+    void setShowPhysicsBodies(bool show);
+    void setShowAABBs(bool show);
+    void setShowOBBs(bool show);
+    void setShowCollisions(bool show);
+    void setShowQuadtree(bool show);
+    void setShowQuadtreeEvents(bool show);
     
 private:
     void addBody(PhysicsBody* body, QuadtreeNode* node);
@@ -92,7 +99,7 @@ private:
     void addChildrens(QuadtreeNode* node);
     void addParent(QuadtreeNode* node, sf::Vector2f const& bodyPosition);
     
-    int debugCountBodies(bool checkvalidity = false);
+    int getPreciseBodiesCount(bool checkvalidity = false);
     
     std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, QuadtreeNode* node, bool recursiveSearch = true);
     
@@ -105,8 +112,13 @@ private:
     
     std::vector<QuadtreeLocation> m_roRemoveBodiesPositions;
     
-    bool m_showPhysics = false;
+    bool m_showPhysicsBodies = false;
+    bool m_showAABBs = false;
+    bool m_showOBBs = false;
+    bool m_showCollisions = false;
     bool m_showQuadtree = false;
+    bool m_showQuadtreeEvents = false;
+    
     int m_computedCollisionsCount = 0;
     std::vector<Collision> m_debugCollisions;
     std::vector<PhysicsBody*> m_debugBodiesAdditionDisplay;

@@ -8,6 +8,8 @@
 #ifndef SegmentPhysicsBody_hpp
 # define SegmentPhysicsBody_hpp
 
+# include <optional>
+
 # include "PhysicsBody.hpp"
 # include "RectanglePhysicsBody.hpp"
 # include "CirclePhysicsBody.hpp"
@@ -46,12 +48,13 @@ public:
     float getLength() const;
     float getLength2() const;
     
-protected:
-    virtual void generateDebugTexture();
+    virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor);
     
 private:
     sf::Vector2f m_startPos;
     sf::Vector2f m_endPos;
+    
+    static std::optional<sf::RenderTexture> bodyTexture;
 };
 
 }

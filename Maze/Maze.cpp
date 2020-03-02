@@ -13,7 +13,7 @@ Maze::Maze(unsigned int width, unsigned int height) :
 m_width(width),
 m_height(height),
 m_window(sf::VideoMode(m_width, m_height), "Maze"),
-m_physicsWorld(true, false),
+m_physicsWorld(),
 m_gameClock(),
 m_player(width / 50.f, PLAYER_CATEGORY_BITMASK, &m_physicsWorld),
 m_cameraPosition(0.f, 0.f)
@@ -58,12 +58,20 @@ void Maze::lauch() {
 void Maze::init() {
     m_physicsWorld.init((m_mazeWidth + 2) * m_wallWidth, (m_mazeHeight + 2) * m_wallHeight);
     
+    m_physicsWorld.setShowPhysicsBodies(true);
+    m_physicsWorld.setShowAABBs(false);
+    m_physicsWorld.setShowOBBs(false);
+    m_physicsWorld.setShowCollisions(true); // TOFIX
+    m_physicsWorld.setShowQuadtree(false);
+    m_physicsWorld.setShowQuadtreeEvents(false);
+    
     generateMaze();
     
     m_player.move(sf::Vector2f{m_wallWidth * 1.5f, m_wallHeight * 1.5f});
     m_player.getPhysicsBody()->addContactTestMask(FILLED_TILE_CATEGORY_BITMASK);
     m_physicsWorld.addBody(m_player.getPhysicsBody());
-    m_physicsWorld.addBodyDebugUpdateDispay(m_player.getPhysicsBody());
+    m_physicsWorld.addBodyQuadtreeUpdateEvent(m_player.getPhysicsBody());
+    m_physicsWorld.addBodyQuadtreeAdditionEvent(m_player.getPhysicsBody());
     
     if (SHOW_CONSOLE) {
         m_console = std::make_unique<Console>();
@@ -176,19 +184,20 @@ void Maze::display() {
         tileSprite.setTexture(tileTexture->getTexture());
         drawEntity(*tile, tileSprite);
     }
-    
+
     // Draws player
     auto playerTexture {m_player.draw()};
     sf::Sprite playerSprite;
     playerSprite.setTexture(playerTexture->getTexture());
     drawEntity(m_player, playerSprite);
-    
+
     // Draw physics
-    auto physicsTexture {m_physicsWorld.getPhysicsDebugTexture(m_width, m_height, m_cameraPosition)};
+    auto physicsTexture {m_physicsWorld.getPhysicsTexture(m_width, m_height, m_cameraPosition)};
     sf::Sprite physicsSprite;
     physicsSprite.setTexture(physicsTexture->getTexture());
     physicsSprite.setPosition(0.f, 0.f);
     m_window.draw(physicsSprite);
+
     
     // Draw console
     if (SHOW_CONSOLE) {

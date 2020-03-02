@@ -8,6 +8,8 @@
 #ifndef CirclePhysicsBody_hpp
 # define CirclePhysicsBody_hpp
 
+# include <optional>
+
 # include "PhysicsBody.hpp"
 # include "RectanglePhysicsBody.hpp"
 # include "SegmentPhysicsBody.hpp"
@@ -38,11 +40,12 @@ public:
     
     virtual PhysicsBody* clone() const;
     
-protected:
-    virtual void generateDebugTexture();
+    virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor);
     
 private:
     float m_radius;
+    
+    static std::optional<sf::RenderTexture> bodyTexture;
 };
 
 }

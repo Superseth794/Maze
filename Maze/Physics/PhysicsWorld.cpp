@@ -13,10 +13,8 @@ bool isBodyInsideNode(PhysicsBody* body, QuadtreeNode* node) {
     return body->isInsideAABB(node->box);
 }
 
-PhysicsWorld::PhysicsWorld(bool showPhysics, bool showQuadtree) :
-m_root({AABB{sf::Vector2f{0.f, 0.f}, 0.f, 0.f}}),
-m_showPhysics(showPhysics),
-m_showQuadtree(showQuadtree)
+PhysicsWorld::PhysicsWorld() :
+m_root({AABB{sf::Vector2f{0.f, 0.f}, 0.f, 0.f}})
 {
 }
 
@@ -25,7 +23,7 @@ PhysicsWorld::~PhysicsWorld() {
     removeAllBodies();
     
     int bodiesLeft = getBodiesCount();
-    assert(bodiesLeft == debugCountBodies());
+    assert(bodiesLeft == getPreciseBodiesCount());
     
     if (bodiesLeft > 0)
         std::cout << "\nError: " << bodiesLeft << " bodie" << (bodiesLeft > 1 ? "s" : "") << " not removed from physics world" << std::endl;
@@ -73,13 +71,13 @@ void PhysicsWorld::updateBody(PhysicsBody* body) {
     addBody(body, currentNode);
 }
 
-void PhysicsWorld::addBodyDebugAdditionDisplay(PhysicsBody* body) {
+void PhysicsWorld::addBodyQuadtreeAdditionEvent(PhysicsBody* body) {
     if (!body || !m_showQuadtree)
         return;
     m_debugBodiesAdditionDisplay.push_back(body);
 }
 
-void PhysicsWorld::addBodyDebugUpdateDispay(PhysicsBody* body) {
+void PhysicsWorld::addBodyQuadtreeUpdateEvent(PhysicsBody* body) {
     if (!body || !m_showQuadtree)
         return;
     m_debugBodiesUpdateDisplay.push_back({body, nullptr});
@@ -90,7 +88,7 @@ std::uint64_t PhysicsWorld::generateBodyId() {
     return m_currentBodyId++;
 }
 
-std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollision(PhysicsBody* body, sf::Vector2f const& anchor) {
+std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollision(PhysicsBody* body, sf::Vector2f const& anchor, bool recursiveSearch) {
     body->move(anchor);
 
     auto collisions {checkCollision(body, &m_root)};
@@ -104,83 +102,91 @@ int PhysicsWorld::getBodiesCount() {
     return m_bodiesCount;
 }
 
-std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float width, float height, sf::Vector2f const& anchor) {
+std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsTexture(float width, float height, sf::Vector2f const& anchor) {
+    // Physics texture
     auto texture {std::make_unique<sf::RenderTexture>()};
     texture->create(width, height);
     texture->clear(sf::Color::Transparent);
     
-    if (!m_showPhysics && !m_showQuadtree) {
+    if (!m_showPhysicsBodies && !m_showAABBs && !m_showOBBs && !m_showCollisions && !m_showQuadtree && !m_showQuadtreeEvents) {
         return texture;
     }
     
-    sf::Vector2f shapesAnchor {
+    sf::Vector2f physicsShapesAnchor {
         -anchor.x + width / 2.f,
         -anchor.y + height / 2.f
     };
+    
     std::vector<PhysicsBody*> toDrawBodies;
     auto nodesTexture {std::make_unique<sf::RenderTexture>()};
     nodesTexture->create(width, height);
     nodesTexture->clear(sf::Color::Transparent);
     
-    std::function<void(QuadtreeNode*, PhysicsWorld*, std::unique_ptr<sf::RenderTexture>&, sf::Vector2f const&, std::vector<PhysicsBody*>&)> drawNode = [](QuadtreeNode* node, PhysicsWorld* world, std::unique_ptr<sf::RenderTexture>& texture, sf::Vector2f const& shapesAnchor, std::vector<PhysicsBody*>& toDrawBodies) {
+    std::function<void(QuadtreeNode*, PhysicsWorld*, std::unique_ptr<sf::RenderTexture>&, sf::Vector2f const&, std::vector<PhysicsBody*>&)> drawNode = [](QuadtreeNode* node, PhysicsWorld* world, std::unique_ptr<sf::RenderTexture>& texture, sf::Vector2f const& physicsShapesAnchor, std::vector<PhysicsBody*>& toDrawBodies) {
         if (world->m_showQuadtree) {
+            sf::Color nodeShapeFillColor = DEBUG_QUADTREE_NODES_COLOR;
+            
+            // Displays quadtree events
+            if (world->m_showQuadtreeEvents) {
+                // Displays node as debug node where body update happened
+                for (auto const& debugUpdateStruct : world->m_debugBodiesUpdateDisplay) {
+                    if (debugUpdateStruct.second && *debugUpdateStruct.second == *node) {
+                        nodeShapeFillColor = DEBUG_QUADTREE_UPDATE_COLOR;
+                        break;
+                    }
+                }
+                
+                // Displays node as debug node where body addition happened
+                for (auto const& debugBody : world->m_debugBodiesAdditionDisplay) {
+                    if (debugBody && *debugBody->getParentNode() == *node) {
+                        nodeShapeFillColor = DEBUG_QUADTREE_ADDITION_COLOR;
+                        break;
+                    }
+                }
+            }
+            
             sf::Vector2f shapePosition {
-                node->box.origin.x + shapesAnchor.x,
-                node->box.origin.y + shapesAnchor.y
+                node->box.origin.x + physicsShapesAnchor.x,
+                node->box.origin.y + physicsShapesAnchor.y
             };
             
             sf::RectangleShape nodeShape {sf::Vector2f{node->box.width, node->box.height}};
             nodeShape.setPosition(shapePosition);
-            nodeShape.setFillColor(DEBUG_QUADTREE_NODES_COLOR);
+            nodeShape.setFillColor(nodeShapeFillColor);
             nodeShape.setOutlineColor(sf::Color::Black);
-            
-            // Displays node as debug node where body update happened
-            for (auto const& debugUpdateStruct : world->m_debugBodiesUpdateDisplay) {
-                if (debugUpdateStruct.second && *debugUpdateStruct.second == *node) {
-                    nodeShape.setFillColor(DEBUG_QUADTREE_UPDATE_COLOR);
-                    break;
-                }
-            }
-            
-            // Displays node as debug node where body addition happened
-            for (auto const& debugBody : world->m_debugBodiesAdditionDisplay) {
-                if (debugBody && *debugBody->getParentNode() == *node) {
-                    nodeShape.setFillColor(DEBUG_QUADTREE_ADDITION_COLOR);
-                    break;
-                }
-            }
             
             nodeShape.setOutlineThickness(3.f);
             texture->draw(nodeShape);
         }
         
-        if (world->m_showPhysics) {
+        if (world->m_showPhysicsBodies || world->m_showAABBs || world->m_showOBBs) {
             for (auto& body : node->bodies) {
                 toDrawBodies.push_back(body);
             }
         }
     };
     
-    forEachNode<PhysicsWorld*, std::unique_ptr<sf::RenderTexture>&, sf::Vector2f const&, std::vector<PhysicsBody*>&>(drawNode, this, nodesTexture, shapesAnchor, toDrawBodies);
+    forEachNode<PhysicsWorld*, std::unique_ptr<sf::RenderTexture>&, sf::Vector2f const&, std::vector<PhysicsBody*>&>(drawNode, this, nodesTexture, physicsShapesAnchor, toDrawBodies);
     
     // Draws bodies sprites
     for (auto& body : toDrawBodies) {
-        auto bodyTexture {body->getDebugTexture()};
+        if (m_showPhysicsBodies) {
+            auto bodySprite {body->getBodySprite(physicsShapesAnchor)};
+            texture->draw(bodySprite);
+        }
         
-        sf::Vector2f spritePosition {
-            body->getCenter().x - bodyTexture->getSize().x / 2.f - anchor.x + width / 2.f,
-            body->getCenter().y - bodyTexture->getSize().y / 2.f - anchor.y + height / 2.f
-        };
+        if (m_showAABBs) {
+            auto& bodyShape {body->getAABBShape(physicsShapesAnchor)};
+            texture->draw(bodyShape);
+        }
         
-        sf::Sprite bodySprite;
-        bodySprite.setTexture(bodyTexture->getTexture());
-        bodySprite.setPosition(spritePosition);
-        
-        texture->draw(bodySprite);
+        if (m_showOBBs) {
+            // TODO
+        }
     }
     
     // Shows collisisons
-    if (m_showPhysics) {
+    if (m_showCollisions) {
         for (auto& collision : m_debugCollisions) {
             for (auto& collisionPosition : *collision.second) {
                 sf::Vector2f debugSpritePosition {
@@ -190,6 +196,7 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
                 sf::CircleShape debugCollisionSprite {10.f};
                 debugCollisionSprite.setFillColor(DEBUG_COLLISION_FILL_COLOR);
                 debugCollisionSprite.setOutlineColor(DEBUG_COLLISION_OUTLINE_COLOR);
+                debugCollisionSprite.setOutlineThickness(-5.f);
                 debugCollisionSprite.setPosition(debugSpritePosition);
                 texture->draw(debugCollisionSprite);
             }
@@ -199,6 +206,7 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsDebugTexture(float wi
     
     // Draws nodes sprites
     nodesTexture->display();
+    
     sf::Sprite nodesSprite;
     nodesSprite.setTexture(nodesTexture->getTexture());
     nodesSprite.setPosition(0.f, 0.f);
@@ -236,7 +244,7 @@ void PhysicsWorld::simulate() {
                 collision.first = otherBody;
             }
 
-            if (world->m_showPhysics) {
+            if (world->m_showCollisions) {
                 for (int i = 0; i < collisions->size(); ++i) {
                     (*collisions)[i].first->setCollisionTriggered(true);
                     world->m_debugCollisions.emplace_back(std::move((*collisions)[i]));
@@ -246,6 +254,30 @@ void PhysicsWorld::simulate() {
     };
     
     forEachNode<PhysicsWorld*, int&>(computeCollisionsInNode, this, m_computedCollisionsCount);
+}
+
+void PhysicsWorld::setShowPhysicsBodies(bool show) {
+    m_showPhysicsBodies = show;
+}
+
+void PhysicsWorld::setShowAABBs(bool show) {
+    m_showAABBs = show;
+}
+
+void PhysicsWorld::setShowOBBs(bool show) {
+    m_showOBBs = show;
+}
+
+void PhysicsWorld::setShowCollisions(bool show) {
+    m_showCollisions = show;
+}
+
+void PhysicsWorld::setShowQuadtree(bool show) {
+    m_showQuadtree = show;
+}
+
+void PhysicsWorld::setShowQuadtreeEvents(bool show) {
+    m_showQuadtreeEvents = show;
 }
 
 void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
@@ -419,7 +451,7 @@ void PhysicsWorld::addParent(QuadtreeNode* node, sf::Vector2f const& bodyPositio
     *node = std::move(newRoot);
 }
 
-int PhysicsWorld::debugCountBodies(bool checkvalidity) {
+int PhysicsWorld::getPreciseBodiesCount(bool checkvalidity) {
     int bodiesCount = 0;
     if (!checkvalidity) {
         std::function<void(QuadtreeNode*, int&)> countBodies = [](QuadtreeNode* node, int& bodiesCount) {
@@ -512,8 +544,8 @@ std::optional<PhysicsWorld::QuadtreeLocation> PhysicsWorld::findBody(PhysicsBody
     return std::nullopt;
 }
 
-const sf::Color PhysicsWorld::DEBUG_COLLISION_FILL_COLOR = sf::Color{255, 0, 0, 200};
-const sf::Color PhysicsWorld::DEBUG_COLLISION_OUTLINE_COLOR = sf::Color{255, 145, 130};
+const sf::Color PhysicsWorld::DEBUG_COLLISION_FILL_COLOR = sf::Color{255, 0, 0, 255};
+const sf::Color PhysicsWorld::DEBUG_COLLISION_OUTLINE_COLOR = sf::Color{19, 64, 23, 255};
 const sf::Color PhysicsWorld::DEBUG_QUADTREE_NODES_COLOR = sf::Color{255, 140, 255, 75};
 
 const sf::Color PhysicsWorld::DEBUG_QUADTREE_ADDITION_COLOR = sf::Color(255, 0, 0, 150);

@@ -148,19 +148,35 @@ PhysicsBody* CirclePhysicsBody::clone() const {
     return new CirclePhysicsBody(*this);
 }
 
-void CirclePhysicsBody::generateDebugTexture() {
-    m_debugTexture = std::make_shared<sf::RenderTexture>();
-    m_debugTexture->create(m_radius * 2.f, m_radius * 2.f);
-    m_debugTexture->clear(sf::Color::Transparent);
+sf::Sprite const CirclePhysicsBody::getBodySprite(sf::Vector2f const& anchor) {
+    if (!bodyTexture.has_value()) {
+        bodyTexture.emplace();
+        
+        auto& texture = bodyTexture.value();
+        texture.create(100, 100);
+        texture.clear(sf::Color::Transparent);
+        
+        sf::CircleShape shape;
+        shape.setRadius(50.f);
+        shape.setFillColor(DEBUG_PHYSICS_FILL_COLOR);
+        shape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
+        shape.setOutlineThickness(-10.f);
+        shape.setPosition(0.f, 0.f);
+        
+        texture.draw(shape);
+        texture.display();
+    }
     
-    sf::CircleShape debugShape{m_radius};
-    debugShape.setFillColor(m_debugCollisionTextureLoaded ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_FILL_COLOR);
-    debugShape.setPosition(0.f, 0.f);
-    debugShape.setOutlineThickness(-3.f);
-    debugShape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
-    m_debugTexture->draw(debugShape);
+    float scaleFactor = m_radius / 50.f;
     
-    m_debugTexture->display();
+    sf::Sprite bodySprite;
+    bodySprite.setTexture(bodyTexture.value().getTexture());
+    bodySprite.setScale(scaleFactor, scaleFactor);
+    bodySprite.setPosition(m_frame.origin.x + anchor.x, m_frame.origin.y + anchor.y);
+    
+    return bodySprite;
 }
+
+std::optional<sf::RenderTexture> CirclePhysicsBody::bodyTexture = std::nullopt;
 
 }

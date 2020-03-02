@@ -9,6 +9,7 @@
 # define RectanglePhysicsBody_hpp
 
 # include <array>
+# include <optional>
 
 # include "PhysicsBody.hpp"
 # include "CirclePhysicsBody.hpp"
@@ -48,13 +49,14 @@ public:
     
     float getRotation() const;
     
-protected:
-    virtual void generateDebugTexture();
+    virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor);
     
 private:
     float m_width;
     float m_heigth;
     float m_rotation;
+    
+    static std::optional<sf::RenderTexture> bodyTexture;
 };
 
 }

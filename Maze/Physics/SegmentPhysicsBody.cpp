@@ -120,24 +120,35 @@ float SegmentPhysicsBody::getLength2() const {
     return (m_endPos.x - m_startPos.x) * (m_endPos.x - m_startPos.x) + (m_endPos.y - m_startPos.y) * (m_endPos.y - m_startPos.y);
 }
 
-void SegmentPhysicsBody::generateDebugTexture() {
-    m_debugTexture = std::make_shared<sf::RenderTexture>();
+sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) {
+    if (!bodyTexture.has_value()) {
+        bodyTexture.emplace();
+        
+        auto& texture = bodyTexture.value();
+        texture.create(100.f, 100.f);
+        texture.clear(sf::Color::Transparent);
+        
+        sf::RectangleShape shape;
+        shape.setSize(sf::Vector2f{100.f, 10.f});
+        shape.setFillColor(DEBUG_PHYSICS_OUTLINE_COLOR);
+        shape.setPosition(0.f, 0.f);
+        
+        texture.draw(shape);
+        texture.display();
+    }
     
-    float width = std::abs(m_endPos.x - m_startPos.x);
-    float height = std::abs(m_endPos.y - m_startPos.y);
-    sf::Vector2f anchor {std::min(m_startPos.x, m_endPos.x), std::min(m_startPos.y, m_endPos.y)};
+    float angle = std::acos((100.f * getVector().x) / (getLength() * 100 * 100));
+    float scaleFactor = getLength2() / (100 * 100);
     
-    m_debugTexture->create(width, height);
-    m_debugTexture->clear(sf::Color::Transparent);
+    sf::Sprite bodySprite;
+    bodySprite.setTexture(bodyTexture.value().getTexture());
+    bodySprite.setScale(scaleFactor, 1.f);
+    bodySprite.setPosition(m_frame.origin.x - 5.f + anchor.x, m_frame.origin.y - 5.f + anchor.y);
+    bodySprite.setRotation(angle);
     
-    sf::Vertex vertexes[2] = {};
-    vertexes[0].position = sf::Vector2f{m_startPos.x - anchor.x, m_startPos.y - anchor.y};
-    vertexes[0].color = (m_debugCollisionTextureLoaded ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_OUTLINE_COLOR);
-    vertexes[1].position = sf::Vector2f{m_endPos.x - anchor.x, m_endPos.y - anchor.y};
-    vertexes[1].color = (m_debugCollisionTextureLoaded ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_OUTLINE_COLOR);
-    m_debugTexture->draw(vertexes, 2, sf::Lines);
-    
-    m_debugTexture->display();
+    return bodySprite;
 }
+
+std::optional<sf::RenderTexture> SegmentPhysicsBody::bodyTexture = std::nullopt;
 
 }

@@ -43,8 +43,6 @@ m_id(0),
 m_categoryMask(body.m_categoryMask),
 m_contactTestMasks(body.m_contactTestMasks.begin(), body.m_contactTestMasks.end()),
 m_parentWorld(body.m_parentWorld),
-m_debugTexture(body.m_debugTexture),
-m_debugTextureLoaded(body.m_debugTextureLoaded),
 m_collisionCallback([](Collision const& Collision){})
 {
     if (m_parentWorld)
@@ -88,6 +86,11 @@ std::uint64_t PhysicsBody::getId() const {
 
 QuadtreeNode* PhysicsBody::getParentNode() const {
     return m_parentNode;
+}
+
+void PhysicsBody::updateInWorld() {
+    if (m_parentWorld)
+        m_parentWorld->updateBody(this);
 }
 
 void PhysicsBody::setParentNode(QuadtreeNode* parentNode) {
@@ -136,27 +139,33 @@ bool PhysicsBody::shouldTestCollisionWithMask(std::uint32_t bitMask) const {
     return false;
 }
 
-void PhysicsBody::updateInWorld() {
-    if (m_parentWorld)
-        m_parentWorld->updateBody(this);
-}
-
-std::shared_ptr<sf::RenderTexture> const PhysicsBody::getDebugTexture() {
-    if (!m_debugTextureLoaded) {
-        generateDebugTexture();
-        m_debugTextureLoaded = true;
+sf::RectangleShape const& PhysicsBody::getAABBShape(sf::Vector2f const& anchor) {
+    if (!AABBShape.has_value()) {
+        AABBShape.emplace();
+        
+        auto& shape = AABBShape.value();
+        
+        shape.setSize(sf::Vector2f{100.f, 100.f});
+        shape.setFillColor(sf::Color(3, 28, 252, 160));
+        shape.setOutlineColor(sf::Color(52, 216, 235, 200));
+        shape.setOutlineThickness(-5.f);
+        shape.setPosition(0.f, 0.f);
     }
     
-    if (m_debugCollisionTriggered != m_debugCollisionTextureLoaded) {
-        m_debugCollisionTextureLoaded = m_debugCollisionTriggered;
-        generateDebugTexture();
-    }
-    m_debugCollisionTriggered = false;
+    sf::Vector2f scaleFactors {
+        m_frame.width / 100.f,
+        m_frame.height / 100.f
+    };
     
-    return m_debugTexture;
+    AABBShape.value().setScale(scaleFactors);
+    AABBShape.value().setPosition(m_frame.origin.x + anchor.x, m_frame.origin.y + anchor.y);
+    
+    return AABBShape.value();
 }
 
-const sf::Color PhysicsBody::DEBUG_PHYSICS_FILL_COLOR = sf::Color(56, 128, 78, 175);
+std::optional<sf::RectangleShape> PhysicsBody::AABBShape = std::nullopt;
+
+const sf::Color PhysicsBody::DEBUG_PHYSICS_FILL_COLOR = sf::Color(56, 128, 78, 175); // 18, 217, 4
 const sf::Color PhysicsBody::DEBUG_PHYSICS_OUTLINE_COLOR = sf::Color{22, 64, 25, 187};
 const sf::Color PhysicsBody::DEBUG_DID_COLLIDE_BODY_FILL_COLOR = sf::Color{255, 0, 0, 135};
 

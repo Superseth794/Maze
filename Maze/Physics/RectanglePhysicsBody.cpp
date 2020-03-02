@@ -204,37 +204,39 @@ float RectanglePhysicsBody::getRotation() const {
     return m_rotation;
 }
 
-void RectanglePhysicsBody::generateDebugTexture() {
-    m_debugTexture = std::make_shared<sf::RenderTexture>();
+sf::Sprite const RectanglePhysicsBody::getBodySprite(sf::Vector2f const& anchor) {
+    if (!bodyTexture.has_value()) {
+        bodyTexture.emplace();
+        
+        auto& texture = bodyTexture.value();
+        texture.create(100.f, 100.f);
+        texture.clear(sf::Color::Transparent);
+        
+        sf::RectangleShape shape;
+        shape.setSize(sf::Vector2f{100.f, 100.f});
+        shape.setFillColor(DEBUG_PHYSICS_FILL_COLOR);
+        shape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
+        shape.setOutlineThickness(-5.f);
+        shape.setPosition(0.f, 0.f);
+        
+        texture.draw(shape);
+        texture.display();
+    }
     
-    float width = m_width * std::cos(m_rotation) + m_heigth * std::sin(m_rotation);
-    float height = m_width * std::sin(m_rotation) + m_heigth * std::cos(m_rotation);
+    sf::Vector2f scaleFactors {
+        m_width / 100.f,
+        m_heigth / 100.f
+    };
     
-    m_debugTexture->create(width, height);
-//    m_debugTexture->clear(sf::Color::Transparent);
-    m_debugTexture->clear(sf::Color(125, 125, 55, 255));
+    sf::Sprite bodySprite;
+    bodySprite.setTexture(bodyTexture.value().getTexture());
+    bodySprite.setScale(scaleFactors);
+    bodySprite.setPosition(m_frame.origin.x + anchor.x, m_frame.origin.y + anchor.y);
+    bodySprite.setRotation(m_rotation);
     
-    sf::ConvexShape debugShape;
-    debugShape.setPointCount(4);
-    debugShape.setFillColor(m_debugCollisionTextureLoaded ? DEBUG_DID_COLLIDE_BODY_FILL_COLOR : DEBUG_PHYSICS_FILL_COLOR);
-    debugShape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
-    debugShape.setOutlineThickness(-3.f);
-    
-//    sf::Vector2f anchor {
-//        getCenter().x - m_width / 2.f * std::cos(m_rotation) - m_heigth / 2.f * std::sin(m_rotation),
-//        getCenter().y - m_heigth / 2.f * std::cos(m_rotation) - m_width / 2.f * std::cos(m_rotation)
-//    };
-    
-    sf::Vector2f anchor = m_frame.origin;
-    
-    debugShape.setPoint(0, getTopLeftCorner() - anchor);
-    debugShape.setPoint(1, getTopRightCorner() - anchor);
-    debugShape.setPoint(2, getBottomRightCorner() - anchor);
-    debugShape.setPoint(3, getBottomLeftCorner() - anchor);
-    
-    m_debugTexture->draw(debugShape);
-    
-    m_debugTexture->display();
+    return bodySprite;
 }
+
+std::optional<sf::RenderTexture> RectanglePhysicsBody::bodyTexture = std::nullopt;
 
 }

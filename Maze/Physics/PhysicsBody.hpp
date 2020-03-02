@@ -10,6 +10,7 @@
 
 # include <cmath>
 # include <algorithm>
+# include <optional>
 
 # include <SFML/Graphics.hpp>
 
@@ -84,17 +85,12 @@ public:
     bool shouldTestCollisionWithMask(std::uint32_t bitMask) const;
     
     void setCollisionTriggered(bool triggered);
-    std::shared_ptr<sf::RenderTexture> const getDebugTexture();
-    
-protected:
-    virtual void generateDebugTexture() = 0;
+    sf::RectangleShape const& getAABBShape(sf::Vector2f const& anchor);
+//    sf::RectangleShape const& getOBBSprite(); // TODO
+    virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor) = 0;
     
 protected:
     AABB m_frame;
-    
-    std::shared_ptr<sf::RenderTexture> m_debugTexture;
-    bool m_debugTextureLoaded = false;
-    bool m_debugCollisionTextureLoaded = false;
     
     static const sf::Color DEBUG_PHYSICS_FILL_COLOR;
     static const sf::Color DEBUG_PHYSICS_OUTLINE_COLOR;
@@ -112,7 +108,9 @@ private:
     
     CollisionCallback m_collisionCallback;
     
-    bool m_debugCollisionTriggered = false;
+    bool m_debugCollisionTriggered = false; // TODO use callbacks
+    
+    static std::optional<sf::RectangleShape> AABBShape;
     
 };
 
