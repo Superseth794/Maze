@@ -253,7 +253,7 @@ void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
         return;
     
     // Adds body to parent node
-    if (!body->isInsideAABB(node->box)) {
+    if (!isBodyInsideNode(body, node)) {
         if (!node->parent) {
             addParent(node, body->getCenter());
             addBody(body, node);
@@ -473,7 +473,7 @@ std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollisi
             QuadtreeNode* childNode = node->childs[childId].get();
             
             // Prevents search when collision is impossible
-            if (!body->isInsideAABB(childNode->box))
+            if (!(isCollisionBetweenAABB(body->getFrame(), childNode->box) || body->isCollidingWithAABB(childNode->box)))
                 continue;
             
             auto newCollisions {checkCollision(body, node->childs[childId].get())};
@@ -502,7 +502,7 @@ std::optional<PhysicsWorld::QuadtreeLocation> PhysicsWorld::findBody(PhysicsBody
         
         nextNodeFound = false;
         for (int i = 0; i < 4; ++i) {
-            if (body->isInsideAABB(currentNode->childs[i]->box)) {
+            if (isBodyInsideNode(body, currentNode->childs[i].get())) {
                 currentNode = currentNode->childs[i].get();
                 nextNodeFound = true;
                 break;

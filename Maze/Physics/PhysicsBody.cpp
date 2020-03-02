@@ -39,7 +39,9 @@ bool PhysicsBody::operator!=(PhysicsBody const& body) const {
 PhysicsBody::PhysicsBody(PhysicsBody const& body) :
 m_frame(body.m_frame),
 m_center(body.m_center),
+m_id(0),
 m_categoryMask(body.m_categoryMask),
+m_contactTestMasks(body.m_contactTestMasks.begin(), body.m_contactTestMasks.end()),
 m_parentWorld(body.m_parentWorld),
 m_debugTexture(body.m_debugTexture),
 m_debugTextureLoaded(body.m_debugTextureLoaded),

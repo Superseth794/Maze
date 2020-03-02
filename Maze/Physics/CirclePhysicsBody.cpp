@@ -47,6 +47,37 @@ bool CirclePhysicsBody::isInsideAABB(AABB const& box) const {
             isPositionInsideAABB(box, sf::Vector2f{getCenter().x, getCenter().y - m_radius}));
 }
 
+bool CirclePhysicsBody::isCollidingWithAABB(AABB const& box) const {
+    for (auto corner : {box.getTopLeftCorner(), box.getTopRightCorner(), box.getBottomRightCorner(), box.getBottomLeftCorner()}) {
+        if (isPositionInside(corner))
+            return true;
+    }
+    
+    if (isPositionInsideAABB(box, getCenter()))
+        return true;
+    
+    sf::Vector2f border1 = box.getTopRightCorner() - box.getTopLeftCorner();
+    sf::Vector2f segment1 = getCenter() - box.getTopLeftCorner();
+    float scalar1 = border1.x * segment1.x + border1.y * segment1.y;
+    
+    if (scalar1 >= 0 && scalar1 * scalar1 <= (border1.x * border1.x + border1.y * border1.y))
+        return true;
+    
+    sf::Vector2f border2 = box.getBottomRightCorner() - box.getBottomLeftCorner();
+    sf::Vector2f segment2 = getCenter() - box.getBottomLeftCorner();
+    float scalar2 = border2.x * segment2.x + border2.y * segment2.y;
+    
+    if (scalar2 >= 0 && scalar2 * scalar2 <= (border2.x * border2.x + border2.y * border2.y))
+        return true;
+    
+    return false;
+}
+
+bool CirclePhysicsBody::isPositionInside(sf::Vector2f const& position) const {
+    float distance2 = (getCenter().x - position.x) * (getCenter().x - position.x) + (getCenter().y - position.y) * (getCenter().y - position.y);
+    return distance2 <= m_radius * m_radius;
+}
+
 std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWithSegment(SegmentPhysicsBody* segment) {
     auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
     
@@ -111,11 +142,6 @@ std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWithCircle(
 
 std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWithRectangle(RectanglePhysicsBody* rectangle) {
     return rectangle->collideWithCircle(this);
-}
-
-bool CirclePhysicsBody::isPositionInside(sf::Vector2f const& position) const {
-    float distance2 = (getCenter().x - position.x) * (getCenter().x - position.x) + (getCenter().y - position.y) * (getCenter().y - position.y);
-    return distance2 <= m_radius * m_radius;
 }
 
 PhysicsBody* CirclePhysicsBody::clone() const {

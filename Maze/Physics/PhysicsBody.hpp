@@ -52,6 +52,7 @@ public:
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(PhysicsBody* body) = 0;
     
     virtual bool isInsideAABB(AABB const& box) const = 0;
+    virtual bool isCollidingWithAABB(AABB const& box) const = 0;
     virtual bool isPositionInside(sf::Vector2f const& position) const = 0;
     
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithSegment(SegmentPhysicsBody* segment) = 0;

@@ -72,6 +72,25 @@ bool RectanglePhysicsBody::isInsideAABB(AABB const& box) const {
             isPositionInsideAABB(box, getBottomLeftCorner()));
 }
 
+bool RectanglePhysicsBody::isCollidingWithAABB(AABB const& box) const {
+    return (isPositionInside(box.getTopLeftCorner()) ||
+            isPositionInside(box.getTopRightCorner()) ||
+            isPositionInside(box.getBottomRightCorner()) ||
+            isPositionInside(box.getBottomLeftCorner()) ||
+            isPositionInsideAABB(box, getTopLeftCorner()) ||
+            isPositionInsideAABB(box, getTopRightCorner()) ||
+            isPositionInsideAABB(box, getBottomRightCorner()) ||
+            isPositionInsideAABB(box, getBottomLeftCorner()));
+}
+
+bool RectanglePhysicsBody::isPositionInside(sf::Vector2f const& position) const {
+    auto getAngle = [&position] (sf::Vector2f const& ref) -> float {
+        return std::atan((ref.y - position.y) / (ref.x - position.x));
+    };
+    float anglesSum = getAngle(getTopLeftCorner()) + getAngle(getTopRightCorner()) + getAngle(getBottomRightCorner()) + getAngle(getBottomLeftCorner());
+    return (2 * M_PI * 0.99f <= anglesSum && anglesSum <= 2 * M_PI * 1.01);
+}
+
 std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWithSegment(SegmentPhysicsBody* segment) {
     SegmentPhysicsBody seg1 {getTopLeftCorner(), getTopRightCorner()};
     SegmentPhysicsBody seg2 {getTopRightCorner(), getBottomRightCorner()};
@@ -139,14 +158,6 @@ std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWithRect
     }
     
     return intersections;
-}
-
-bool RectanglePhysicsBody::isPositionInside(sf::Vector2f const& position) const {
-    auto getAngle = [&position] (sf::Vector2f const& ref) -> float {
-        return std::atan((ref.y - position.y) / (ref.x - position.x));
-    };
-    float anglesSum = getAngle(getTopLeftCorner()) + getAngle(getTopRightCorner()) + getAngle(getBottomRightCorner()) + getAngle(getBottomLeftCorner());
-    return (2 * M_PI * 0.99f <= anglesSum && anglesSum <= 2 * M_PI * 1.01);
 }
 
 PhysicsBody* RectanglePhysicsBody::clone() const {

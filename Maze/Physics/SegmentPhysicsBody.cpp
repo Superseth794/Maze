@@ -51,6 +51,21 @@ bool SegmentPhysicsBody::isInsideAABB(AABB const& box) const {
             isPositionInsideAABB(box, m_endPos));
 }
 
+bool SegmentPhysicsBody::isCollidingWithAABB(AABB const& box) const {
+    std::cerr << "Warning !! bad collision computation !\n";
+    return isInsideAABB(box); // TOFIX - TODO
+}
+
+bool SegmentPhysicsBody::isPositionInside(sf::Vector2f const& position) const {
+    float a = getVector().y;
+    float b = -getVector().x;
+    if (std::abs(position.y - (position.x * a + b)) > std::numeric_limits<float>::epsilon())
+        return false;
+    sf::Vector2f vect {position.x - m_startPos.x, position.y - m_startPos.y};
+    float scalar = getVector().x * vect.x + getVector().y * vect.y;
+    return (scalar < 0 || scalar * scalar > getLength2());
+}
+
 std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWithSegment(SegmentPhysicsBody* segment) {
     auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
     sf::Vector2f AO {segment->getStartPos().x - m_startPos.x, segment->getStartPos().y - m_startPos.y};
@@ -79,16 +94,6 @@ std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWithCircle
 
 std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWithRectangle(RectanglePhysicsBody* rectangle) {
     return rectangle->collideWithSegment(this);
-}
-
-bool SegmentPhysicsBody::isPositionInside(sf::Vector2f const& position) const {
-    float a = getVector().y;
-    float b = -getVector().x;
-    if (std::abs(position.y - (position.x * a + b)) > std::numeric_limits<float>::epsilon())
-        return false;
-    sf::Vector2f vect {position.x - m_startPos.x, position.y - m_startPos.y};
-    float scalar = getVector().x * vect.x + getVector().y * vect.y;
-    return (scalar < 0 || scalar * scalar > getLength2());
 }
 
 PhysicsBody* SegmentPhysicsBody::clone() const {
