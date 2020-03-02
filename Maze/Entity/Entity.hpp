@@ -29,6 +29,7 @@ public:
     virtual void move(sf::Vector2f direction);
     virtual void moveX(float dx);
     virtual void moveY(float dy);
+    virtual void moveTo(sf::Vector2f const& position);
     
     virtual void update(sf::Time timeElapsed) = 0;
     

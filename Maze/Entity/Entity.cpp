@@ -32,4 +32,9 @@ void Entity::moveY(float dy) {
     m_y += dy;
 }
 
+void Entity::moveTo(sf::Vector2f const& position) {
+    m_x = position.x;
+    m_y = position.y;
+}
+
 }
