@@ -29,15 +29,14 @@ public:
     
     virtual void updateFrame();
     
-    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(PhysicsBody* body);
-    
     virtual bool isInsideAABB(AABB const& box) const;
     virtual bool isCollidingWithAABB(AABB const& box) const;
     virtual bool isPositionInside(sf::Vector2f const& position) const;
     
-    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithSegment(SegmentPhysicsBody* segment);
-    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithCircle(CirclePhysicsBody* circle);
-    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithRectangle(RectanglePhysicsBody* rectangle);
+    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(PhysicsBody* body) const;
+    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(SegmentPhysicsBody const& segment) const;
+    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(CirclePhysicsBody const& circle) const;
+    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(RectanglePhysicsBody const& rectangle) const;
     
     virtual PhysicsBody* clone() const;
     

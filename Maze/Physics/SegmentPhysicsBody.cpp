@@ -42,10 +42,6 @@ void SegmentPhysicsBody::updateFrame() {
         m_frame.origin = origin;
 }
 
-std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(PhysicsBody* body) {
-    return body->collideWithSegment(this);
-}
-
 bool SegmentPhysicsBody::isInsideAABB(AABB const& box) const {
     return (isPositionInsideAABB(box, m_startPos) &&
             isPositionInsideAABB(box, m_endPos));
@@ -66,34 +62,38 @@ bool SegmentPhysicsBody::isPositionInside(sf::Vector2f const& position) const {
     return (scalar < 0 || scalar * scalar > getLength2());
 }
 
-std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWithSegment(SegmentPhysicsBody* segment) {
+std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(PhysicsBody* body) const {
+    return body->collideWith(*this);
+}
+
+std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(SegmentPhysicsBody const& segment) const {
     auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
-    sf::Vector2f AO {segment->getStartPos().x - m_startPos.x, segment->getStartPos().y - m_startPos.y};
-    sf::Vector2f AP {segment->getEndPos().x - m_startPos.x, segment->getEndPos().y - m_startPos.y};
+    sf::Vector2f AO {segment.getStartPos().x - m_startPos.x, segment.getStartPos().y - m_startPos.y};
+    sf::Vector2f AP {segment.getEndPos().x - m_startPos.x, segment.getEndPos().y - m_startPos.y};
     
     if ((getVector().x * AP.y - getVector().y - AP.x) * (getVector().x * AO.y - getVector().y * AO.x) >= 0)
         return intersections;
     
-    float div = getVector().x * segment->getVector().y - getVector().y * segment->getVector().x;
+    float div = getVector().x * segment.getVector().y - getVector().y * segment.getVector().x;
     if (div == 0.f) // Prevents division per 0
         return intersections;
     
-    float k = -(m_startPos.x * segment->getVector().y - segment->m_startPos.x * segment->getVector().y - segment->getVector().x * m_startPos.y * segment->getVector().x * segment->m_startPos.y) / div;
+    float k = -(m_startPos.x * segment.getVector().y - segment.m_startPos.x * segment.getVector().y - segment.getVector().x * m_startPos.y * segment.getVector().x * segment.m_startPos.y) / div;
     if (k < 0 || k > 1)
         return intersections;
     
-    float l = (-getVector().x * m_startPos.y + getVector().x * segment->m_startPos.y + getVector().y * m_startPos.x - getVector().y * segment->m_startPos.x) / div;
+    float l = (-getVector().x * m_startPos.y + getVector().x * segment.m_startPos.y + getVector().y * m_startPos.x - getVector().y * segment.m_startPos.x) / div;
     auto normalizedVect {normalize(getVector())};
     intersections->push_back({m_startPos.x + normalizedVect.x * l, m_startPos.y + normalizedVect.y * l});
     return intersections;
 }
 
-std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWithCircle(CirclePhysicsBody* circle) {
-    return circle->collideWithSegment(this);
+std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(CirclePhysicsBody const& circle) const {
+    return circle.collideWith(*this);
 }
 
-std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWithRectangle(RectanglePhysicsBody* rectangle) {
-    return rectangle->collideWithSegment(this);
+std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(RectanglePhysicsBody const& rectangle) const {
+    return rectangle.collideWith(*this);
 }
 
 PhysicsBody* SegmentPhysicsBody::clone() const {

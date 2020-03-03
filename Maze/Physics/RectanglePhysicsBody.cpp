@@ -61,10 +61,6 @@ void RectanglePhysicsBody::updateFrame() {
         m_frame.origin = origin;
 }
 
-std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWith(PhysicsBody* body) {
-    return body->collideWithRectangle(this);
-}
-
 bool RectanglePhysicsBody::isInsideAABB(AABB const& box) const {
     return (isPositionInsideAABB(box, getTopLeftCorner()) &&
             isPositionInsideAABB(box, getTopRightCorner()) &&
@@ -91,17 +87,21 @@ bool RectanglePhysicsBody::isPositionInside(sf::Vector2f const& position) const 
     return (2 * M_PI * 0.99f <= anglesSum && anglesSum <= 2 * M_PI * 1.01);
 }
 
-std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWithSegment(SegmentPhysicsBody* segment) {
+std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWith(PhysicsBody* body) const {
+    return body->collideWith(*this);
+}
+
+std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWith(SegmentPhysicsBody const& segment) const {
     SegmentPhysicsBody seg1 {getTopLeftCorner(), getTopRightCorner()};
     SegmentPhysicsBody seg2 {getTopRightCorner(), getBottomRightCorner()};
     SegmentPhysicsBody seg3 {getBottomRightCorner(), getBottomLeftCorner()};
     SegmentPhysicsBody seg4 {getBottomLeftCorner(), getTopLeftCorner()};
     
     std::array<std::unique_ptr<std::vector<sf::Vector2f>>, 4> inters {
-        segment->collideWithSegment(&seg1),
-        segment->collideWithSegment(&seg2),
-        segment->collideWithSegment(&seg3),
-        segment->collideWithSegment(&seg4)
+        segment.collideWith(seg1),
+        segment.collideWith(seg2),
+        segment.collideWith(seg3),
+        segment.collideWith(seg4)
     };
     
     auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
@@ -114,17 +114,17 @@ std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWithSegm
     return intersections;
 }
 
-std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWithCircle(CirclePhysicsBody* circle) {
+std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWith(CirclePhysicsBody const& circle) const {
     SegmentPhysicsBody seg1 {getTopLeftCorner(), getTopRightCorner()};
     SegmentPhysicsBody seg2 {getTopRightCorner(), getBottomRightCorner()};
     SegmentPhysicsBody seg3 {getBottomRightCorner(), getBottomLeftCorner()};
     SegmentPhysicsBody seg4 {getBottomLeftCorner(), getTopLeftCorner()};
     
     std::array<std::unique_ptr<std::vector<sf::Vector2f>>, 4> inters {
-        circle->collideWithSegment(&seg1),
-        circle->collideWithSegment(&seg2),
-        circle->collideWithSegment(&seg3),
-        circle->collideWithSegment(&seg4)
+        circle.collideWith(seg1),
+        circle.collideWith(seg2),
+        circle.collideWith(seg3),
+        circle.collideWith(seg4)
     };
     
     auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
@@ -137,17 +137,17 @@ std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWithCirc
     return intersections;
 }
 
-std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWithRectangle(RectanglePhysicsBody* rectangle) {
+std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWith(RectanglePhysicsBody const& rectangle) const {
     SegmentPhysicsBody seg1 {getTopLeftCorner(), getTopRightCorner()};
     SegmentPhysicsBody seg2 {getTopRightCorner(), getBottomRightCorner()};
     SegmentPhysicsBody seg3 {getBottomRightCorner(), getBottomLeftCorner()};
     SegmentPhysicsBody seg4 {getBottomLeftCorner(), getTopLeftCorner()};
     
     std::array<std::unique_ptr<std::vector<sf::Vector2f>>, 4> inters {
-        rectangle->collideWithSegment(&seg1),
-        rectangle->collideWithSegment(&seg2),
-        rectangle->collideWithSegment(&seg3),
-        rectangle->collideWithSegment(&seg4)
+        rectangle.collideWith(seg1),
+        rectangle.collideWith(seg2),
+        rectangle.collideWith(seg3),
+        rectangle.collideWith(seg4)
     };
     
     auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};

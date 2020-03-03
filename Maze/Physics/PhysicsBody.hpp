@@ -50,15 +50,14 @@ public:
     AABB const& getFrame() const;
     virtual void updateFrame() = 0;
     
-    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(PhysicsBody* body) = 0;
-    
     virtual bool isInsideAABB(AABB const& box) const = 0;
     virtual bool isCollidingWithAABB(AABB const& box) const = 0;
     virtual bool isPositionInside(sf::Vector2f const& position) const = 0;
     
-    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithSegment(SegmentPhysicsBody* segment) = 0;
-    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithCircle(CirclePhysicsBody* circle) = 0;
-    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWithRectangle(RectanglePhysicsBody* rectangle) = 0;
+    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(PhysicsBody* body) const = 0;
+    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(SegmentPhysicsBody const& segment) const = 0;
+    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(CirclePhysicsBody const& circle) const = 0;
+    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(RectanglePhysicsBody const& rectangle) const = 0;
     
     virtual PhysicsBody* clone() const = 0;
     
@@ -85,7 +84,7 @@ public:
     bool shouldTestCollisionWithMask(std::uint32_t bitMask) const;
     
     sf::RectangleShape const& getAABBShape(sf::Vector2f const& anchor) const;
-//    sf::RectangleShape const& getOBBSprite(); // TODO
+//    sf::RectangleShape const& getOBBSprite(); TODO
     virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor) const = 0;
     
 protected:
