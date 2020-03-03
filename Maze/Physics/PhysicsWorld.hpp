@@ -122,7 +122,7 @@ private:
     int m_computedCollisionsCount = 0;
     std::vector<Collision> m_debugCollisions;
     std::vector<PhysicsBody*> m_debugBodiesAdditionDisplay;
-    std::vector<std::pair<PhysicsBody*, QuadtreeNode*>> m_debugBodiesUpdateDisplay;
+    std::vector<std::pair<PhysicsBody*, QuadtreeNode*>> m_debugBodiesUpdateDisplay; // TODO remove debug
     
     static constexpr std::size_t MAX_BODIES_PER_NODE = 10;
     

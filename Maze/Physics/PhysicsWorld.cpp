@@ -224,10 +224,10 @@ void PhysicsWorld::simulate() {
     m_debugCollisions.clear();
     m_computedCollisionsCount = 0;
     
-    std::function<void(QuadtreeNode*, PhysicsWorld*, int&)> computeCollisionsInNode = [](QuadtreeNode* node, PhysicsWorld* world, int& computedCollisionsCount) -> void {
+    std::function<void(QuadtreeNode*, int&)> computeCollisionsInNode = [this](QuadtreeNode* node, int& computedCollisionsCount) -> void {
         for (auto& body : node->bodies) {
             computedCollisionsCount++;
-            auto collisions {world->checkCollision(body)};
+            auto collisions {checkCollision(body)};
             
             if (collisions->size() == 0)
                 continue;
@@ -243,15 +243,15 @@ void PhysicsWorld::simulate() {
                 collision.first = otherBody;
             }
 
-            if (world->m_showCollisions) {
+            if (m_showCollisions) {
                 for (int i = 0; i < collisions->size(); ++i) {
-                    world->m_debugCollisions.emplace_back(std::move((*collisions)[i]));
+                    m_debugCollisions.emplace_back(std::move((*collisions)[i]));
                 }
             }
         }
     };
     
-    forEachNode<PhysicsWorld*, int&>(computeCollisionsInNode, this, m_computedCollisionsCount);
+    forEachNode<int&>(computeCollisionsInNode, m_computedCollisionsCount);
 }
 
 void PhysicsWorld::setShowPhysicsBodies(bool show) {
@@ -451,17 +451,19 @@ void PhysicsWorld::addParent(QuadtreeNode* node, sf::Vector2f const& bodyPositio
 
 int PhysicsWorld::getPreciseBodiesCount(bool checkvalidity) {
     int bodiesCount = 0;
+    std::function<void(QuadtreeNode*, int&)> countBodies;
+    
     if (!checkvalidity) {
-        std::function<void(QuadtreeNode*, int&)> countBodies = [](QuadtreeNode* node, int& bodiesCount) {
+         countBodies = [](QuadtreeNode* node, int& bodiesCount) {
             bodiesCount += node->bodies.size();
         };
-        forEachNode<int&>(countBodies, bodiesCount);
     } else {
-        std::function<void(QuadtreeNode*, int&)> countBodies = [](QuadtreeNode* node, int& bodiesCount) {
+        countBodies = [](QuadtreeNode* node, int& bodiesCount) {
             bodiesCount += std::count_if(node->bodies.begin(), node->bodies.end(), [](PhysicsBody* body) -> bool {return body;});
         };
-        forEachNode<int&>(countBodies, bodiesCount);
     }
+    
+    forEachNode<int&>(countBodies, bodiesCount);
     return bodiesCount;
 }
 
