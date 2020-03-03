@@ -35,6 +35,7 @@ std::unique_ptr<sf::RenderTexture> Console::display() {
     
     if (m_maze) {
         infos << std::round(m_maze->m_fps) << " fps\n";
+        infos << std::round(m_maze->m_fps * 1000000.f) / 1000.f << " ms/frame\n";
         infos << "camera position: (" << m_maze->m_cameraPosition.x << "," << m_maze->m_cameraPosition.y << ")\n";
     }
     
@@ -43,13 +44,24 @@ std::unique_ptr<sf::RenderTexture> Console::display() {
     }
     
     if (m_physicsWorld) {
-        infos << m_physicsWorld->m_bodiesCount << " bodies\n";
+        const int bodiesCount = m_physicsWorld->m_bodiesCount;
+        const int nodesCount = m_physicsWorld->getQuadtreeNodesCount();
+        const int maxDepht = m_physicsWorld->getQuadtreeMaxDepth();
+        const int intersectionsFoundCount = m_physicsWorld->getIntersectionsCount();
+        
+        infos << bodiesCount << " bodies\n";
+        infos << bodiesCount - m_physicsWorld->getPreciseBodiesCount() << " invalid bodies\n";
+        infos << nodesCount << " nodes in quadtree\n";
+        infos << "max node's depth: " << maxDepht << "\n\n";
+        
         infos << m_physicsWorld->m_computedCollisionsCount << " collisions computed\n";
         infos << m_physicsWorld->m_debugCollisions.size() << " collisions found\n";
+        infos << intersectionsFoundCount << " intersections found";
     }
     
     sf::Text infosText;
     infosText.setFont(m_font);
+    infosText.setCharacterSize(25.f);
     infosText.setString(infos.str());
     infosText.setFillColor(sf::Color::White);
     infosText.setPosition(8.f, 5.f);

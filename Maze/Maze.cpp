@@ -71,11 +71,11 @@ void Maze::init() {
     m_player.getPhysicsBody()->addContactTestMask(FILLED_TILE_CATEGORY_BITMASK);
     m_physicsWorld.addBody(m_player.getPhysicsBody());
     m_physicsWorld.addBodyQuadtreeUpdateEvent(m_player.getPhysicsBody());
-    m_physicsWorld.addBodyQuadtreeAdditionEvent(m_player.getPhysicsBody());
+//    m_physicsWorld.addBodyQuadtreeAdditionEvent(m_player.getPhysicsBody());
     
     if (SHOW_CONSOLE) {
         m_console = std::make_unique<Console>();
-        m_console->init(500.f, 230.f, this, &m_physicsWorld);
+        m_console->init(500.f, 345.f, this, &m_physicsWorld);
     }
 }
 

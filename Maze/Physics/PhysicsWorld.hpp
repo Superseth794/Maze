@@ -99,7 +99,10 @@ private:
     void addChildrens(QuadtreeNode* node);
     void addParent(QuadtreeNode* node, sf::Vector2f const& bodyPosition);
     
-    int getPreciseBodiesCount(bool checkvalidity = false);
+    int getPreciseBodiesCount(bool checkvalidity = false); // TODO const;
+    int getIntersectionsCount() const;
+    int getQuadtreeNodesCount(); // TODO const;
+    int getQuadtreeMaxDepth(); // TODO const;
     
     std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, QuadtreeNode* node, bool recursiveSearch = true);
     

@@ -467,6 +467,32 @@ int PhysicsWorld::getPreciseBodiesCount(bool checkvalidity) {
     return bodiesCount;
 }
 
+int PhysicsWorld::getIntersectionsCount() const {
+    int intersectionsCount = 0;
+    for (auto& collision : m_debugCollisions) {
+        intersectionsCount += collision.second->size();
+    }
+    return intersectionsCount;
+}
+
+int PhysicsWorld::getQuadtreeNodesCount() {
+    int nodesCount = 0;
+    std::function<void(QuadtreeNode*, int&)> countNodes = [this](QuadtreeNode* node, int& nodesCount) {
+        ++nodesCount;
+    };
+    forEachNode<int&>(countNodes, nodesCount);
+    return nodesCount;
+}
+
+int PhysicsWorld::getQuadtreeMaxDepth() {
+    int maxDepth = 0;
+    std::function<void(QuadtreeNode*, int&)> findMaxDepth = [this](QuadtreeNode* node, int& maxDepth) {
+        maxDepth = std::max(maxDepth, node->depth);
+    };
+    forEachNode<int&>(findMaxDepth, maxDepth);
+    return maxDepth;
+}
+
 std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollision(PhysicsBody* body, QuadtreeNode* node, bool recursiveSearch) {
     auto collisions {std::make_unique<std::vector<Collision>>()};
     
