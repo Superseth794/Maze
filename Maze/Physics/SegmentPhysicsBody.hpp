@@ -48,7 +48,7 @@ public:
     float getLength() const;
     float getLength2() const;
     
-    virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor);
+    virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor) const;
     
 private:
     sf::Vector2f m_startPos;

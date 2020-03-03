@@ -148,7 +148,7 @@ PhysicsBody* CirclePhysicsBody::clone() const {
     return new CirclePhysicsBody(*this);
 }
 
-sf::Sprite const CirclePhysicsBody::getBodySprite(sf::Vector2f const& anchor) {
+sf::Sprite const CirclePhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {
     if (!bodyTexture.has_value()) {
         bodyTexture.emplace();
         
@@ -173,6 +173,9 @@ sf::Sprite const CirclePhysicsBody::getBodySprite(sf::Vector2f const& anchor) {
     bodySprite.setTexture(bodyTexture.value().getTexture());
     bodySprite.setScale(scaleFactor, scaleFactor);
     bodySprite.setPosition(m_frame.origin.x + anchor.x, m_frame.origin.y + anchor.y);
+    
+    bodySprite.setColor(m_didCollide ? sf::Color::Red : sf::Color::White);
+    m_didCollide = false;
     
     return bodySprite;
 }

@@ -120,7 +120,7 @@ float SegmentPhysicsBody::getLength2() const {
     return (m_endPos.x - m_startPos.x) * (m_endPos.x - m_startPos.x) + (m_endPos.y - m_startPos.y) * (m_endPos.y - m_startPos.y);
 }
 
-sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) {
+sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {
     if (!bodyTexture.has_value()) {
         bodyTexture.emplace();
         
@@ -145,6 +145,9 @@ sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) {
     bodySprite.setScale(scaleFactor, 1.f);
     bodySprite.setPosition(m_frame.origin.x - 5.f + anchor.x, m_frame.origin.y - 5.f + anchor.y);
     bodySprite.setRotation(angle);
+    
+    bodySprite.setColor(m_didCollide ? sf::Color::Red : sf::Color::White);
+    m_didCollide = false;
     
     return bodySprite;
 }

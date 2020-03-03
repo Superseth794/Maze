@@ -49,7 +49,7 @@ public:
     
     float getRotation() const;
     
-    virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor);
+    virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor) const;
     
 private:
     float m_width;

@@ -200,7 +200,6 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsTexture(float width, 
                 debugCollisionSprite.setPosition(debugSpritePosition);
                 texture->draw(debugCollisionSprite);
             }
-            collision.first->setCollisionTriggered(false);
         }
     }
     
@@ -246,7 +245,6 @@ void PhysicsWorld::simulate() {
 
             if (world->m_showCollisions) {
                 for (int i = 0; i < collisions->size(); ++i) {
-                    (*collisions)[i].first->setCollisionTriggered(true);
                     world->m_debugCollisions.emplace_back(std::move((*collisions)[i]));
                 }
             }

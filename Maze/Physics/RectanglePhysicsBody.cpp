@@ -204,7 +204,7 @@ float RectanglePhysicsBody::getRotation() const {
     return m_rotation;
 }
 
-sf::Sprite const RectanglePhysicsBody::getBodySprite(sf::Vector2f const& anchor) {
+sf::Sprite const RectanglePhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {
     if (!bodyTexture.has_value()) {
         bodyTexture.emplace();
         
@@ -233,6 +233,9 @@ sf::Sprite const RectanglePhysicsBody::getBodySprite(sf::Vector2f const& anchor)
     bodySprite.setScale(scaleFactors);
     bodySprite.setPosition(m_frame.origin.x + anchor.x, m_frame.origin.y + anchor.y);
     bodySprite.setRotation(m_rotation);
+    
+    bodySprite.setColor(m_didCollide ? sf::Color(255, 0, 0, 255) : sf::Color::White);
+    m_didCollide = false;
     
     return bodySprite;
 }

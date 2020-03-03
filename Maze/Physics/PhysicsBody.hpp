@@ -84,13 +84,14 @@ public:
     std::size_t getContactTestMasksCount() const;
     bool shouldTestCollisionWithMask(std::uint32_t bitMask) const;
     
-    void setCollisionTriggered(bool triggered);
-    sf::RectangleShape const& getAABBShape(sf::Vector2f const& anchor);
+    sf::RectangleShape const& getAABBShape(sf::Vector2f const& anchor) const;
 //    sf::RectangleShape const& getOBBSprite(); // TODO
-    virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor) = 0;
+    virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor) const = 0;
     
 protected:
     AABB m_frame;
+    
+    mutable bool m_didCollide = false;
     
     static const sf::Color DEBUG_PHYSICS_FILL_COLOR;
     static const sf::Color DEBUG_PHYSICS_OUTLINE_COLOR;
@@ -107,8 +108,6 @@ private:
     std::vector<std::uint32_t> m_contactTestMasks;
     
     CollisionCallback m_collisionCallback;
-    
-    bool m_debugCollisionTriggered = false; // TODO use callbacks
     
     static std::optional<sf::RectangleShape> AABBShape;
     

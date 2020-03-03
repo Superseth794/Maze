@@ -58,6 +58,7 @@ AABB const& PhysicsBody::getFrame() const {
 }
 
 void PhysicsBody::didCollide(Collision const& collision) {
+    m_didCollide = true;
     m_collisionCallback(collision);
 }
 
@@ -106,11 +107,6 @@ void PhysicsBody::setCollisionCallback(CollisionCallback && callback) {
     m_collisionCallback = std::move(callback);
 }
 
-void PhysicsBody::setCollisionTriggered(bool triggered) {
-    if (m_debugCollisionTriggered != triggered)
-        m_debugCollisionTriggered = triggered;
-}
-
 std::uint32_t PhysicsBody::getCategoryMask() const {
     return m_categoryMask;
 }
@@ -139,7 +135,7 @@ bool PhysicsBody::shouldTestCollisionWithMask(std::uint32_t bitMask) const {
     return false;
 }
 
-sf::RectangleShape const& PhysicsBody::getAABBShape(sf::Vector2f const& anchor) {
+sf::RectangleShape const& PhysicsBody::getAABBShape(sf::Vector2f const& anchor) const {
     if (!AABBShape.has_value()) {
         AABBShape.emplace();
         
