@@ -38,15 +38,14 @@ void PhysicsWorld::init(float width, float height) {
 void PhysicsWorld::addBody(PhysicsBody* body) {
     if (!body)
         return;
-    ++m_bodiesCount;
-    addBody(body, &m_root);
+    m_toAddBodies.emplace_back(std::move(body));
 }
 
 void PhysicsWorld::removeBody(PhysicsBody* body) {
     if (body) {
         auto searchResult {findBody(body, body->getParentNode())};
         if (searchResult.has_value()) {
-            m_roRemoveBodiesPositions.emplace_back(std::move(searchResult.value()));
+            m_toRemoveBodiesPositions.emplace_back(std::move(searchResult.value()));
         }
     }
 }
@@ -217,6 +216,8 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsTexture(float width, 
 }
 
 void PhysicsWorld::simulate() {
+    // Clears bodies in addition buffer
+    addAllBodies();
     // clears bodies in remove buffer
     removeAllBodies();
     
@@ -316,6 +317,16 @@ void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
     addBody(body, node);
 }
 
+void PhysicsWorld::addAllBodies() {
+    for (auto body : m_toAddBodies) {
+        if (!body)
+            continue;
+        ++m_bodiesCount;
+        addBody(body, &m_root);
+    }
+    m_toAddBodies.clear();
+}
+
 void PhysicsWorld::removeAllBodies() {
     bool invalidState = false;
     
@@ -331,10 +342,10 @@ void PhysicsWorld::removeAllBodies() {
         }
     };
     
-    std::sort(m_roRemoveBodiesPositions.begin(), m_roRemoveBodiesPositions.end(), compareLocations);
+    std::sort(m_toRemoveBodiesPositions.begin(), m_toRemoveBodiesPositions.end(), compareLocations);
     
-    for (int locationId = 0; locationId < m_roRemoveBodiesPositions.size(); ++locationId) {
-        auto& location {m_roRemoveBodiesPositions[locationId]};
+    for (int locationId = 0; locationId < m_toRemoveBodiesPositions.size(); ++locationId) {
+        auto& location {m_toRemoveBodiesPositions[locationId]};
         
         if (location.second >= location.first->bodies.size()) {
             invalidState = true;
@@ -348,7 +359,7 @@ void PhysicsWorld::removeAllBodies() {
         --m_bodiesCount;
     }
     
-    m_roRemoveBodiesPositions.clear();
+    m_toRemoveBodiesPositions.clear();
     
     if (invalidState)
         reorderBodies();

@@ -93,6 +93,7 @@ public:
     
 private:
     void addBody(PhysicsBody* body, QuadtreeNode* node);
+    void addAllBodies();
     void removeAllBodies();
     void reorderBodies();
     
@@ -113,7 +114,8 @@ private:
     int m_bodiesCount = 0;
     std::uint64_t m_currentBodyId = 1;
     
-    std::vector<QuadtreeLocation> m_roRemoveBodiesPositions;
+    std::vector<QuadtreeLocation> m_toRemoveBodiesPositions;
+    std::vector<PhysicsBody*> m_toAddBodies;
     
     bool m_showPhysicsBodies = false;
     bool m_showAABBs = false;
