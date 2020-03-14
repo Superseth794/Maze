@@ -280,7 +280,7 @@ void PhysicsWorld::setShowQuadtreeEvents(bool show) {
 }
 
 void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
-    if (!node)
+    if (!node || !body)
         return;
     
     // Adds body to parent node
@@ -319,8 +319,10 @@ void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
 
 void PhysicsWorld::addAllBodies() {
     for (auto body : m_toAddBodies) {
-        if (!body)
+        if (!body) {
+            std::cout << "Warning: invalid body in body additions buffer could not be added to world\n";
             continue;
+        }
         ++m_bodiesCount;
         addBody(body, &m_root);
     }
@@ -522,8 +524,16 @@ std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollisi
         if (*body == *bodyB)
             continue;
         
-        // Prevents non-requested collisions tests
+        // Prevents non-requested collisions tests with bit masks tests
         if (!body->shouldTestCollisionWithMask(bodyB->getCategoryMask()))
+            continue;
+        
+        // Prevents non-requested collisions tests with AABB - AABB collisions check
+        if (!isCollisionBetweenAABB(body->getFrame(), bodyB->getFrame()))
+            continue;
+        
+        // Prevents non-requested collisions tests with AABB - body collisions check
+        if (!(body->isCollidingWithAABB(bodyB->getFrame()) || !bodyB->isCollidingWithAABB(body->getFrame())))
             continue;
         
         // Computes collision
