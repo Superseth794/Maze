@@ -17,7 +17,7 @@
 
 # include <SFML/Graphics.hpp>
 
-# include "Maze.hpp"
+# include "../Game/Maze.hpp"
 
 namespace mz {
 

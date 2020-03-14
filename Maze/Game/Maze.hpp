@@ -24,10 +24,10 @@
 # include "Entity/DrawableEntity/Player.hpp"
 # include "Entity/DrawableEntity/Tile/Tile.hpp"
 
-# include "Physics/PhysicsWorld.hpp"
-# include "Physics/RectanglePhysicsBody.hpp"
+# include "../Physics/PhysicsWorld.hpp"
+# include "../Physics/RectanglePhysicsBody.hpp"
 
-# include "Console.hpp"
+# include "../Engine/Console.hpp"
 
 namespace mz {
 
@@ -83,6 +83,8 @@ private:
     
     static constexpr std::uint32_t FILLED_TILE_CATEGORY_BITMASK = 1;
     static constexpr std::uint32_t PLAYER_CATEGORY_BITMASK = 2;
+    
+    std::vector<std::unique_ptr<PhysicsBody>> debug_bodies; // DEBUG
 };
 
 

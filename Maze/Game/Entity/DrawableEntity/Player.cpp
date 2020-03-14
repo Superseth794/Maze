@@ -23,6 +23,10 @@ m_physicsBody(width / 2.f, sf::Vector2f{width / 2.f, width / 2.f}, categoryBitMa
     m_texture->draw(m_bodyShape);
     
     m_texture->display();
+    
+    m_physicsBody.setCollisionCallback([this](PhysicsBody::Collision const& collision) {
+//        moveTo((*collision.second)[0]);
+    });
 }
 
 void Player::update(sf::Time timeElapsed) {
@@ -46,11 +50,11 @@ void Player::update(sf::Time timeElapsed) {
 //        std::cout << "Collision with player found !\n";
 //    }
     
-    if (m_physicsBody.getParentWorld()->checkCollision(&m_physicsBody)->size() != 0) {
-        move(previousPosition - getPosition());
-        m_physicsBody.setCenter(sf::Vector2f{getPosition().x + m_width / 2.f, getPosition().y + m_width / 2.f});
-        m_physicsBody.updateInWorld();
-    }
+//    if (m_physicsBody.getParentWorld()->checkCollision(&m_physicsBody)->size() != 0) {
+//        move(previousPosition - getPosition());
+//        m_physicsBody.setCenter(sf::Vector2f{getPosition().x + m_width / 2.f, getPosition().y + m_width / 2.f});
+//        m_physicsBody.updateInWorld();
+//    }
 }
 
 std::shared_ptr<sf::RenderTexture> Player::draw() {

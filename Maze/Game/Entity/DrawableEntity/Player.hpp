@@ -12,10 +12,10 @@
 # include <unordered_set>
 # include <iostream>
 
-# include "../../Utils/Orientation.hpp"
+# include "../../../Utils/Orientation.hpp"
 # include "DrawableEntity.hpp"
-# include "../../Physics/PhysicsWorld.hpp"
-# include "../../Physics/CirclePhysicsBody.hpp"
+# include "../../../Physics/PhysicsWorld.hpp"
+# include "../../../Physics/CirclePhysicsBody.hpp"
 
 namespace mz {
 
@@ -32,7 +32,7 @@ public:
     
 private:
     float m_width;
-    float m_speed = 10.f;
+    float m_speed = 5.f;
     
     std::unordered_set<std::string> m_directions;
     
