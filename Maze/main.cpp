@@ -10,6 +10,12 @@
 
 #include "Maze.hpp"
 
+#include "UnitTestsSession.hpp"
+
+#define RUN_UNIT_TESTS
+
+#ifndef RUN_UNIT_TESTS
+
 int main(int argc, const char * argv[]) {
     
     srand(static_cast<unsigned int>(time(nullptr)));
@@ -23,3 +29,16 @@ int main(int argc, const char * argv[]) {
     
     return 0;
 }
+
+#else
+
+int main(int argc, const char * argv[]) {
+    
+    UnitTestsSession session {"My first unit tests session!"};
+    
+    int result = session.run();
+    
+    return result;
+}
+
+#endif
