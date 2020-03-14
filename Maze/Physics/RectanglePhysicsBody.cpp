@@ -9,37 +9,26 @@
 
 namespace mz {
 
-RectanglePhysicsBody::RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
-PhysicsBody(origin + sf::Vector2f{std::cos(rotation) * width + std::sin(rotation) * height, std::sin(rotation) * width - std::cos(rotation) * height} / 2.f, categoryBitMask, parentWorld),
+RectanglePhysicsBody::RectanglePhysicsBody(float width, float height, sf::Vector2f const& origin, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
+PhysicsBody(origin + sf::Vector2f{width, height} / 2.f, categoryBitMask, parentWorld),
 m_width(width),
-m_heigth(height),
-m_rotation(rotation)
+m_heigth(height)
 {
-    m_frame.width = std::cos(rotation) * m_width + std::sin(rotation) * m_heigth;
-    m_frame.height = std::sin(rotation) * m_width + std::cos(rotation) * m_heigth;
+    m_frame.width =  m_width;
+    m_frame.height = m_heigth;
     RectanglePhysicsBody::updateFrame();
 }
 
-RectanglePhysicsBody::RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, float rotation, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
-PhysicsBody(sf::Vector2f{(firstCorner.x + secondCorner.x) / 2.f, (firstCorner.y + secondCorner.y) / 2.f}, categoryBitMask, parentWorld),
-m_rotation(rotation)
+RectanglePhysicsBody::RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) : RectanglePhysicsBody(std::abs(firstCorner.x - secondCorner.x), std::abs(firstCorner.y - secondCorner.y), firstCorner, categoryBitMask, parentWorld)
 {
-    float dist = std::sqrt((firstCorner.x - secondCorner.x) * (firstCorner.x - secondCorner.x) + (firstCorner.y - secondCorner.y) * (firstCorner.y - secondCorner.y));
-    float subAngle = std::acos((secondCorner.x - firstCorner.x) / dist);
-    float complAngle = rotation - subAngle;
-    m_width = std::cos(complAngle) * dist;
-    m_heigth = std::cos(complAngle) * dist;
-    
-    m_frame.width = std::cos(rotation) * m_width + std::sin(rotation) * m_heigth;
-    m_frame.height = std::sin(rotation) * m_width + std::cos(rotation) * m_heigth;
-    RectanglePhysicsBody::updateFrame();
+    m_width = std::abs(firstCorner.x - secondCorner.x);
+    m_heigth = std::abs(firstCorner.y - secondCorner.y);
 }
 
 RectanglePhysicsBody::RectanglePhysicsBody(RectanglePhysicsBody const& body) :
 PhysicsBody(body),
 m_width(body.m_width),
-m_heigth(body.m_heigth),
-m_rotation(body.m_rotation)
+m_heigth(body.m_heigth)
 {
 }
 
@@ -49,13 +38,9 @@ RectanglePhysicsBody::~RectanglePhysicsBody() {
 }
 
 void RectanglePhysicsBody::updateFrame() {
-//    sf::Vector2f origin {
-//        getCenter().x - m_width / 2.f,
-//        getCenter().y - m_heigth / 2.f
-//    };
     sf::Vector2f origin {
-        std::min(std::min(getTopLeftCorner().x, getTopRightCorner().x), std::min(getBottomLeftCorner().x, getBottomRightCorner().x)),
-        std::min(std::min(getTopLeftCorner().y, getTopRightCorner().y), std::min(getBottomLeftCorner().y, getBottomRightCorner().y))
+        getCenter().x - m_width / 2.f,
+        getCenter().y - m_heigth / 2.f
     };
     if (m_frame.origin != origin)
         m_frame.origin = origin;
@@ -69,22 +54,17 @@ bool RectanglePhysicsBody::isInsideAABB(AABB const& box) const {
 }
 
 bool RectanglePhysicsBody::isCollidingWithAABB(AABB const& box) const {
-    return (isPositionInside(box.getTopLeftCorner()) ||
-            isPositionInside(box.getTopRightCorner()) ||
-            isPositionInside(box.getBottomRightCorner()) ||
-            isPositionInside(box.getBottomLeftCorner()) ||
-            isPositionInsideAABB(box, getTopLeftCorner()) ||
-            isPositionInsideAABB(box, getTopRightCorner()) ||
-            isPositionInsideAABB(box, getBottomRightCorner()) ||
-            isPositionInsideAABB(box, getBottomLeftCorner()));
+    return !(getTopLeftCorner().x > box.origin.x + box.width ||
+             getTopLeftCorner().y > box.origin.y + box.height ||
+             getBottomRightCorner().x < box.origin.x ||
+             getBottomRightCorner().y < box.origin.y);
 }
 
 bool RectanglePhysicsBody::isPositionInside(sf::Vector2f const& position) const {
-    auto getAngle = [&position] (sf::Vector2f const& ref) -> float {
-        return std::atan((ref.y - position.y) / (ref.x - position.x));
-    };
-    float anglesSum = getAngle(getTopLeftCorner()) + getAngle(getTopRightCorner()) + getAngle(getBottomRightCorner()) + getAngle(getBottomLeftCorner());
-    return (2 * M_PI * 0.99f <= anglesSum && anglesSum <= 2 * M_PI * 1.01);
+    return !(position.x < getTopLeftCorner().x ||
+             position.y < getTopLeftCorner().y ||
+             position.x > getBottomRightCorner().x ||
+             position.y > getBottomRightCorner().y);
 }
 
 std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWith(PhysicsBody* body) const {
@@ -165,43 +145,31 @@ PhysicsBody* RectanglePhysicsBody::clone() const {
 }
 
 sf::Vector2f RectanglePhysicsBody::getTopLeftCorner() const {
-    float angle = m_rotation - std::atan(m_heigth / m_width);
-    float diagonal = std::sqrt(m_width * m_width + m_heigth * m_heigth);
     return sf::Vector2f {
-        getCenter().x - std::cos(angle) * diagonal / 2.f,
-        getCenter().y + std::sin(angle) * diagonal / 2.f
+        getCenter().x - m_width / 2.f,
+        getCenter().y - m_heigth / 2.f
     };
 }
 
 sf::Vector2f RectanglePhysicsBody::getTopRightCorner() const {
-    float angle = m_rotation - std::atan(m_heigth / m_width);
-    float diagonal = std::sqrt(m_width * m_width + m_heigth * m_heigth);
     return sf::Vector2f {
-        getCenter().x - std::sin(angle) * diagonal / 2.f,
-        getCenter().y - std::cos(angle) * diagonal / 2.f
+        getCenter().x + m_width / 2.f,
+        getCenter().y - m_heigth / 2.f
     };
 }
 
 sf::Vector2f RectanglePhysicsBody::getBottomRightCorner() const {
-    float angle = m_rotation - std::atan(m_heigth / m_width);
-    float diagonal = std::sqrt(m_width * m_width + m_heigth * m_heigth);
     return sf::Vector2f {
-        getCenter().x + std::cos(angle) * diagonal / 2.f,
-        getCenter().y - std::sin(angle) * diagonal / 2.f
+        getCenter().x + m_width / 2.f,
+        getCenter().y + m_heigth / 2.f
     };
 }
 
 sf::Vector2f RectanglePhysicsBody::getBottomLeftCorner() const {
-    float angle = m_rotation - std::atan(m_heigth / m_width);
-    float diagonal = std::sqrt(m_width * m_width + m_heigth * m_heigth);
     return sf::Vector2f {
-        getCenter().x + std::sin(angle) * diagonal / 2.f,
-        getCenter().y + std::cos(angle) * diagonal / 2.f
+        getCenter().x - m_width / 2.f,
+        getCenter().y + m_heigth / 2.f
     };
-}
-
-float RectanglePhysicsBody::getRotation() const {
-    return m_rotation;
 }
 
 sf::Sprite const RectanglePhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {
@@ -232,7 +200,6 @@ sf::Sprite const RectanglePhysicsBody::getBodySprite(sf::Vector2f const& anchor)
     bodySprite.setTexture(bodyTexture.value().getTexture());
     bodySprite.setScale(scaleFactors);
     bodySprite.setPosition(m_frame.origin.x + anchor.x, m_frame.origin.y + anchor.y);
-    bodySprite.setRotation(m_rotation);
     
     bodySprite.setColor(m_didCollide ? sf::Color(255, 0, 0, 255) : sf::Color::White);
     m_didCollide = false;

@@ -21,8 +21,8 @@ namespace mz {
 
 class RectanglePhysicsBody : public PhysicsBody {
 public:
-    RectanglePhysicsBody(float width, float height, float rotation, sf::Vector2f const& origin, std::uint32_t categoryBitMask = 0, PhysicsWorld* parentWorld = nullptr);
-    RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, float rotation, std::uint32_t categoryBitMask = 0, PhysicsWorld* parentWorld = nullptr);
+    RectanglePhysicsBody(float width, float height, sf::Vector2f const& origin, std::uint32_t categoryBitMask = 0, PhysicsWorld* parentWorld = nullptr);
+    RectanglePhysicsBody(sf::Vector2f const& firstCorner, sf::Vector2f const& secondCorner, std::uint32_t categoryBitMask = 0, PhysicsWorld* parentWorld = nullptr);
     
     RectanglePhysicsBody(RectanglePhysicsBody const& body);
     
@@ -46,14 +46,11 @@ public:
     sf::Vector2f getBottomRightCorner() const;
     sf::Vector2f getBottomLeftCorner() const;
     
-    float getRotation() const;
-    
     virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor) const;
     
 private:
     float m_width;
     float m_heigth;
-    float m_rotation;
     
     static std::optional<sf::RenderTexture> bodyTexture;
 };
