@@ -48,7 +48,7 @@ bool SegmentPhysicsBody::isInsideAABB(AABB const& box) const {
 }
 
 bool SegmentPhysicsBody::isCollidingWithAABB(AABB const& box) const {
-    std::cerr << "Warning !! bad segment - AABB collision computation !\n";
+    // TODO update computation : here -> bad segment - AABB collision computation
     return isInsideAABB(box); // TOFIX - TODO
 }
 
@@ -107,11 +107,11 @@ sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) c
         bodyTexture.emplace();
         
         auto& texture = bodyTexture.value();
-        texture.create(100.f, 10.f);
+        texture.create(100.f, DEBUG_SHAPE_WIDTH);
         texture.clear(sf::Color::Yellow);
         
         sf::RectangleShape shape;
-        shape.setSize(sf::Vector2f{100.f, 10.f});
+        shape.setSize(sf::Vector2f{100.f, DEBUG_SHAPE_WIDTH});
         shape.setFillColor(DEBUG_PHYSICS_OUTLINE_COLOR);
         shape.setPosition(0.f, 0.f);
         
@@ -126,7 +126,7 @@ sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) c
     sf::Sprite bodySprite;
     bodySprite.setTexture(bodyTexture.value().getTexture());
     bodySprite.setScale(scaleFactor, 1.f);
-    bodySprite.setPosition(m_startPos.x + anchor.x, m_startPos.y + anchor.y);
+    bodySprite.setPosition(m_startPos.x + anchor.x + DEBUG_SHAPE_WIDTH / 2.f, m_startPos.y + anchor.y + DEBUG_SHAPE_WIDTH / 2.f);
     bodySprite.setRotation(angle * 180.f / M_PI);
     
     bodySprite.setColor(m_didCollide ? sf::Color::Red : sf::Color::White);
