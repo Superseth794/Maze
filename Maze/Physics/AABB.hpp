@@ -40,10 +40,10 @@ struct AABB {
 
 
 inline bool isCollisionBetweenAABB(AABB const& b1, AABB const& b2) {
-    return !(b1.origin.x > b2.getTopLeftCorner().x ||
+    return !(b1.origin.x > b2.getBottomRightCorner().x ||
+             b1.origin.y > b2.getBottomRightCorner().y ||
              b1.getBottomRightCorner().x < b2.origin.x ||
-             b1.origin.y > b2.getTopLeftCorner().y ||
-             b1.getTopRightCorner().y < b2.origin.y);
+             b1.getBottomRightCorner().y < b2.origin.y);
 }
 
 inline bool isPositionInsideAABB(AABB const& box, sf::Vector2f const& position) {
