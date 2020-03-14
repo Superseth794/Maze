@@ -16,7 +16,6 @@ m_endPos(endPos)
 {
     m_frame.width = std::abs(m_endPos.x - m_startPos.x);
     m_frame.height = std::abs(m_endPos.y - m_startPos.y);
-    assert(m_frame.width == m_frame.height);
     SegmentPhysicsBody::updateFrame();
 }
 
@@ -157,26 +156,31 @@ bool SegmentPhysicsBody::isCollisionBetweenSegments(sf::Vector2f const& pA, floa
 std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collisionBetweenSegments(sf::Vector2f const& pA, sf::Vector2f const& pB, sf::Vector2f const& p1, sf::Vector2f const& p2) {
     auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
     
-    sf::Vector2f AO {p1.x - pA.x, p1.y - pA.y};
-    sf::Vector2f AP {p1.x - pA.x, p1.y - pA.y};
-    sf::Vector2f vectAB {pB.x - pA.x, pB.y - pA.y};
-    sf::Vector2f vect12 {p2.x - p1.x, p2.y - p1.y};
-    
-    if ((vectAB.x * AP.y - vectAB.y - AP.x) * (vectAB.x * AO.y - vectAB.y * AO.x) >= 0)
+    if (pA.x == pB.x || p1.x == p2.x)
         return intersections;
     
-    float div = vectAB.x * vect12.y - vectAB.y * vect12.x;
-    if (div == 0.f) // Prevents division per 0
+    sf::Vector2f AB {pB - pA};
+    
+    float aAB = (pB.y - pA.y) / (pB.x - pA.x);
+    float bAB = pA.y - aAB * pA.x;
+    float aOP = (p2.y - p1.y) / (p2.x - p1.x);
+    float bOP = p1.y - aOP * p1.x;
+    
+    if (aAB == aOP)
         return intersections;
     
-    float k = -(pA.x * vect12.y - p1.x * vect12.y - vect12.x * pA.y * vect12.x * p1.y) / div;
-    if (k < 0 || k > 1)
+    float x = (bOP - bAB) / (aAB - aOP);
+    float y = aAB * x + bAB;
+    
+    sf::Vector2f AX {x - pA.x, y - pA.y};
+    float scalar = AX.x * AB.y - AX.y * AB.x;
+    float length = std::sqrt(AB.x * AB.x + AB.y * AB.y);
+    
+    if (scalar < 0 || scalar > length)
         return intersections;
     
-    float l = (-vectAB.x * pA.y + vectAB.x * p1.y + vectAB.y * pA.x - vectAB.y * p1.x) / div;
-    auto normalizedVect {normalize(vectAB)};
-    intersections->push_back({pA.x + normalizedVect.x * l, pA.y + normalizedVect.y * l});
-    return intersections;
+    intersections->emplace_back(x, y);
+    return  intersections;
 }
 
 std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collisionBetweenSegments(sf::Vector2f pA, float lengthA, float angleA, sf::Vector2f p1, float length1, float angle1) {
