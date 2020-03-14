@@ -15,7 +15,7 @@
 namespace mz {
 
 inline sf::Vector2f normalize(sf::Vector2f const& vect) {
-    float norme = std::sqrt(vect.x + vect.y);
+    float norme = std::sqrt(vect.x * vect.x + vect.y * vect.y);
     return sf::Vector2f{vect.x / norme, vect.y / norme};
 }
 
