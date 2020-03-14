@@ -49,6 +49,11 @@ public:
     
     virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor) const;
     
+    static bool isCollisionBetweenSegments(sf::Vector2f const& pA, sf::Vector2f const& pB, sf::Vector2f const& p1, sf::Vector2f const& p2);
+    static bool isCollisionBetweenSegments(sf::Vector2f const& pA, float lengthA, float angleA, sf::Vector2f const& p1, float length1, float angle1);
+    static std::unique_ptr<std::vector<sf::Vector2f>> collisionBetweenSegments(sf::Vector2f const& pA, sf::Vector2f const& pB, sf::Vector2f const& p1, sf::Vector2f const& p2);
+    static std::unique_ptr<std::vector<sf::Vector2f>> collisionBetweenSegments(sf::Vector2f pA, float lengthA, float angleA, sf::Vector2f p1, float length1, float angle1);
+    
 private:
     sf::Vector2f m_startPos;
     sf::Vector2f m_endPos;
