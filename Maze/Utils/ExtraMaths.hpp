@@ -63,13 +63,15 @@ template<typename T> constexpr sf::Vector2<T> normalizeVector(sf::Vector2<T> con
     return sf::Vector2<T>{vect.x / norme, vect.y / norme};
 }
 
-template<typename T> constexpr T getLength(sf::Vector2<T> const& vect) {
+template<typename T> constexpr T getVectorLength(sf::Vector2<T> const& vect) {
     return (std::sqrt(vect.x * vect.x + vect.y * vect.y));
 }
 
-template<typename T> constexpr T getLength2(sf::Vector2<T> const& vect) {
+template<typename T> constexpr T getVectorLength2(sf::Vector2<T> const& vect) {
     return (vect.x * vect.x + vect.y * vect.y);
 }
+
+// TODO add scalar product
 
 }
 
