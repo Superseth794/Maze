@@ -125,28 +125,28 @@ TEST_CASE("Normalize vector")
     SECTION("Norm of normalized vector (1.0, 1.0) must be 1.0")
     {
         auto const normalizedVector = mz::normalizeVector<double>({1., 1.});
-        const double norm = mz::getLength(normalizedVector);
+        const double norm = mz::getVectorLength(normalizedVector);
         REQUIRE(mz::nearlyEquals(norm, 1.) == true);
     }
     
     SECTION("Norm of normalized vector (0.0, 0.0) is 0.0")
     {
         auto const normalizedVector = mz::normalizeVector<double>({0., 0.});
-        const double norm = mz::getLength(normalizedVector);
+        const double norm = mz::getVectorLength(normalizedVector);
         REQUIRE(mz::nearlyEquals(norm, 0.) == true);
     }
     
     SECTION("Norm of normalized vector (-5.0, -5.0) must be 1.0")
     {
         auto const normalizedVector = mz::normalizeVector<double>({-5., 5.});
-        const double norm = mz::getLength(normalizedVector);
+        const double norm = mz::getVectorLength(normalizedVector);
         REQUIRE(mz::nearlyEquals(norm, 1.) == true);
     }
     
     SECTION("Norm of normalized vector (2.0, 2.0) must be 1.0")
     {
         auto const normalizedVector = mz::normalizeVector<double>({2., -2.});
-        const double norm = mz::getLength(normalizedVector);
+        const double norm = mz::getVectorLength(normalizedVector);
         REQUIRE(mz::nearlyEquals(norm, 1.) == true);
     }
 }
@@ -155,19 +155,19 @@ TEST_CASE("Compute length of vector")
 {
     SECTION("Norm of vector (1.0, 1.0) must be sqrt of 2")
     {
-        double length = mz::getLength<double>({1.0, 1.0});
+        double length = mz::getVectorLength<double>({1.0, 1.0});
         REQUIRE(mz::nearlyEquals(length, M_SQRT2) == true);
     }
     
     SECTION("Norm of vector (-1.0, 1.0) must be sqrt of 2")
     {
-        double length = mz::getLength<double>({-1.0, 1.0});
+        double length = mz::getVectorLength<double>({-1.0, 1.0});
         REQUIRE(mz::nearlyEquals(length, M_SQRT2) == true);
     }
     
     SECTION("Norm of vector (sqrt(2), -sqrt(2)) must be 2.0")
     {
-        double length = mz::getLength<double>({M_SQRT2, M_SQRT2});
+        double length = mz::getVectorLength<double>({M_SQRT2, M_SQRT2});
         REQUIRE(mz::nearlyEquals(length, 2.0));
     }
 }
@@ -176,13 +176,13 @@ TEST_CASE("Computes length squarred of vector")
 {
     SECTION("Squarred norm of vector (1.0, 1.0) must be 2")
     {
-        double length = mz::getLength2<double>({1.0, 1.0});
+        double length = mz::getVectorLength<double>({1.0, 1.0});
         REQUIRE(mz::nearlyEquals(length, 2.0));
     }
     
     SECTION("Squarred norm of vector (0.0, 0.0) must be 0")
     {
-        double length = mz::getLength2<double>({0., 0.});
+        double length = mz::getVectorLength<double>({0., 0.});
         REQUIRE(mz::nearlyEquals(length, 0.));
     }
 }
