@@ -60,7 +60,7 @@ private:
     
     static std::optional<sf::RenderTexture> bodyTexture;
     
-    static constexpr float DEBUG_SHAPE_WIDTH = 1.f;
+    static constexpr float DEBUG_SHAPE_WIDTH = 6.f;
 };
 
 }

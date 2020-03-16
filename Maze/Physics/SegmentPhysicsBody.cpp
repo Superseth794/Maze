@@ -20,7 +20,7 @@ m_endPos(endPos)
 }
 
 SegmentPhysicsBody::SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& direction, float length, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
-SegmentPhysicsBody(startPos, sf::Vector2f{startPos.x + normalize(direction).x * length, startPos.y + normalize(direction).y * length}, categoryBitMask, parentWorld)
+SegmentPhysicsBody(startPos, sf::Vector2f{startPos.x + normalizeVector(direction).x * length, startPos.y + normalizeVector(direction).y * length}, categoryBitMask, parentWorld)
 {
 }
 
@@ -53,13 +53,23 @@ bool SegmentPhysicsBody::isCollidingWithAABB(AABB const& box) const {
 }
 
 bool SegmentPhysicsBody::isPositionInside(sf::Vector2f const& position) const {
-    float a = getVector().y;
-    float b = -getVector().x;
-    if (std::abs(position.y - (position.x * a + b)) > std::numeric_limits<float>::epsilon())
+    const sf::Vector2f vect {getVector()};
+    
+    const float coef1 = (position.x - m_startPos.x) / vect.x;
+    const float coef2 = (position.y - m_startPos.y) / vect.y;
+    
+    if (!nearlyEquals(coef1, coef2))
         return false;
-    sf::Vector2f vect {position.x - m_startPos.x, position.y - m_startPos.y};
-    float scalar = getVector().x * vect.x + getVector().y * vect.y;
-    return (scalar < 0 || scalar * scalar > getLength2());
+    
+    const sf::Vector2f vect1 {position - m_startPos};
+    const sf::Vector2f vect2 {position - m_endPos};
+    
+    const float scalar1 = vect.x * vect1.x + vect.y * vect1.y;
+    const float scalar2 = -vect.x * vect2.x + -vect.y * vect2.y;
+    
+    std::cout << "scalar1: " << scalar1 << " scalar2: " << scalar2 << std::endl;
+    
+    return (scalar1 >= 0 && scalar2 >= 0);
 }
 
 std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(PhysicsBody* body) const {
@@ -95,11 +105,11 @@ sf::Vector2f SegmentPhysicsBody::getVector() const {
 }
 
 float SegmentPhysicsBody::getLength() const {
-    return std::sqrt(getLength2());
+    return mz::getLength(getVector());
 }
 
 float SegmentPhysicsBody::getLength2() const {
-    return (m_endPos.x - m_startPos.x) * (m_endPos.x - m_startPos.x) + (m_endPos.y - m_startPos.y) * (m_endPos.y - m_startPos.y);
+    return mz::getLength2(getVector());
 }
 
 sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {

@@ -81,29 +81,41 @@ std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWith(Physic
 std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWith(SegmentPhysicsBody const& segment) const {
     auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
     
-    sf::Vector2f AC {getCenter().x - segment.getStartPos().x, getCenter().y - segment.getStartPos().y};
-    float num = segment.getVector().x * AC.y - segment.getVector().y * AC.x;
-    if (num < 0)
-        num = -num;
-    float div = std::sqrt(segment.getVector().x * segment.getVector().x + segment.getVector().y * segment.getVector().y);
-    float CI = num / div;
-    
-    if (CI >= m_radius)
+    sf::Vector2f AB {segment.getVector()};
+    if (AB.x == 0)
         return intersections;
     
-    sf::Vector2f BC {getCenter().x - segment.getEndPos().x, getCenter().y - segment.getEndPos().y};
-    float scal1 = segment.getVector().x * AC.x + segment.getVector().y * AC.y;
-    float scal2 = -segment.getVector().x * BC.x + -segment.getVector().y * BC.y;
+    const float a = AB.y / AB.x;
+    const float b = segment.getStartPos().y - a * segment.getStartPos().x;
     
-    if ((scal1 < 0 || scal2 < 0) && !(isPositionInside(segment.getStartPos()) || isPositionInside(segment.getEndPos())))
+    const float coefA = 1 + a * a;
+    const float coefB = 2 * a * b - 2 * getCenter().x - 2 * getCenter().y * a;
+    const float coefC = getCenter().x * getCenter().x + getCenter().y * getCenter().y + b * b - 2 * getCenter().y * b - m_radius * m_radius;
+    
+    float delta = coefB * coefB - 4 * coefA * coefC;
+    
+    if (delta < 0)
         return intersections;
     
-    float length2 = segment.getLength2();
-    if (length2 == 0)
-        return intersections;
-    
-    float scal = (segment.getVector().x * AC.x + segment.getVector().y * AC.y) / length2;
-    intersections->push_back({segment.getStartPos().x + scal * segment.getVector().x, segment.getStartPos().y + scal * segment.getVector().y});
+    if (delta == 0) {
+        const float x = -coefB / (2 * coefA);
+        const float y = a * x + b;
+        
+        if (segment.isPositionInside(sf::Vector2f{x, y}))
+            intersections->emplace_back(x, y);
+    } else {
+        float deltaSqrt = std::sqrt(delta);
+        
+        const float x1 = (-coefB - deltaSqrt) / (2 * coefA);
+        const float x2 = (-coefB + deltaSqrt) / (2 * coefA);
+        const float y1 = a * x1 + b;    
+        const float y2 = a * x2 + b;
+        
+        if (segment.isPositionInside(sf::Vector2f{x1, y1}))
+            intersections->emplace_back(x1, y1);
+        if (segment.isPositionInside(sf::Vector2f{x2, y2}))
+            intersections->emplace_back(x2, y2);
+    }
     
     return intersections;
 }
