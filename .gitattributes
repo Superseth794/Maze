@@ -1,0 +1,2 @@
+# Ignores all external files for git statistics
+Maze/External/* linguist-vendored
