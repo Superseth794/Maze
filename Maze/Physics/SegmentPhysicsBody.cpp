@@ -53,11 +53,14 @@ bool SegmentPhysicsBody::isCollidingWithAABB(AABB const& box) const {
 }
 
 bool SegmentPhysicsBody::isPositionInside(sf::Vector2f const& position) const {
-    float a = getVector().y;
-    float b = -getVector().x;
-    if (std::abs(position.y - (position.x * a + b)) > std::numeric_limits<float>::epsilon())
+    const sf::Vector2f vect {getVector()};
+    
+    const float coef1 = (position.x - m_startPos.x) / vect.x;
+    const float coef2 = (position.y - m_startPos.y) / vect.y;
+    
+    if (!nearlyEquals(coef1, coef2))
         return false;
-    sf::Vector2f vect {position.x - m_startPos.x, position.y - m_startPos.y};
+    
     float scalar = getVector().x * vect.x + getVector().y * vect.y;
     return (scalar < 0 || scalar * scalar > getLength2());
     
