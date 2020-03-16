@@ -35,7 +35,7 @@ std::unique_ptr<sf::RenderTexture> Console::display() {
     
     if (m_maze) {
         infos << std::round(m_maze->m_fps) << " fps\n";
-        infos << std::round(m_maze->m_fps * 1000000.f) / 1000.f << " ms/frame\n";
+        infos << std::round(1.f / m_maze->m_fps * 1000.f) / 1000.f << " s/frame\n";
         infos << "camera position: (" << m_maze->m_cameraPosition.x << "," << m_maze->m_cameraPosition.y << ")\n";
     }
     
