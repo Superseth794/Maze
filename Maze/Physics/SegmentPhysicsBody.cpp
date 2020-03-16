@@ -20,7 +20,7 @@ m_endPos(endPos)
 }
 
 SegmentPhysicsBody::SegmentPhysicsBody(sf::Vector2f const& startPos, sf::Vector2f const& direction, float length, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
-SegmentPhysicsBody(startPos, sf::Vector2f{startPos.x + normalize(direction).x * length, startPos.y + normalize(direction).y * length}, categoryBitMask, parentWorld)
+SegmentPhysicsBody(startPos, sf::Vector2f{startPos.x + normalizeVector(direction).x * length, startPos.y + normalizeVector(direction).y * length}, categoryBitMask, parentWorld)
 {
 }
 
@@ -60,6 +60,14 @@ bool SegmentPhysicsBody::isPositionInside(sf::Vector2f const& position) const {
     sf::Vector2f vect {position.x - m_startPos.x, position.y - m_startPos.y};
     float scalar = getVector().x * vect.x + getVector().y * vect.y;
     return (scalar < 0 || scalar * scalar > getLength2());
+    
+    const sf::Vector2f vect1 {position - m_startPos};
+    const sf::Vector2f vect2 {position - m_endPos};
+    
+    const float scalar1 = vect.x * vect1.x + vect.y * vect1.y;
+    const float scalar2 = -vect.x * vect2.x + -vect.y * vect2.y;
+    
+    return (scalar1 >= 0 && scalar2 >= 0);
 }
 
 std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(PhysicsBody* body) const {
@@ -95,11 +103,11 @@ sf::Vector2f SegmentPhysicsBody::getVector() const {
 }
 
 float SegmentPhysicsBody::getLength() const {
-    return std::sqrt(getLength2());
+    return mz::getVectorLength(getVector());
 }
 
 float SegmentPhysicsBody::getLength2() const {
-    return (m_endPos.x - m_startPos.x) * (m_endPos.x - m_startPos.x) + (m_endPos.y - m_startPos.y) * (m_endPos.y - m_startPos.y);
+    return mz::getVectorLength2(getVector());
 }
 
 sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {
@@ -136,17 +144,19 @@ sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) c
 }
 
 bool SegmentPhysicsBody::isCollisionBetweenSegments(sf::Vector2f const& pA, sf::Vector2f const& pB, sf::Vector2f const& p1, sf::Vector2f const& p2) {
-    sf::Vector2f AB {pB.x - pA.x, pB.y - pA.y};
-    sf::Vector2f OP {p2.x - p1.x, p2.y - p1.y};
-    sf::Vector2f AO {p1.x - pA.x, p1.y - pA.y};
+    sf::Vector2f AB {pB - pA};
+    sf::Vector2f OP {p2 - p1};
+    sf::Vector2f AO {p1 - pA};
     
     float scalar1 = AO.x * AB.x + AO.y * AB.y;
     float scalar2 = -AO.x * OP.x + -AO.y * OP.y;
     
-    float lengthAB2 = AB.x * AB.x + AB.y * AB.y;
-    float lengthOP2 = OP.x * OP.x + OP.y * OP.y;
+    float lengthAB2 = getVectorLength2(AB);
+    float lengthOP2 = getVectorLength2(OP);
     
-    return ((scalar1 >= 0 && scalar1 * scalar1 <= lengthOP2) || (scalar2 >= 0 && scalar2 * scalar2 <= lengthAB2));
+//    return (scalar1 >= 0 && scalar2 >= 0);
+    std::cout << "isCollisionBetweenSegments --> TOFIX\n";
+    return (true); // TOFIX
 }
 
 bool SegmentPhysicsBody::isCollisionBetweenSegments(sf::Vector2f const& pA, float lengthA, float angleA, sf::Vector2f const& p1, float length1, float angle1) {
@@ -174,7 +184,7 @@ std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collisionBetweenS
     
     sf::Vector2f AX {x - pA.x, y - pA.y};
     float scalar = AX.x * AB.y - AX.y * AB.x;
-    float length = std::sqrt(AB.x * AB.x + AB.y * AB.y);
+    float length = getVectorLength(AB);
     
     if (scalar < 0 || scalar > length)
         return intersections;
