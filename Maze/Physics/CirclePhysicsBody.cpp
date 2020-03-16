@@ -52,18 +52,22 @@ bool CirclePhysicsBody::isCollidingWithAABB(AABB const& box) const {
     if (isPositionInsideAABB(box, getCenter()))
         return true;
     
-    sf::Vector2f border1 = box.getTopRightCorner() - box.getTopLeftCorner();
-    sf::Vector2f segment1 = getCenter() - box.getTopLeftCorner();
-    float scalar1 = border1.x * segment1.x + border1.y * segment1.y;
+    const sf::Vector2f border1 = box.getTopRightCorner() - box.getTopLeftCorner();
+    const sf::Vector2f segment1a = getCenter() - box.getTopLeftCorner();
+    const sf::Vector2f segment1b = getCenter() - box.getTopRightCorner();
+    const float scalar1a = border1.x * segment1a.x + border1.y * segment1a.y;
+    const float scalar1b = -border1.x * segment1b.x + -border1.y * segment1b.y;
     
-    if (scalar1 >= 0 && scalar1 * scalar1 <= (border1.x * border1.x + border1.y * border1.y))
+    if (scalar1a >= 0 && scalar1b >= 0)
         return true;
     
-    sf::Vector2f border2 = box.getBottomRightCorner() - box.getBottomLeftCorner();
-    sf::Vector2f segment2 = getCenter() - box.getBottomLeftCorner();
-    float scalar2 = border2.x * segment2.x + border2.y * segment2.y;
+    sf::Vector2f border2 = box.getTopRightCorner() - box.getBottomRightCorner();
+    sf::Vector2f segment2a = getCenter() - box.getTopRightCorner();
+    sf::Vector2f segment2b = getCenter() - box.getBottomRightCorner();
+    float scalar2a = border2.x * segment2a.x + border2.y * segment2a.y;
+    float scalar2b = -border2.x * segment2b.x + -border2.y * segment2b.y;
     
-    if (scalar2 >= 0 && scalar2 * scalar2 <= (border2.x * border2.x + border2.y * border2.y))
+    if (scalar2a >= 0 && scalar2b >= 0)
         return true;
     
     return false;
