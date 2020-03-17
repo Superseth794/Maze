@@ -192,10 +192,10 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsTexture(float width, 
                     collisionPosition.x - 10.f - anchor.x + width / 2.f,
                     collisionPosition.y - 10.f - anchor.y + height / 2.f
                 };
-                sf::CircleShape debugCollisionSprite {10.f};
+                sf::CircleShape debugCollisionSprite {DEBUG_COLLISION_WIDTH};
                 debugCollisionSprite.setFillColor(DEBUG_COLLISION_FILL_COLOR);
                 debugCollisionSprite.setOutlineColor(DEBUG_COLLISION_OUTLINE_COLOR);
-                debugCollisionSprite.setOutlineThickness(-5.f);
+                debugCollisionSprite.setOutlineThickness(-DEBUG_COLLISION_WIDTH / 2.f);
                 debugCollisionSprite.setPosition(debugSpritePosition);
                 texture->draw(debugCollisionSprite);
             }
@@ -451,7 +451,6 @@ void PhysicsWorld::addParent(QuadtreeNode* node, sf::Vector2f const& bodyPositio
                         }
                     }
                 }
-                
                 newRoot.childs[dx + dy * 2] = std::move(newNode);
             } else {
                 newRoot.childs[dx + dy * 2] = std::make_unique<QuadtreeNode>(AABB{subAnchor, width, height}, 1, node); // prevents errors from newRoot move
@@ -536,10 +535,13 @@ std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollisi
         if (!(body->isCollidingWithAABB(bodyB->getFrame()) || !bodyB->isCollidingWithAABB(body->getFrame())))
             continue;
         
+        // TODO Add OBB - OBB and OBB - body collisions check
+        
         // Computes collision
         auto intersections {bodyB->collideWith(body)};
         if (intersections->size() == 0)
             continue;
+        
         collisions->push_back({bodyB, std::move(intersections)});
     }
     
@@ -597,5 +599,7 @@ const sf::Color PhysicsWorld::DEBUG_QUADTREE_NODES_COLOR = sf::Color{255, 140, 2
 
 const sf::Color PhysicsWorld::DEBUG_QUADTREE_ADDITION_COLOR = sf::Color(255, 0, 0, 150);
 const sf::Color PhysicsWorld::DEBUG_QUADTREE_UPDATE_COLOR = sf::Color(255, 255, 0, 200);
+
+const float PhysicsWorld::DEBUG_COLLISION_WIDTH = 10.0;
 
 }

@@ -138,6 +138,8 @@ private:
     static const sf::Color DEBUG_QUADTREE_ADDITION_COLOR;
     static const sf::Color DEBUG_QUADTREE_UPDATE_COLOR;
     
+    static const float DEBUG_COLLISION_WIDTH;
+    
 private:
     template<typename... Args> void forEachNode(std::function<void(QuadtreeNode*, Args...)>& func, Args... args) {
         std::stack<QuadtreeNode*> toInspectNodes;
