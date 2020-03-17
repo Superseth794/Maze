@@ -42,32 +42,18 @@ void PhysicsWorld::addBody(PhysicsBody* body) {
 }
 
 void PhysicsWorld::removeBody(PhysicsBody* body) {
-    if (body) {
-        auto searchResult {findBody(body, body->getParentNode())};
-        if (searchResult.has_value()) {
-            m_toRemoveBodiesPositions.emplace_back(std::move(searchResult.value()));
-        }
+    if (!body)
+        return;
+    auto searchResult {findBody(body, body->getParentNode())};
+    if (searchResult.has_value()) {
+        m_toRemoveBodiesPositions.emplace_back(std::move(searchResult.value()));
     }
 }
 
 void PhysicsWorld::updateBody(PhysicsBody* body) {
-    auto found {findBody(body, body->getParentNode())};
-    
-    if (!found.has_value()) {
-        std::cout << "Body " << body->getId() << " not found for update\n";
+    if (!body)
         return;
-    }
-    
-    QuadtreeNode* currentNode = found.value().first;
-    currentNode->bodies.erase(currentNode->bodies.begin() + found.value().second);
-    
-    // Updates body debug node if needed
-    for (auto& debugPair : m_debugBodiesUpdateDisplay) {
-        if (*debugPair.first == *body)
-            debugPair.second = currentNode;
-    }
-    
-    addBody(body, currentNode);
+    m_toUpdateBodies.emplace_back(std::move(body));
 }
 
 void PhysicsWorld::addBodyQuadtreeAdditionEvent(PhysicsBody* body) {
@@ -216,6 +202,8 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsTexture(float width, 
 }
 
 void PhysicsWorld::simulate() {
+    // Update all bodies in update buffer
+    updateAllBodies();
     // Clears bodies in addition buffer
     addAllBodies();
     // clears bodies in remove buffer
@@ -365,6 +353,25 @@ void PhysicsWorld::removeAllBodies() {
     
     if (invalidState)
         reorderBodies();
+}
+
+void PhysicsWorld::updateAllBodies() {
+    // Updates all bodies in update buffer
+    for (auto body : m_toUpdateBodies) {
+        if (!body)
+            continue;
+        
+        // Updates body in quadtree
+        removeBody(body);
+        addBody(body);
+        
+        // Updates body debug node if needed
+        for (auto& debugPair : m_debugBodiesUpdateDisplay) {
+            if (*debugPair.first == *body)
+                debugPair.second = body->getParentNode();
+        }
+    }
+    m_toUpdateBodies.clear();
 }
 
 void PhysicsWorld::reorderBodies() {
