@@ -23,6 +23,7 @@
 
 # include "Entity/DrawableEntity/Player.hpp"
 # include "Entity/DrawableEntity/Tile/Tile.hpp"
+# include "EntitiesBitMasks.hpp"
 
 # include "../Physics/PhysicsWorld.hpp"
 # include "../Physics/RectanglePhysicsBody.hpp"
@@ -80,9 +81,6 @@ private:
     
     Player m_player;
     std::vector<std::unique_ptr<Tile>> m_tiles;
-    
-    static constexpr std::uint32_t FILLED_TILE_CATEGORY_BITMASK = 1;
-    static constexpr std::uint32_t PLAYER_CATEGORY_BITMASK = 2;
     
     std::vector<std::unique_ptr<PhysicsBody>> debug_bodies; // DEBUG
 };

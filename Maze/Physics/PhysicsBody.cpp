@@ -12,7 +12,7 @@ namespace mz {
 PhysicsBody::PhysicsBody(sf::Vector2f const& center, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
 m_center(center),
 m_frame(AABB{{0.f, 0.f}, 0.f, 0.f}),
-m_categoryMask(categoryBitMask),
+m_categoryBitMask(categoryBitMask),
 m_parentWorld(parentWorld),
 m_collisionCallback([](Collision const& Collision){})
 {
@@ -40,8 +40,8 @@ PhysicsBody::PhysicsBody(PhysicsBody const& body) :
 m_frame(body.m_frame),
 m_center(body.m_center),
 m_id(0),
-m_categoryMask(body.m_categoryMask),
-m_contactTestMasks(body.m_contactTestMasks.begin(), body.m_contactTestMasks.end()),
+m_categoryBitMask(body.m_categoryBitMask),
+m_contactTestBitMask(body.m_contactTestBitMask),
 m_parentWorld(body.m_parentWorld),
 m_collisionCallback([](Collision const& Collision){})
 {
@@ -107,32 +107,24 @@ void PhysicsBody::setCollisionCallback(CollisionCallback && callback) {
     m_collisionCallback = std::move(callback);
 }
 
-std::uint32_t PhysicsBody::getCategoryMask() const {
-    return m_categoryMask;
+std::uint32_t PhysicsBody::getCategoryBitMask() const {
+    return m_categoryBitMask;
 }
 
-void PhysicsBody::addContactTestMask(std::uint32_t bitMask) {
-    if (!shouldTestCollisionWithMask(bitMask)) {
-        m_contactTestMasks.push_back(bitMask);
-    }
+void PhysicsBody::addContactTestBitMask(std::uint32_t bitMask) {
+    m_contactTestBitMask |= bitMask;
 }
 
-std::vector<std::uint32_t> PhysicsBody::getContactTestMasks() const {
-    return std::vector<std::uint32_t>{m_contactTestMasks.begin(), m_contactTestMasks.end()};
+void PhysicsBody::removeContactTestBitMask(std::uint32_t bitMask) {
+    m_contactTestBitMask &= !bitMask;
 }
 
-std::size_t PhysicsBody::getContactTestMasksCount() const {
-    return m_contactTestMasks.size();
+std::uint32_t PhysicsBody::getContactTestBitMasks() const {
+    return m_contactTestBitMask;
 }
 
-bool PhysicsBody::shouldTestCollisionWithMask(std::uint32_t bitMask) const {
-    if (bitMask == 0)
-        return false;
-    for (auto mask : m_contactTestMasks) {
-        if (mask == bitMask)
-            return true;
-    }
-    return false;
+bool PhysicsBody::shouldTestCollisionWithBitMask(std::uint32_t bitMask) const {
+    return (m_contactTestBitMask & bitMask) != 0b0;
 }
 
 sf::RectangleShape const& PhysicsBody::getAABBShape(sf::Vector2f const& anchor) const {

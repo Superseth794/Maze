@@ -77,11 +77,11 @@ public:
     void setCollisionCallback(CollisionCallback const& callback);
     void setCollisionCallback(CollisionCallback && callback);
     
-    std::uint32_t getCategoryMask() const;
-    void addContactTestMask(std::uint32_t bitMask);
-    std::vector<std::uint32_t> getContactTestMasks() const;
-    std::size_t getContactTestMasksCount() const;
-    bool shouldTestCollisionWithMask(std::uint32_t bitMask) const;
+    std::uint32_t getCategoryBitMask() const;
+    void addContactTestBitMask(std::uint32_t bitMask);
+    void removeContactTestBitMask(std::uint32_t bitMask);
+    std::uint32_t getContactTestBitMasks() const;
+    bool shouldTestCollisionWithBitMask(std::uint32_t bitMask) const;
     
     sf::RectangleShape const& getAABBShape(sf::Vector2f const& anchor) const;
 //    sf::RectangleShape const& getOBBSprite(); TODO
@@ -103,8 +103,8 @@ private:
     PhysicsWorld* m_parentWorld;
     QuadtreeNode* m_parentNode = nullptr;
     
-    std::uint32_t m_categoryMask;
-    std::vector<std::uint32_t> m_contactTestMasks;
+    std::uint32_t m_categoryBitMask;
+    std::uint32_t m_contactTestBitMask;
     
     CollisionCallback m_collisionCallback;
     

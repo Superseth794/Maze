@@ -15,7 +15,7 @@ m_height(height),
 m_window(sf::VideoMode(m_width, m_height), "Maze"),
 m_physicsWorld(),
 m_gameClock(),
-m_player(width / 50.f, PLAYER_CATEGORY_BITMASK, &m_physicsWorld),
+m_player(width / 50.f, EntitiesBitMasks::PLAYER_MASK, &m_physicsWorld),
 m_cameraPosition(0.f, 0.f)
 {
 }
@@ -63,26 +63,26 @@ void Maze::init() {
     m_physicsWorld.setShowOBBs(false);
     m_physicsWorld.setShowCollisions(true);
     m_physicsWorld.setShowQuadtree(false);
-    m_physicsWorld.setShowQuadtreeEvents(false);
+    m_physicsWorld.setShowQuadtreeEvents(false  );
     
-//    generateMaze();
+    generateMaze();
     
     m_player.move(sf::Vector2f{m_wallWidth * 1.5f, m_wallHeight * 1.5f});
-    m_player.getPhysicsBody()->addContactTestMask(FILLED_TILE_CATEGORY_BITMASK);
+    m_player.getPhysicsBody()->addContactTestBitMask(EntitiesBitMasks::WALLS_MASK);
     m_physicsWorld.addBody(m_player.getPhysicsBody());
     m_physicsWorld.addBodyQuadtreeUpdateEvent(m_player.getPhysicsBody());
 //    m_physicsWorld.addBodyQuadtreeAdditionEvent(m_player.getPhysicsBody());
     
-    auto b1 = std::make_unique<SegmentPhysicsBody>(sf::Vector2f{0.f, 0.f}, sf::Vector2f{200.f, 200.f}, 15, &m_physicsWorld);
-    b1->addContactTestMask(16);
-    m_physicsWorld.addBody(b1.get());
+    auto b1 = std::make_unique<SegmentPhysicsBody>(sf::Vector2f{-400.f, -400.f}, sf::Vector2f{200.f, 200.f}, 15, &m_physicsWorld);
+    b1->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
+//    m_physicsWorld.addBody(b1.get());
     debug_bodies.emplace_back(std::move(b1));
     auto b2 = std::make_unique<SegmentPhysicsBody>(sf::Vector2f{200.f, 0.f}, sf::Vector2f{0.f, 200.f}, 16, &m_physicsWorld);
-    b2->addContactTestMask(15);
-    m_physicsWorld.addBody(b2.get());
+    b2->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
+//    m_physicsWorld.addBody(b2.get());
     debug_bodies.emplace_back(std::move(b2));
-    m_player.getPhysicsBody()->addContactTestMask(15);
-    m_player.getPhysicsBody()->addContactTestMask(16);
+    m_player.getPhysicsBody()->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
+    m_player.getPhysicsBody()->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
     
     if (SHOW_CONSOLE) {
         m_console = std::make_unique<Console>();
@@ -146,7 +146,7 @@ void Maze::generateMaze() {
     filledWallTexture->create(m_wallWidth, m_wallHeight);
     filledWallTexture->clear(sf::Color::White);
     filledWallTexture->display();
-    auto filledPhysicsBody = new RectanglePhysicsBody(m_wallWidth, m_wallHeight, sf::Vector2f{0.f, 0.f}, FILLED_TILE_CATEGORY_BITMASK, &m_physicsWorld);
+    auto filledPhysicsBody = new RectanglePhysicsBody(m_wallWidth, m_wallHeight, sf::Vector2f{0.f, 0.f}, WALLS_MASK, &m_physicsWorld);
     
     auto emptyWallTexture {std::make_shared<sf::RenderTexture>()};
     emptyWallTexture->create(m_wallWidth, m_wallHeight);

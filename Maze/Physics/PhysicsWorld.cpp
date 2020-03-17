@@ -521,7 +521,7 @@ std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollisi
     if (!body)
         return collisions;
     
-    if (body->getContactTestMasksCount() == 0 || body->getCategoryMask() == 0)
+    if (body->getContactTestBitMasks() == 0 || body->getCategoryBitMask() == 0)
         return collisions;
     
     // Computes collisions inside current node
@@ -531,7 +531,7 @@ std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollisi
             continue;
         
         // Prevents non-requested collisions tests with bit masks tests
-        if (!body->shouldTestCollisionWithMask(bodyB->getCategoryMask()))
+        if (!body->shouldTestCollisionWithBitMask(bodyB->getCategoryBitMask()))
             continue;
         
         // Prevents non-requested collisions tests with AABB - AABB collisions check
