@@ -134,8 +134,8 @@ sf::RectangleShape const& PhysicsBody::getAABBShape(sf::Vector2f const& anchor) 
         auto& shape = AABBShape.value();
         
         shape.setSize(sf::Vector2f{100.f, 100.f});
-        shape.setFillColor(sf::Color(3, 28, 252, 160));
-        shape.setOutlineColor(sf::Color(52, 216, 235, 200));
+        shape.setFillColor(DEBUG_AABB_FILL_COLOR);
+        shape.setOutlineColor(DEBUG_AABB_OUTLINE_COLOR);
         shape.setOutlineThickness(-5.f);
         shape.setPosition(0.f, 0.f);
     }
@@ -156,5 +156,8 @@ std::optional<sf::RectangleShape> PhysicsBody::AABBShape = std::nullopt;
 const sf::Color PhysicsBody::DEBUG_PHYSICS_FILL_COLOR = sf::Color(56, 128, 78, 175); // 18, 217, 4
 const sf::Color PhysicsBody::DEBUG_PHYSICS_OUTLINE_COLOR = sf::Color{22, 64, 25, 187};
 const sf::Color PhysicsBody::DEBUG_DID_COLLIDE_BODY_FILL_COLOR = sf::Color{255, 0, 0, 135};
+
+const sf::Color PhysicsBody::DEBUG_AABB_FILL_COLOR = sf::Color(3, 28, 252, 160);
+const sf::Color PhysicsBody::DEBUG_AABB_OUTLINE_COLOR = sf::Color(52, 216, 235, 200);
 
 }

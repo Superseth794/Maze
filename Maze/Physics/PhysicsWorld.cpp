@@ -41,13 +41,18 @@ void PhysicsWorld::addBody(PhysicsBody* body) {
     m_toAddBodies.emplace_back(std::move(body));
 }
 
-void PhysicsWorld::removeBody(PhysicsBody* body) {
+bool PhysicsWorld::removeBody(PhysicsBody* body) {
     if (!body)
-        return;
+        return false;
     auto searchResult {findBody(body, body->getParentNode())};
     if (searchResult.has_value()) {
         m_toRemoveBodiesPositions.emplace_back(std::move(searchResult.value()));
+    } else {
+//        throw std::runtime_error("No body found for remove");
+        std::cout << "No body found for remove" << std::endl;
+        searchResult = findBody(body, body->getParentNode());
     }
+    return searchResult.has_value();
 }
 
 void PhysicsWorld::updateBody(PhysicsBody* body) {
@@ -276,7 +281,6 @@ void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
         if (!node->parent) {
             addParent(node, body->getCenter());
             addBody(body, node);
-            
         } else {
             addBody(body, node->parent);
         }
@@ -358,12 +362,13 @@ void PhysicsWorld::removeAllBodies() {
 void PhysicsWorld::updateAllBodies() {
     // Updates all bodies in update buffer
     for (auto body : m_toUpdateBodies) {
-        if (!body)
+        if (!body || !body->getParentNode())
             continue;
         
         // Updates body in quadtree
-        removeBody(body);
-        addBody(body);
+        if (removeBody(body)) {
+            addBody(body);
+        }
         
         // Updates body debug node if needed
         for (auto& debugPair : m_debugBodiesUpdateDisplay) {
@@ -402,6 +407,7 @@ void PhysicsWorld::addChildrens(QuadtreeNode* node) {
     
     std::vector<PhysicsBody*> bodies;
     std::swap(bodies, node->bodies);
+    node->bodies.clear();
     for (int bodyId = 0; bodyId < bodies.size(); ++bodyId) {
         addBody(bodies[bodyId], node);
     }
@@ -459,6 +465,13 @@ void PhysicsWorld::addParent(QuadtreeNode* node, sf::Vector2f const& bodyPositio
                     }
                 }
                 newRoot.childs[dx + dy * 2] = std::move(newNode);
+                
+                // Prevents errors from remove positions in buffer being modifed
+                for (auto& position : m_toRemoveBodiesPositions) {
+                    if (*position.first == *node)
+                        position.first = newRoot.childs[dx + dy * 2].get();
+                }
+                
             } else {
                 newRoot.childs[dx + dy * 2] = std::make_unique<QuadtreeNode>(AABB{subAnchor, width, height}, 1, node); // prevents errors from newRoot move
             }
@@ -576,25 +589,29 @@ std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollisi
 
 std::optional<PhysicsWorld::QuadtreeLocation> PhysicsWorld::findBody(PhysicsBody* body, QuadtreeNode* rootNode) {
     QuadtreeNode* currentNode = rootNode;
-    bool nextNodeFound = true;
+    int previousDepth = -1;
     
-    while (currentNode && nextNodeFound) {
-        for (int i = 0; i < currentNode->bodies.size(); ++i) {
+    while (currentNode && currentNode->depth != previousDepth) {
+        previousDepth = currentNode->depth;
+        
+        for (int i = 0; i < currentNode->bodies.size(); ++i) { // Operation is always performed to be able to find bodies switching quadtree node
             if (*body == *currentNode->bodies[i]) {
                 return std::make_optional(std::make_tuple(currentNode, i));
             }
         }
         
-        if (!(currentNode->hasChildren()))
-            break;
-        
-        nextNodeFound = false;
-        for (int i = 0; i < 4; ++i) {
-            if (isBodyInsideNode(body, currentNode->childs[i].get())) {
-                currentNode = currentNode->childs[i].get();
-                nextNodeFound = true;
-                break;
+        if (isBodyInsideNode(body, currentNode)) {
+            if (!(currentNode->hasChildren()))
+                continue;
+            
+            for (int i = 0; i < 4; ++i) {
+                if (isBodyInsideNode(body, currentNode->childs[i].get())) {
+                    currentNode = currentNode->childs[i].get();
+                    break;
+                }
             }
+        } else if (currentNode->parent) {
+            currentNode = currentNode->parent;
         }
     }
     return std::nullopt;

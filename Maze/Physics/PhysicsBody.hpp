@@ -110,6 +110,9 @@ private:
     
     static std::optional<sf::RectangleShape> AABBShape;
     
+    static const sf::Color DEBUG_AABB_FILL_COLOR;
+    static const sf::Color DEBUG_AABB_OUTLINE_COLOR;
+    
 };
 
 

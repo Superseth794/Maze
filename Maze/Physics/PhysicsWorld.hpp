@@ -69,7 +69,7 @@ public:
     void init(float width, float height);
     
     void addBody(PhysicsBody* body);
-    void removeBody(PhysicsBody* body);
+    bool removeBody(PhysicsBody* body);
     void updateBody(PhysicsBody* body);
     
     void addBodyQuadtreeAdditionEvent(PhysicsBody* body);
