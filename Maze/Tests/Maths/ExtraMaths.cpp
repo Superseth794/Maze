@@ -176,13 +176,13 @@ TEST_CASE("Computes length squarred of vector")
 {
     SECTION("Squarred norm of vector (1.0, 1.0) must be 2")
     {
-        double length = mz::getVectorLength<double>({1.0, 1.0});
+        double length = mz::getVectorLength2<double>({1.0, 1.0});
         REQUIRE(mz::nearlyEquals(length, 2.0));
     }
     
     SECTION("Squarred norm of vector (0.0, 0.0) must be 0")
     {
-        double length = mz::getVectorLength<double>({0., 0.});
+        double length = mz::getVectorLength2<double>({0., 0.});
         REQUIRE(mz::nearlyEquals(length, 0.));
     }
 }
