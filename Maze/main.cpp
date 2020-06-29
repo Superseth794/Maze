@@ -8,13 +8,12 @@
 #include <iostream>
 #include <time.h>
 
-#include "Maze.hpp"
-
-#include "UnitTestsSession.hpp"
-
 #define RUN_UNIT_TESTS
+#define VISUAL_TESTS
 
 #ifndef RUN_UNIT_TESTS
+
+# include "Maze.hpp"
 
 int main(int argc, const char * argv[]) {
     
@@ -30,15 +29,26 @@ int main(int argc, const char * argv[]) {
     return 0;
 }
 
-#else
+#elifndef VISUAL_TESTS
+
+# include "Tests/UnitTests/UnitTestsSession.hpp"
 
 int main(int argc, const char * argv[]) {
     
-    UnitTestsSession session {"My first unit tests session!"};
-    
+    UnitTestsSession session {"Unit tests session"};
     int result = session.run();
     
     return result;
 }
 
-#endif
+#else
+
+# include "Tests/VisualTests/Collisions.hpp"
+# include "Utils/Callback.hpp"
+
+int main(int argc, const char * argv[]) {
+    srand(static_cast<unsigned int>(time(nullptr)));
+    applyAllTests();
+}
+
+#endif // Visual Tests
