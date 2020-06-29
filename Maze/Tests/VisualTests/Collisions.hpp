@@ -37,6 +37,8 @@
 
 # include "../../Physics/Collisions.hpp"
 
+// TODO: add in external file
+
 template <typename ...Args>
 inline void drawTest(std::string && title, std::function<bool(sf::Vector2f const&, Args...)> const& evaluationFunction, Args const& ...args) {
     static const std::string folderName = "VisualTestsFiles/";
@@ -67,10 +69,9 @@ inline void drawTest(std::string && title, std::function<bool(sf::Vector2f const
     std::cout << filename << " generated" << std::endl;
 }
 
-inline float generateRandomNumber(float min = COLLISION_VISUAL_TEST_LOWER_BOUND, float max = COLLISION_VISUAL_TEST_UPPER_BOUND) {
+inline float generateRandomNumber(float min = COLLISION_VISUAL_TEST_LOWER_BOUND, float max = COLLISION_VISUAL_TEST_UPPER_BOUND, float nbDigits = 1.f) {
     const float range = max - min;
-    const float digitsGenerator = 1.f;
-    return (rand() % (static_cast<int>(range * digitsGenerator))) / digitsGenerator + min;
+    return (rand() % (static_cast<int>(range * nbDigits))) / nbDigits + min;
 }
 
 inline sf::Vector2f generateRandomVector(float min = COLLISION_VISUAL_TEST_LOWER_BOUND, float max = COLLISION_VISUAL_TEST_UPPER_BOUND) {
@@ -116,6 +117,7 @@ inline void positionInsideLineTest() {
     drawTest<sf::Vector2f const&, sf::Vector2f const&>(std::move(testTitle), evaluationFunction, lineBelongingPosition, lineDirection);
 }
 
+// TODO: ensure shape is inside frame
 inline void positionInsideCircleTest() {
     std::function<bool(sf::Vector2f const&, sf::Vector2f const&, float)> evaluationFunction {mz::Collision::isPositionInsideCircle};
     
@@ -146,17 +148,26 @@ inline void positionInsideAABBTest() {
     drawTest<sf::Vector2f const&, float, float>(std::move(testTitle), evaluationFunction, AABB_topLeftCorner, width, height);
 }
 
+// TODO: ensure OOBB is inside frame
 inline void positionInsideOOBBTest() {
+    std::function<bool(sf::Vector2f const&, sf::Vector2f const&, float, float, float)> evaluationFunction {mz::Collision::isPositionInsideOOBB};
     
+    const sf::Vector2f OOBB_topLeftCorner {generateRandomVector()};
+    const float width = generateRandomNumber(0, COLLISION_VISUAL_TEST_UPPER_BOUND - OOBB_topLeftCorner.x);
+    const float height = generateRandomNumber(0, COLLISION_VISUAL_TEST_UPPER_BOUND - OOBB_topLeftCorner.y);
+    const float rotation = generateRandomNumber(0.f, 2.f * M_PI, 4);
+    std::string testTitle = "Position_Inside_OOBB_" + toString(OOBB_topLeftCorner) + "_" + toString(width) + "_" + toString(height) + "_" + toString(mz::fromRadianToDegrees(rotation), 7) + "°";
+    
+    drawTest<sf::Vector2f const&, float, float, float>(std::move(testTitle), evaluationFunction, OOBB_topLeftCorner, width, height, rotation);
 }
 
 
 inline void applyAllTests() {
-//    positionInsideSegmentTest();
-//    positionInsideRayTest();
-//    positionInsideLineTest();
-//    positionInsideCircleTest();
-//    positionInsideTriangleTest();
+    positionInsideSegmentTest();
+    positionInsideRayTest();
+    positionInsideLineTest();
+    positionInsideCircleTest();
+    positionInsideTriangleTest();
     positionInsideAABBTest();
     positionInsideOOBBTest();
 }

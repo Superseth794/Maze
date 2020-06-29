@@ -81,7 +81,7 @@ inline bool isPositionInsideTriangle(sf::Vector2f const& position, std::array<sf
     
     const float angleSum = angleAXC + angleCXB + angleBXA;
     
-    if (mz::nearlyEquals<float>(angleSum, M_PI * 2.f, 1e-4f)) // ensure the sum of the angles corresponds to a hole turn
+    if (nearlyEquals<float>(angleSum, M_PI * 2.f, 1e-4f)) // ensure the sum of the angles corresponds to a hole turn
         return true;
     else
         return false;
@@ -94,8 +94,29 @@ inline bool isPositionInsideAABB(sf::Vector2f const& position, sf::Vector2f cons
             position.y <= AABB_topLeftCorner.y + AABB_height);
 }
 
-inline bool isPositionInsideOOBB(sf::Vector2f const& position, sf::Vector2f const& AABB_topLeftCorner, float OOBB_width, float OOBB_height, float OOBB_rotation) {
-    return false;
+inline bool isPositionInsideOOBB(sf::Vector2f const& position, sf::Vector2f const& OOBB_topLeftCorner, float OOBB_width, float OOBB_height, float OOBB_rotation) {
+    const float rotationCos = std::cos(OOBB_rotation);
+    const float rotationSin = std::sin(OOBB_rotation);
+
+    const sf::Vector2f topRightCorner {
+        OOBB_topLeftCorner.x + rotationCos * OOBB_width,
+        OOBB_topLeftCorner.y + rotationSin * OOBB_width
+    };
+    const sf::Vector2f bottomLeftCorner {
+        OOBB_topLeftCorner.x - rotationSin * OOBB_height,
+        OOBB_topLeftCorner.y + rotationCos * OOBB_height
+    };
+    
+    const auto AX {position - OOBB_topLeftCorner};
+    const auto BX {position - topRightCorner};
+    const auto DX {position - bottomLeftCorner};
+    const auto AB {topRightCorner - OOBB_topLeftCorner};
+    const auto AD {bottomLeftCorner - OOBB_topLeftCorner};
+    
+    return (getScalarProduct(AX, AB) >= 0 &&
+            getScalarProduct(BX, -AB) >= 0 &&
+            getScalarProduct(AX, AD) >= 0 &&
+            getScalarProduct(DX, -AD) >= 0);
 }
 
 inline bool isPositionInsideConvexPolygone(sf::Vector2f const& position, std::vector<sf::Vector2f> const& convexPolygoneVertexes) {
