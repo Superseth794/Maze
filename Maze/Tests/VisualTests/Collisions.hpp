@@ -141,8 +141,8 @@ inline void positionInsideAABBTest() {
     std::function<bool(sf::Vector2f const&, sf::Vector2f const&, float, float)> evaluationFunction {mz::Collision::isPositionInsideAABB};
     
     const sf::Vector2f AABB_topLeftCorner {generateRandomVector()};
-    const float width = generateRandomNumber(0, COLLISION_VISUAL_TEST_UPPER_BOUND - AABB_topLeftCorner.x);
-    const float height = generateRandomNumber(0, COLLISION_VISUAL_TEST_UPPER_BOUND - AABB_topLeftCorner.y);
+    const float width = generateRandomNumber(0.01f, COLLISION_VISUAL_TEST_UPPER_BOUND - AABB_topLeftCorner.x);
+    const float height = generateRandomNumber(0.01f, COLLISION_VISUAL_TEST_UPPER_BOUND - AABB_topLeftCorner.y);
     std::string testTitle = "Position_Inside_AABB_" + toString(AABB_topLeftCorner) + "_" + toString(width) + "_" + toString(height);
     
     drawTest<sf::Vector2f const&, float, float>(std::move(testTitle), evaluationFunction, AABB_topLeftCorner, width, height);
@@ -153,8 +153,8 @@ inline void positionInsideOOBBTest() {
     std::function<bool(sf::Vector2f const&, sf::Vector2f const&, float, float, float)> evaluationFunction {mz::Collision::isPositionInsideOOBB};
     
     const sf::Vector2f OOBB_topLeftCorner {generateRandomVector()};
-    const float width = generateRandomNumber(0, COLLISION_VISUAL_TEST_UPPER_BOUND - OOBB_topLeftCorner.x);
-    const float height = generateRandomNumber(0, COLLISION_VISUAL_TEST_UPPER_BOUND - OOBB_topLeftCorner.y);
+    const float width = generateRandomNumber(0.01f, COLLISION_VISUAL_TEST_UPPER_BOUND - OOBB_topLeftCorner.x);
+    const float height = generateRandomNumber(0.01f, COLLISION_VISUAL_TEST_UPPER_BOUND - OOBB_topLeftCorner.y);
     const float rotation = generateRandomNumber(0.f, 2.f * M_PI, 4);
     std::string testTitle = "Position_Inside_OOBB_" + toString(OOBB_topLeftCorner) + "_" + toString(width) + "_" + toString(height) + "_" + toString(mz::fromRadianToDegrees(rotation), 7) + "°";
     
