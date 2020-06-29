@@ -28,8 +28,6 @@
 #  define COLLISION_VISUAL_TEST_FAILURE_COLOR sf::Color::Red
 # endif // COLLISION_VISUAL_TEST_FAILURE_COLOR
 
-// TODO: Collision color
-
 # include <string>
 # include <functional>
 # include <fstream>
@@ -121,7 +119,7 @@ inline void positionInsideLineTest() {
 inline void positionInsideCircleTest() {
     std::function<bool(sf::Vector2f const&, sf::Vector2f const&, float)> evaluationFunction {mz::Collision::isPositionInsideCircle};
     
-    const float circleRadius = generateRandomNumber(9.9f);
+    const float circleRadius = generateRandomNumber(0.01f, (COLLISION_VISUAL_TEST_UPPER_BOUND - COLLISION_VISUAL_TEST_LOWER_BOUND - 0.1f) / 2.f);
     const auto circleCenter {generateRandomVector(COLLISION_VISUAL_TEST_LOWER_BOUND + circleRadius, COLLISION_VISUAL_TEST_UPPER_BOUND - circleRadius)};
     std::string testTitle = "Position_Inside_Circle_" + toString(circleCenter) + "_" + toString(circleRadius);
     
@@ -138,7 +136,14 @@ inline void positionInsideTriangleTest() {
 }
 
 inline void positionInsideAABBTest() {
+    std::function<bool(sf::Vector2f const&, sf::Vector2f const&, float, float)> evaluationFunction {mz::Collision::isPositionInsideAABB};
     
+    const sf::Vector2f AABB_topLeftCorner {generateRandomVector()};
+    const float width = generateRandomNumber(0, COLLISION_VISUAL_TEST_UPPER_BOUND - AABB_topLeftCorner.x);
+    const float height = generateRandomNumber(0, COLLISION_VISUAL_TEST_UPPER_BOUND - AABB_topLeftCorner.y);
+    std::string testTitle = "Position_Inside_AABB_" + toString(AABB_topLeftCorner) + "_" + toString(width) + "_" + toString(height);
+    
+    drawTest<sf::Vector2f const&, float, float>(std::move(testTitle), evaluationFunction, AABB_topLeftCorner, width, height);
 }
 
 inline void positionInsideOOBBTest() {
@@ -151,9 +156,9 @@ inline void applyAllTests() {
 //    positionInsideRayTest();
 //    positionInsideLineTest();
 //    positionInsideCircleTest();
-    positionInsideTriangleTest();
-//    positionInsideAABBTest();
-//    positionInsideOOBBTest();
+//    positionInsideTriangleTest();
+    positionInsideAABBTest();
+    positionInsideOOBBTest();
 }
 
 #endif /* Collisions_VisualTest_h */

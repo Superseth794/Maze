@@ -38,7 +38,7 @@ inline bool isPositionInsideSegment(sf::Vector2f const& position, sf::Vector2f c
     const float scal1 = vectV.x * vectU.x + vectV.y * vectU.y;
     const float scal2 = vectW.x * vectU.x + vectW.y * vectU.y;
     
-    if(scal1 >= 0 && scal2 <= 0) // position is between the segment bounds
+    if (scal1 >= 0 && scal2 <= 0) // position is between the segment bounds
         return true;
     else
         return false;
@@ -81,14 +81,17 @@ inline bool isPositionInsideTriangle(sf::Vector2f const& position, std::array<sf
     
     const float angleSum = angleAXC + angleCXB + angleBXA;
     
-    if (2 * M_PI - 1e-4f <= angleSum && angleSum <= 2 * M_PI + 1e-4f) // ensure the sum of the angles corresponds to a hole turn
+    if (mz::nearlyEquals<float>(angleSum, M_PI * 2.f, 1e-4f)) // ensure the sum of the angles corresponds to a hole turn
         return true;
     else
         return false;
 }
 
 inline bool isPositionInsideAABB(sf::Vector2f const& position, sf::Vector2f const& AABB_topLeftCorner, float AABB_width, float AABB_height) {
-    return false;
+    return (position.x >= AABB_topLeftCorner.x &&
+            position.x <= AABB_topLeftCorner.x + AABB_width &&
+            position.y >= AABB_topLeftCorner.y &&
+            position.y <= AABB_topLeftCorner.y + AABB_height);
 }
 
 inline bool isPositionInsideOOBB(sf::Vector2f const& position, sf::Vector2f const& AABB_topLeftCorner, float OOBB_width, float OOBB_height, float OOBB_rotation) {
