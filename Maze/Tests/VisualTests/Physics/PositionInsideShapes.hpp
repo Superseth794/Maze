@@ -32,10 +32,11 @@
 # include <functional>
 # include <fstream>
 # include <sstream>
+# include <stdexcept>
 
 # include <SFML/Graphics.hpp>
 
-# include "../../Physics/Collisions.hpp"
+# include "../../../Physics/Collisions.hpp"
 
 // TODO: add in external file
 
@@ -159,17 +160,6 @@ inline void positionInsideOOBBTest() {
     std::string testTitle = "Position_Inside_OOBB_" + toString(OOBB_topLeftCorner) + "_" + toString(width) + "_" + toString(height) + "_" + toString(mz::fromRadianToDegrees(rotation), 7) + "°";
     
     drawTest<sf::Vector2f const&, float, float, float>(std::move(testTitle), evaluationFunction, OOBB_topLeftCorner, width, height, rotation);
-}
-
-
-inline void applyAllTests() {
-    positionInsideSegmentTest();
-    positionInsideRayTest();
-    positionInsideLineTest();
-    positionInsideCircleTest();
-    positionInsideTriangleTest();
-    positionInsideAABBTest();
-    positionInsideOOBBTest();
 }
 
 #endif /* Collisions_VisualTest_h */
