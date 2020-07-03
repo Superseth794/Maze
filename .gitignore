@@ -11,3 +11,6 @@ build/Makefile
 Build/*.make
 build/bin/*
 build/Obj/*
+
+# ignores platform-dependent files
+premake5
