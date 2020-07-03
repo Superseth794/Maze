@@ -9,11 +9,11 @@
 #include <time.h>
 
 #define RUN_UNIT_TESTS
-#define VISUAL_TESTS
+//#define VISUAL_TESTS
 
 #if !defined(RUN_UNIT_TESTS)
 
-# include "Maze.hpp"
+# include "Game/Maze.hpp"
 
 int main(int argc, const char * argv[]) {
     
