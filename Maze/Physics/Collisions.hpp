@@ -21,6 +21,8 @@ namespace mz {
 
 namespace Collision {
 
+// TODO: Add query result structure / params
+
 using CollisionData = std::unique_ptr<std::vector<sf::Vector2f>>;
 
 /*------------------------------------------------------------------*/

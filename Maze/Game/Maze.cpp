@@ -59,11 +59,11 @@ void Maze::init() {
     m_physicsWorld.init((m_mazeWidth + 2) * m_wallWidth, (m_mazeHeight + 2) * m_wallHeight);
     
     m_physicsWorld.setShowPhysicsBodies(true);
-    m_physicsWorld.setShowAABBs(false);
+    m_physicsWorld.setShowAABBs(true);
     m_physicsWorld.setShowOBBs(false);
     m_physicsWorld.setShowCollisions(true);
-    m_physicsWorld.setShowQuadtree(false);
-    m_physicsWorld.setShowQuadtreeEvents(false  );
+    m_physicsWorld.setShowQuadtree(true);
+    m_physicsWorld.setShowQuadtreeEvents(true);
     
     generateMaze();
     
@@ -182,9 +182,9 @@ void Maze::updateCamera() {
     m_cameraPosition.x = std::clamp(m_cameraPosition.x, m_player.getPosition().x - margingAllowed.x, m_player.getPosition().x + margingAllowed.x);
     m_cameraPosition.y = std::clamp(m_cameraPosition.y, m_player.getPosition().y - margingAllowed.y, m_player.getPosition().y + margingAllowed.y);
     
-    // Clamps camera inside maze
-//    m_cameraPosition.x = std::clamp(m_cameraPosition.x, m_width / 2.f, m_wallWidth * (m_mazeWidth + 2) - m_width / 2.f);
-//    m_cameraPosition.y = std::clamp(m_cameraPosition.y, m_height / 2.f, m_wallHeight * (m_mazeHeight + 2) - m_height / 2.f);
+    // Clamps camera inside maze // DEBUG
+    m_cameraPosition.x = std::clamp(m_cameraPosition.x, m_width / 2.f, m_wallWidth * (m_mazeWidth + 2) - m_width / 2.f);
+    m_cameraPosition.y = std::clamp(m_cameraPosition.y, m_height / 2.f, m_wallHeight * (m_mazeHeight + 2) - m_height / 2.f);
 }
 
 void Maze::display() {

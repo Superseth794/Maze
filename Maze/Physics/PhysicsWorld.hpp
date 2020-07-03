@@ -23,6 +23,7 @@
 
 # include "AABB.hpp"
 # include "PhysicsBody.hpp"
+# include "Collisions.hpp"
 
 namespace mz {
 

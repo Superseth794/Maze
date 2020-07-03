@@ -5,9 +5,9 @@
 //  Created by Jaraxus on 25/04/2020.
 //
 
-#include "../../External/Catch/Catch.hpp"
+#include "../../../External/Catch/Catch.hpp"
 
-#include "../../Utils/Polynomial.hpp"
+#include "../../../Utils/Polynomial.hpp"
 
 TEST_CASE("polynomial with null coeficients") {
     
@@ -192,10 +192,10 @@ TEST_CASE("polynomial of degree 3 with doubles", "[math]") {
         
         WHEN("roots of type <double> are required") {
             THEN("there must be a single root equal to -2.971585615") {
-//                auto roots {poly.findRoots<double>()};
-//                REQUIRE(roots.size() >= 1); // TODO
-//                REQUIRE(roots[0] == -2.971585615);
-//                REQUIRE(poly.compute(roots[0]) == 0.);
+                auto roots {poly.findRoots<double>()};
+                REQUIRE(roots.size() >= 1); // TODO
+                REQUIRE(roots[0] == -2.971585615);
+                REQUIRE(poly.compute(roots[0]) == 0.);
             }
         }
     }
