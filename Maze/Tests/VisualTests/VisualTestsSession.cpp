@@ -9,7 +9,9 @@
 
 mz::Test::VisualTestsSession::VisualTestsSession(std::string && sessionName) :
 m_sessionName(std::forward<std::string>(sessionName))
-{}
+{
+//    std::filesystem::create_directory(""); TODO: create cross-platform system
+}
 
 int mz::Test::VisualTestsSession::run() {
     bool totalSucces = true;

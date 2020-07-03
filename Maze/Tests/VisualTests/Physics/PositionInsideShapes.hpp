@@ -20,10 +20,7 @@
 # include "../../../Utils/Callback.hpp"
 # include "../../../Physics/Collisions.hpp"
 
-# ifdef MAZE_VISUAL_TEST_OUTPUT_DIRECTORY
-#  undef MAZE_VISUAL_TEST_OUTPUT_DIRECTORY
-# endif /* MAZE_VISUAL_TEST_OUTPUT_DIRECTORY */
-# define MAZE_VISUAL_TEST_OUTPUT_DIRECTORY "Physics/Positions_Inside_Shapes/"
+# define MAZE_VISUAL_TESTS_POSITIONS_INSIDE_SHAPES_SUB_OUTPUT_DIRECTORY std::string{""} // TODO: add Physics/Positions_Inside_Shapes/ when cross-platform sub-directory creation will be available
 
 namespace mz::Test {
 
@@ -43,7 +40,7 @@ inline static std::function<sf::Color(sf::Vector2f const&)> generateEvaluationFu
     
 inline void positionInsideSegmentTest() {
     const auto segmentStart {generateRandomVector()}, segmentEnd {generateRandomVector()};
-    std::string testTitle = "Position_Inside_Segment_" + toString(segmentStart) + "_" + toString(segmentEnd);
+    std::string testTitle = MAZE_VISUAL_TESTS_POSITIONS_INSIDE_SHAPES_SUB_OUTPUT_DIRECTORY + "Position_Inside_Segment_" + toString(segmentStart) + "_" + toString(segmentEnd);
     
     const auto evaluationFunction {generateEvaluationFunction(mz::Collision::isPositionInsideSegment, segmentStart, segmentEnd)};
     
@@ -52,7 +49,7 @@ inline void positionInsideSegmentTest() {
 
 inline void positionInsideRayTest() {
     const auto rayStart {generateRandomVector()}, rayDirection {generateRandomVector()};
-    std::string testTitle = "Position_Inside_Ray_" + toString(rayStart) + "_" + toString(rayDirection);
+    std::string testTitle = MAZE_VISUAL_TESTS_POSITIONS_INSIDE_SHAPES_SUB_OUTPUT_DIRECTORY + "Position_Inside_Ray_" + toString(rayStart) + "_" + toString(rayDirection);
     
     const auto evaluationFunction {generateEvaluationFunction(mz::Collision::isPositionInsideRay, rayStart, rayDirection)};
     
@@ -61,7 +58,7 @@ inline void positionInsideRayTest() {
 
 inline void positionInsideLineTest() {
     const auto lineBelongingPosition {generateRandomVector()}, lineDirection {generateRandomVector()};
-    std::string testTitle = "Position_Inside_Line_" + toString(lineBelongingPosition) + "_" + toString(lineDirection);
+    std::string testTitle = MAZE_VISUAL_TESTS_POSITIONS_INSIDE_SHAPES_SUB_OUTPUT_DIRECTORY + "Position_Inside_Line_" + toString(lineBelongingPosition) + "_" + toString(lineDirection);
     
     const auto evaluationFunction {generateEvaluationFunction(mz::Collision::isPositionInsideLine, lineBelongingPosition, lineDirection)};
     
@@ -72,7 +69,7 @@ inline void positionInsideLineTest() {
 inline void positionInsideCircleTest() {
     const float circleRadius = generateRandomNumber(0.01f, (MAZE_VISUAL_TESTS_RANGE - 0.1f) / 2.f);
     const auto circleCenter {generateRandomVector(MAZE_VISUAL_TESTS_LOWER_BOUND + circleRadius, MAZE_VISUAL_TESTS_UPPER_BOUND - circleRadius)};
-    std::string testTitle = "Position_Inside_Circle_" + toString(circleCenter) + "_" + toString(circleRadius);
+    std::string testTitle = MAZE_VISUAL_TESTS_POSITIONS_INSIDE_SHAPES_SUB_OUTPUT_DIRECTORY + "Position_Inside_Circle_" + toString(circleCenter) + "_" + toString(circleRadius);
     
     const auto evaluationFunction {generateEvaluationFunction(mz::Collision::isPositionInsideCircle, circleCenter, circleRadius)};
     
@@ -81,7 +78,7 @@ inline void positionInsideCircleTest() {
 
 inline void positionInsideTriangleTest() {
     std::array<sf::Vector2f, 3> triangleVertexes {generateRandomVector(), generateRandomVector(), generateRandomVector()};
-    std::string testTitle = "Position_Inside_Triangle_" + toString(triangleVertexes[0]) + "_" + toString(triangleVertexes[1]) + "_" + toString(triangleVertexes[2]);
+    std::string testTitle = MAZE_VISUAL_TESTS_POSITIONS_INSIDE_SHAPES_SUB_OUTPUT_DIRECTORY + "Position_Inside_Triangle_" + toString(triangleVertexes[0]) + "_" + toString(triangleVertexes[1]) + "_" + toString(triangleVertexes[2]);
     
     const auto evaluationFunction {generateEvaluationFunction(mz::Collision::isPositionInsideTriangle, triangleVertexes)};
     
@@ -92,20 +89,19 @@ inline void positionInsideAABBTest() {
     const sf::Vector2f AABB_topLeftCorner {generateRandomVector()};
     const float width = generateRandomNumber(0.01f, MAZE_VISUAL_TESTS_UPPER_BOUND - AABB_topLeftCorner.x);
     const float height = generateRandomNumber(0.01f, MAZE_VISUAL_TESTS_UPPER_BOUND - AABB_topLeftCorner.y);
-    std::string testTitle = "Position_Inside_AABB_" + toString(AABB_topLeftCorner) + "_" + toString(width) + "_" + toString(height);
+    std::string testTitle = MAZE_VISUAL_TESTS_POSITIONS_INSIDE_SHAPES_SUB_OUTPUT_DIRECTORY + "Position_Inside_AABB_" + toString(AABB_topLeftCorner) + "_" + toString(width) + "_" + toString(height);
     
     const auto evaluationFunction {generateEvaluationFunction(mz::Collision::isPositionInsideAABB, AABB_topLeftCorner, width, height)};
     
     drawTest(std::move(testTitle), evaluationFunction);
 }
 
-// TODO: ensure OOBB is inside frame
 inline void positionInsideOOBBTest() {
     const auto OOBB_topLeftCorner {generateRandomVector()};
     const float width = generateRandomNumber(0.01f, MAZE_VISUAL_TESTS_UPPER_BOUND - OOBB_topLeftCorner.x);
     const float height = generateRandomNumber(0.01f, MAZE_VISUAL_TESTS_UPPER_BOUND - OOBB_topLeftCorner.y);
     const float rotation = generateRandomNumber(0.f, 2.f * static_cast<float>(M_PI), 4u);
-    std::string testTitle = "Position_Inside_OOBB_" + toString(OOBB_topLeftCorner) + "_" + toString(width) + "_" + toString(height) + "_" + toString(mz::fromRadianToDegrees(rotation), 7) + "°";
+    std::string testTitle = MAZE_VISUAL_TESTS_POSITIONS_INSIDE_SHAPES_SUB_OUTPUT_DIRECTORY + "Position_Inside_OOBB_" + toString(OOBB_topLeftCorner) + "_" + toString(width) + "_" + toString(height) + "_" + toString(mz::fromRadianToDegrees(rotation), 7) + "°";
     
     const auto evaluationFunction {generateEvaluationFunction(mz::Collision::isPositionInsideOOBB, OOBB_topLeftCorner, width, height, rotation)};
     
