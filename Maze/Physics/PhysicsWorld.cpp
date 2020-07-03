@@ -561,7 +561,7 @@ std::unique_ptr<std::vector<PhysicsWorld::Collision>> PhysicsWorld::checkCollisi
         auto intersections {bodyB->collideWith(body)};
         if (intersections->size() == 0)
             continue;
-        
+
         collisions->push_back({bodyB, std::move(intersections)});
     }
     

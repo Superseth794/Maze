@@ -116,7 +116,7 @@ void PhysicsBody::addContactTestBitMask(std::uint32_t bitMask) {
 }
 
 void PhysicsBody::removeContactTestBitMask(std::uint32_t bitMask) {
-    m_contactTestBitMask &= !bitMask;
+    m_contactTestBitMask &= ~bitMask;
 }
 
 std::uint32_t PhysicsBody::getContactTestBitMasks() const {
@@ -136,7 +136,7 @@ sf::RectangleShape const& PhysicsBody::getAABBShape(sf::Vector2f const& anchor) 
         shape.setSize(sf::Vector2f{100.f, 100.f});
         shape.setFillColor(DEBUG_AABB_FILL_COLOR);
         shape.setOutlineColor(DEBUG_AABB_OUTLINE_COLOR);
-        shape.setOutlineThickness(-5.f);
+        shape.setOutlineThickness(-2.f);
         shape.setPosition(0.f, 0.f);
     }
     

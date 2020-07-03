@@ -5,9 +5,9 @@
 //  Created by Jaraxus on 15/03/2020.
 //
 
-# include "../../External/Catch/Catch.hpp"
+# include "../../../External/Catch/Catch.hpp"
 
-# include "../../Utils/ExtraMaths.hpp"
+# include "../../../Utils/ExtraMaths.hpp"
 
 TEST_CASE("nearlyEquals", "[Math, Algorithm]")
 {
