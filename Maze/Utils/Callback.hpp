@@ -10,82 +10,120 @@
 
 # include <iostream>
 # include <functional>
+# include <memory>
+# include <tuple>
+# include <optional>
 
-template<class T>
+namespace mz {
+
+template <class T>
 struct function_trait : public function_trait<decltype(&std::decay_t<T>::operator())> {};
 
-template <class Class, class Return_type, class... Args>
-struct function_trait<Return_type(Class::*)(Args...) const>
-{
-    using return_type = Return_type;
-    using function_type = std::function<return_type(Args...)>;
+template <class ReturnType, typename ...Args>
+struct function_trait<ReturnType(Args...)> {
+    using return_type = ReturnType;
+    using function_type = std::function<ReturnType(Args...)>;
+    using args_container_type = std::tuple<Args...>;
+};
 
-    template <unsigned int N>
-    using arg_type = typename std::tuple_element<N, std::tuple<Args...>>::type;
+template <class Object, class ReturnType, typename ...Args>
+struct function_trait<ReturnType(Object::*)(Args...)> {
+    using return_type = ReturnType;
+    using function_type = std::function<ReturnType(Args...)>;
+    using args_container_type = std::tuple<Args...>;
+};
+
+template <class Object, class ReturnType, typename ...Args>
+struct function_trait<ReturnType(Object::*)(Args...) const> {
+    using return_type = ReturnType;
+    using function_type = std::function<ReturnType(Args...)>;
+    using args_container_type = std::tuple<Args...>;
 };
 
 template <class T>
-class Callback : public Callback<decltype(&std::decay_t<T>::operator())> {
+class Callback {
 public:
-    Callback() {
-        std::cout << "V1" << std::endl;
-    };
-    ~Callback() = default;
-
-    void process() {
-        // Does nothing in default implementation
-        std::cout << "No callback implemention" << std::endl;
-    }
-};
-
-template <typename T_Return, typename ...Args>
-class Callback<T_Return(Args...) const> {
-public:
+    using Return_type = typename function_trait<T>::return_type;
+    using Function_type = typename function_trait<T>::function_type;
+    using Args_container_type = typename function_trait<T>::args_container_type;
     
-    Callback(std::function<T_Return(Args...)> const& callback) : m_callback(callback) {
-        std::cout << "V2" << std::endl;
-    };
-    ~Callback() = default;
-
-    T_Return process(Args... args) {
-        return m_callback(std::forward(args...));
+    Callback(T && callback) noexcept : m_callback(std::forward<T>(callback)) {}
+    
+    Callback(T const& callback) noexcept : m_callback(callback) {}
+    
+    Callback(std::function<T> && callback) : m_callback(static_cast<Function_type>(std::forward<std::function<T>>(callback))) {}
+    
+    Callback(std::function<T> const& callback) : m_callback(static_cast<Function_type>(callback)) {}
+    
+    template <class Object>
+    Callback(T && callback, Object && object) noexcept : m_callback(std::bind(callback, object)) {}
+    
+    template <class Object>
+    Callback(T const& callback, Object && object) noexcept : m_callback(std::bind(callback, object)) {}
+    
+    template <class Object>
+    Callback(std::function<T> && callback, Object && object) : m_callback(std::bind(static_cast<Function_type>(std::forward(callback))), object) {}
+    
+    template <class Object>
+    Callback(std::function<T> const& callback, Object && object) : m_callback(std::bind(static_cast<Function_type>(callback), object)) {}
+    
+    Callback operator=(T && callback) = delete;
+    Callback operator=(T const& callback) = delete;
+    
+    template <typename ...Args>
+    void initialize(Args && ...args) {
+        m_callbackArgs = std::make_tuple(std::forward<Args>(args)...);
+        m_argsSetup = true;
+        m_sustainableArgs = false;
     }
-
+    
+    template <typename ...Args>
+    void initializeSustainably(Args && ...args) {
+        m_callbackArgs = std::make_tuple(std::forward<Args>(args)...);
+        m_argsSetup = true;
+        m_sustainableArgs = true;
+    }
+    
+    template <typename ...Args>
+    void precomputeCallback(Args && ...args) const {
+        m_callbackResult = std::make_optional(m_callback(std::forward<Args>(args)...));
+    }
+    
+    void precomputeCallback() {
+        if (!m_argsSetup) // assert better ????
+            throw std::runtime_error("error: delayed callback called without arguments initialized");
+        m_callbackResult = std::make_optional(std::apply(m_callback, m_callbackArgs));
+    }
+    
+    Return_type delayedCall() {
+        if (!m_argsSetup)
+            throw std::runtime_error("error: delayed callback called without arguments initialized");
+        if (!m_sustainableArgs)
+            m_argsSetup = false;
+        return std::apply(m_callback, m_callbackArgs);
+    }
+    
+    Return_type delayedCall() const {
+        if (!m_argsSetup)
+            throw std::runtime_error("error: delayed callback called without arguments initialized");
+        if (!m_sustainableArgs)
+            throw std::runtime_error("error: delayed callback called as constant object but arguments are not sustainable");
+        return std::apply(m_callback, m_callbackArgs);
+    }
+    
+    template <typename ...Args>
+    Return_type operator()(Args && ...args) const {
+        return m_callback(std::forward<Args...>(args)...);
+    }
+    
 private:
-    std::function<T_Return(Args...)> m_callback;
+    Function_type m_callback;
+    Args_container_type m_callbackArgs;
+    bool m_argsSetup = false;
+    bool m_sustainableArgs = false;
+    std::optional<Return_type> m_callbackResult;
 };
 
-template <class C_Object, typename T_Return, typename ...Args>
-class Callback<T_Return(C_Object::*)(Args...) const> {
-public:
-    Callback(C_Object* object, T_Return const& callback) : m_object(object), m_callback(callback) {
-        std::cout << "V3" << std::endl;
-    };
-    ~Callback() = default;
-
-    T_Return process(Args... args) {
-        // TODO
-    }
-
-private:
-    C_Object* m_object;
-    std::function<T_Return(Args...)> m_callback;
-};
-
-//template <typename ...Args>
-//class A {
-//public:
-//    A() {
-//        std::cout << "V1" << std::endl;
-//    };
-//};
-//
-//template <class C_Object, typename ...Args>
-//class A<C_Object, Args...> {
-//public:
-//    A(int a) {
-//        std::cout << "V2" << std::endl;
-//    };
-//};
+}
 
 #endif /* Callback_h */
