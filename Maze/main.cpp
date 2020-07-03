@@ -11,7 +11,7 @@
 #define RUN_UNIT_TESTS
 #define VISUAL_TESTS
 
-#ifndef RUN_UNIT_TESTS
+#if !defined(RUN_UNIT_TESTS)
 
 # include "Maze.hpp"
 
@@ -29,26 +29,23 @@ int main(int argc, const char * argv[]) {
     return 0;
 }
 
-#elifndef VISUAL_TESTS
+#elif !defined(VISUAL_TESTS)
 
 # include "Tests/UnitTests/UnitTestsSession.hpp"
 
 int main(int argc, const char * argv[]) {
-    
     UnitTestsSession session {"Unit tests session"};
-    int result = session.run();
-    
-    return result;
+    return session.run();
 }
 
 #else
 
-# include "Tests/VisualTests/Collisions.hpp"
-# include "Utils/Callback.hpp"
+# include "Tests/VisualTests/VisualTestsSession.hpp"
 
 int main(int argc, const char * argv[]) {
     srand(static_cast<unsigned int>(time(nullptr)));
-    applyAllTests();
+    mz::Test::VisualTestsSession session {"Visual tests session"};
+    return session.run();
 }
 
 #endif // Visual Tests
