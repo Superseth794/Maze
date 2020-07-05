@@ -110,6 +110,4 @@ inline void positionInsideOOBBTest() {
 
 }
 
-# undef MAZE_VISUAL_TEST_OUTPUT_DIRECTORY
-
 #endif /* Collisions_VisualTest_h */

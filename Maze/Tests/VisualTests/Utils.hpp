@@ -21,7 +21,6 @@
 # include <cmath>
 # include <functional>
 # include <random>
-# include <string>
 
 # include "../../Utils/Callback.hpp"
 
@@ -32,8 +31,6 @@ template <class F, typename ...Args, typename _ = std::enable_if_t<
                                                     std::is_invocable_v<F, sf::Vector2f, Args...> &&
                                                     std::is_same_v<typename mz::function_trait<F>::return_type, sf::Color>>>
 inline void drawTest(std::string && testFilename, F const& evaluationFunction, Args const& ...args) {
-    using namespace std::literals;
-    
     unsigned int size = static_cast<unsigned int>(MAZE_VISUAL_TESTS_RANGE / MAZE_VISUAL_TESTS_SHIFT);
     std::string filename = MAZE_VISUAL_TESTS_OUTPUT_DIRECTORY + testFilename + ".jpg";
      

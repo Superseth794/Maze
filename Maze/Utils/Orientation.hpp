@@ -28,8 +28,10 @@ public:
     bool operator!=(Orientation const& orientation) const;
     
     static Orientation const& getOrientation(std::string const& name);
-    static Orientation const& getOrientation(sf::Vector2f const& direction);
+    static Orientation const& getOrientation(sf::Vector2f const& direction); // template
     static Orientation const& getOrientation(sf::Vector2i const& direction);
+    
+    // turn clockwise / anticlockwise
     
 private:
     Orientation(std::string const& name, sf::Vector2f vector);
