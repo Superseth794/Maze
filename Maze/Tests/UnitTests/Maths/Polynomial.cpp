@@ -147,25 +147,25 @@ TEST_CASE("polynomial of degree 2 with doubles", "[math]") {
             REQUIRE(poly.compute(3) == 36.0);
         }
         
-        WHEN("roots of type <complex<double>> are required") {
-            THEN("roots must be equal to -3.8860009363 and 0.386000963") {
-                auto roots {poly.findRoots<std::complex<double>>()};
-                constexpr double firstExpectedRoot = -3.8860009363;
-                constexpr double secondExpectedRoot = 0.386000963;
-                REQUIRE(std::abs(roots[0].real() - firstExpectedRoot) <= std::numeric_limits<float>::epsilon());
-                REQUIRE(roots[0].imag() == 0.);
-                REQUIRE(std::abs(roots[1].real() - secondExpectedRoot) <= std::numeric_limits<float>::epsilon());
-                REQUIRE(roots[0].imag() == 0.);
-            }
-        }
-        
-        WHEN("roots of type <double> are required") {
-            THEN("roots must be equal to -3.8860009363 and 0.386000963") {
-                auto roots {poly.findRoots()};
-                REQUIRE(std::abs(roots[0] - (-3.8860009363)) <= std::numeric_limits<float>::epsilon());
-                REQUIRE(std::abs(roots[1] - 0.386000963) <= std::numeric_limits<float>::epsilon());
-            }
-        }
+//        WHEN("roots of type <complex<double>> are required") {
+//            THEN("roots must be equal to -3.8860009363 and 0.386000963") {
+//                auto roots {poly.findRoots<std::complex<double>>()};
+//                constexpr double firstExpectedRoot = -3.8860009363;
+//                constexpr double secondExpectedRoot = 0.386000963;
+//                REQUIRE(std::abs(roots[0].real() - firstExpectedRoot) <= std::numeric_limits<float>::epsilon());
+//                REQUIRE(roots[0].imag() == 0.);
+//                REQUIRE(std::abs(roots[1].real() - secondExpectedRoot) <= std::numeric_limits<float>::epsilon());
+//                REQUIRE(roots[0].imag() == 0.);
+//            }
+//        }
+//
+//        WHEN("roots of type <double> are required") {
+//            THEN("roots must be equal to -3.8860009363 and 0.386000963") {
+//                auto roots {poly.findRoots()};
+//                REQUIRE(std::abs(roots[0] - (-3.8860009363)) <= std::numeric_limits<float>::epsilon());
+//                REQUIRE(std::abs(roots[1] - 0.386000963) <= std::numeric_limits<float>::epsilon());
+//            }
+//        }
     }
 }
 
@@ -190,14 +190,14 @@ TEST_CASE("polynomial of degree 3 with doubles", "[math]") {
             REQUIRE(poly.compute(-13.) == 15899.7);
         }
         
-        WHEN("roots of type <double> are required") {
-            THEN("there must be a single root equal to -2.971585615") {
-                auto roots {poly.findRoots<double>()};
-                REQUIRE(roots.size() >= 1); // TODO
-                REQUIRE(roots[0] == -2.971585615);
-                REQUIRE(poly.compute(roots[0]) == 0.);
-            }
-        }
+//        WHEN("roots of type <double> are required") {
+//            THEN("there must be a single root equal to -2.971585615") {
+//                auto roots {poly.findRoots<double>()};
+//                REQUIRE(roots.size() >= 1); // TODO
+//                REQUIRE(roots[0] == -2.971585615);
+//                REQUIRE(poly.compute(roots[0]) == 0.);
+//            }
+//        }
     }
     
     GIVEN("polynomial \"x^3\"") {
@@ -501,89 +501,89 @@ SCENARIO("Polynomials of degree <= 4 can compute their roots", "[math], [algorit
         }
     }
     
-    GIVEN("polynomial of degree 2 with [double] \"4x^2 - 8x\"") {
-        const mz::Polynomial<2> poly {4, -8, 0.};
-        
-        WHEN("roots [double] are computed") {
-            THEN("two roots 0.0 and 2.0 must be found") {
-                auto roots {poly.findRoots()};
-                REQUIRE(roots.size() == 2);
-                REQUIRE(roots[0] == 0.);
-                REQUIRE(roots[1] == 2.);
-            }
-        }
-        
-        WHEN("roots [std::complex<double>] are computed") {
-            THEN("two roots 0.0 + 0.0i and 2.0 + 0.0i must be found") {
-                auto roots {poly.findRoots<std::complex<double>>()};
-                REQUIRE(roots.size() == 2);
-                REQUIRE(roots[0].real() == 0.);
-                REQUIRE(roots[0].imag() == 0.);
-                REQUIRE(roots[1].real() == 2.);
-                REQUIRE(roots[0].imag() == 0.);
-            }
-        }
-    }
+//    GIVEN("polynomial of degree 2 with [double] \"4x^2 - 8x\"") {
+//        const mz::Polynomial<2> poly {4, -8, 0.};
+//
+//        WHEN("roots [double] are computed") {
+//            THEN("two roots 0.0 and 2.0 must be found") {
+//                auto roots {poly.findRoots()};
+//                REQUIRE(roots.size() == 2);
+//                REQUIRE(roots[0] == 0.);
+//                REQUIRE(roots[1] == 2.);
+//            }
+//        }
+//
+//        WHEN("roots [std::complex<double>] are computed") {
+//            THEN("two roots 0.0 + 0.0i and 2.0 + 0.0i must be found") {
+//                auto roots {poly.findRoots<std::complex<double>>()};
+//                REQUIRE(roots.size() == 2);
+//                REQUIRE(roots[0].real() == 0.);
+//                REQUIRE(roots[0].imag() == 0.);
+//                REQUIRE(roots[1].real() == 2.);
+//                REQUIRE(roots[0].imag() == 0.);
+//            }
+//        }
+//    }
     
-    GIVEN("polynomial of degree 2 with [double] \"x^2\"") {
-        const mz::Polynomial<2> poly {1., 0., 0.};
-        
-        WHEN("roots [double] are computed") {
-            THEN("a single root 0.0 must be found") {
-                auto roots {poly.findRoots()};
-                REQUIRE(roots.size() == 1);
-                REQUIRE(roots[0] == 0.);
-            }
-        }
-        
-        WHEN("roots [std::complex<double>] are computed") {
-            auto roots {poly.findRoots<std::complex<double>>()};
-            
-            THEN("a single root 0.0 + 0.0i must be found") {
-                REQUIRE(roots.size() == 1);
-                REQUIRE(std::abs(roots[0].real()) <= std::numeric_limits<float>::epsilon());
-                REQUIRE(std::abs(roots[0].imag()) <= std::numeric_limits<float>::epsilon());
-            }
-        }
-    }
+//    GIVEN("polynomial of degree 2 with [double] \"x^2\"") {
+//        const mz::Polynomial<2> poly {1., 0., 0.};
+//
+//        WHEN("roots [double] are computed") {
+//            THEN("a single root 0.0 must be found") {
+//                auto roots {poly.findRoots()};
+//                REQUIRE(roots.size() == 1);
+//                REQUIRE(roots[0] == 0.);
+//            }
+//        }
+//
+//        WHEN("roots [std::complex<double>] are computed") {
+//            auto roots {poly.findRoots<std::complex<double>>()};
+//
+//            THEN("a single root 0.0 + 0.0i must be found") {
+//                REQUIRE(roots.size() == 1);
+//                REQUIRE(std::abs(roots[0].real()) <= std::numeric_limits<float>::epsilon());
+//                REQUIRE(std::abs(roots[0].imag()) <= std::numeric_limits<float>::epsilon());
+//            }
+//        }
+//    }
     
-    GIVEN("polynomial of degree 2 with [double] \"x^2 + 1.0\"") {
-        const mz::Polynomial<2> poly {1., 0., 1.};
-        
-        WHEN("roots [double] are computed") {
-            THEN("no root must be found") {
-                REQUIRE(poly.findRoots().size() == 0);
-            }
-        }
-        
-        WHEN("roots [std::complex<double>] are computed") {
-            auto roots {poly.findRoots<std::complex<double>>()};
-            
-            THEN("two roots -i and i must be found") {
-                REQUIRE(roots.size() == 2);
-                REQUIRE(std::abs(roots[0].real()) <= std::numeric_limits<float>::epsilon());
-                REQUIRE(std::abs(roots[0].imag() + 1.0) <= std::numeric_limits<float>::epsilon());
-                REQUIRE(std::abs(roots[1].real()) <= std::numeric_limits<float>::epsilon());
-                REQUIRE(std::abs(roots[1].imag() - 1.0) <= std::numeric_limits<float>::epsilon());
-            }
-        }
-    }
+//    GIVEN("polynomial of degree 2 with [double] \"x^2 + 1.0\"") {
+//        const mz::Polynomial<2> poly {1., 0., 1.};
+//
+//        WHEN("roots [double] are computed") {
+//            THEN("no root must be found") {
+//                REQUIRE(poly.findRoots().size() == 0);
+//            }
+//        }
+//
+//        WHEN("roots [std::complex<double>] are computed") {
+//            auto roots {poly.findRoots<std::complex<double>>()};
+//
+//            THEN("two roots -i and i must be found") {
+//                REQUIRE(roots.size() == 2);
+//                REQUIRE(std::abs(roots[0].real()) <= std::numeric_limits<float>::epsilon());
+//                REQUIRE(std::abs(roots[0].imag() + 1.0) <= std::numeric_limits<float>::epsilon());
+//                REQUIRE(std::abs(roots[1].real()) <= std::numeric_limits<float>::epsilon());
+//                REQUIRE(std::abs(roots[1].imag() - 1.0) <= std::numeric_limits<float>::epsilon());
+//            }
+//        }
+//    }
     
-    GIVEN("polynomial of degree 3 with [double] \"3.0x^3 - 4.0x^2 + x + 2.0\"") {
-        const mz::Polynomial<3> poly {3., -4., 1., 2.};
-        
-        WHEN("roots [std::complex<double>] are computed") {
-            auto roots {poly.findRoots<std::complex<double>>()};
-            
-            THEN("one root must be found") {
-                REQUIRE(roots.size() == 1);
-            }
-            
-            THEN("root must be solutions of the polynomial") {
-                for (auto const& root : roots) {
-                    REQUIRE(std::abs(poly.compute<std::complex<double>>(root)) <= std::numeric_limits<float>::epsilon());
-                }
-            }
-        }
-    }
+//    GIVEN("polynomial of degree 3 with [double] \"3.0x^3 - 4.0x^2 + x + 2.0\"") {
+//        const mz::Polynomial<3> poly {3., -4., 1., 2.};
+//
+//        WHEN("roots [std::complex<double>] are computed") {
+//            auto roots {poly.findRoots<std::complex<double>>()};
+//
+//            THEN("one root must be found") {
+//                REQUIRE(roots.size() == 1);
+//            }
+//
+//            THEN("root must be solutions of the polynomial") {
+//                for (auto const& root : roots) {
+//                    REQUIRE(std::abs(poly.compute<std::complex<double>>(root)) <= std::numeric_limits<float>::epsilon());
+//                }
+//            }
+//        }
+//    }
 }
