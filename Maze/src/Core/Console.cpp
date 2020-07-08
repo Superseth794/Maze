@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 28/02/2020.
 //
 
-#include "Console.hpp"
+#include "../../include/Core/Console.hpp"
 
 namespace mz {
 

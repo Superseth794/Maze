@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 12/02/2020.
 //
 
-#include "PhysicsBody.hpp"
+#include "../../include/Physics/PhysicsBody.hpp"
 
 namespace mz {
 

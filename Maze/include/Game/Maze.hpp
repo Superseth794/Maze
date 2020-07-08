@@ -28,7 +28,7 @@
 # include "../Physics/PhysicsWorld.hpp"
 # include "../Physics/RectanglePhysicsBody.hpp"
 
-# include "../Engine/Console.hpp"
+# include "../Core/Console.hpp"
 
 namespace mz {
 

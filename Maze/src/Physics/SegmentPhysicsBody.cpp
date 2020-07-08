@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 13/02/2020.
 //
 
-#include "SegmentPhysicsBody.hpp"
+#include "../../include/Physics/SegmentPhysicsBody.hpp"
 
 namespace mz {
 

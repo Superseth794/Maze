@@ -15,7 +15,7 @@
 
 # include <SFML/Graphics.hpp>
 
-# include "../Utils/ExtraMaths.hpp"
+# include "../System/ExtraMaths.hpp"
 
 namespace mz {
 

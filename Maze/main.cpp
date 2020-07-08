@@ -13,7 +13,7 @@
 
 #if !defined(RUN_UNIT_TESTS)
 
-# include "Game/Maze.hpp"
+# include "include/Game/Maze.hpp"
 
 int main(int argc, const char * argv[]) {
     

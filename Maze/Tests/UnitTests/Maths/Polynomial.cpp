@@ -7,7 +7,7 @@
 
 #include "../../../External/Catch/Catch.hpp"
 
-#include "../../../Utils/Polynomial.hpp"
+#include "../../../include/System/Polynomial.hpp"
 
 TEST_CASE("polynomial with null coeficients") {
     

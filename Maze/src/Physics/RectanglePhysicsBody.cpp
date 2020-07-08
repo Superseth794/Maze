@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 13/02/2020.
 //
 
-#include "RectanglePhysicsBody.hpp"
+#include "../../include/Physics/RectanglePhysicsBody.hpp"
 
 namespace mz {
 

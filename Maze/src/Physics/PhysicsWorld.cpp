@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 12/02/2020.
 //
 
-#include "PhysicsWorld.hpp"
+#include "../../include/Physics/PhysicsWorld.hpp"
 
 namespace mz {
 

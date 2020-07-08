@@ -17,8 +17,8 @@
 # include <SFML/Graphics.hpp>
 
 # include "../Utils.hpp"
-# include "../../../Utils/Callback.hpp"
-# include "../../../Physics/Collisions.hpp"
+# include "../../../include/System/Callback.hpp"
+# include "../../../include/Physics/Collisions.hpp"
 
 # define MAZE_VISUAL_TESTS_POSITIONS_INSIDE_SHAPES_SUB_OUTPUT_DIRECTORY std::string{""} // TODO: add Physics/Positions_Inside_Shapes/ when cross-platform sub-directory creation will be available
 

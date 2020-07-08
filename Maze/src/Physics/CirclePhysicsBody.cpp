@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 13/02/2020.
 //
 
-#include "CirclePhysicsBody.hpp"
+#include "../../include/Physics/CirclePhysicsBody.hpp"
 
 namespace mz {
 
