@@ -33,15 +33,11 @@ class PhysicsBody;
 struct QuadtreeNode {
     std::vector<PhysicsBody*>                       bodies;
     AABB                                            box;
-    std::array<std::unique_ptr<QuadtreeNode>, 4>    childs;
+    std::array<std::unique_ptr<QuadtreeNode>, 4>    childs; // vector
     int                                             depth;
     QuadtreeNode*                                   parent;
     
-    QuadtreeNode(AABB const& box, int depth = 0, QuadtreeNode* parent = nullptr) {
-        this->box = box;
-        this->depth = depth;
-        this->parent = parent;
-    };
+    QuadtreeNode(AABB const& _box, int _depth = 0, QuadtreeNode* _parent = nullptr) : box(_box), depth(_depth), parent(_parent) {}
     
     bool operator==(QuadtreeNode const& node) const {
         return (box.origin == node.box.origin && depth == node.depth);
@@ -143,24 +139,24 @@ private:
     }
     
 private:
-    int                                                 m_bodiesCount = 0;
-    int                                                 m_computedCollisionsCount = 0;
-    std::uint64_t                                       m_currentBodyId = 1;
+    int                                                 m_bodiesCount                   = 0;
+    int                                                 m_computedCollisionsCount       = 0;
+    std::uint64_t                                       m_currentBodyId                 = 1;
     std::vector<PhysicsBody*>                           m_debugBodiesAdditionDisplay; // TODO: remove debug from name
     std::vector<std::pair<PhysicsBody*, QuadtreeNode*>> m_debugBodiesUpdateDisplay; // TODO: remove debug from name
     std::vector<Collision>                              m_debugCollisions; // TODO: remove debug from name
     QuadtreeNode                                        m_root;
-    bool                                                m_showAABBs = false;
-    bool                                                m_showCollisions = false;
-    bool                                                m_showQuadtree = false;
-    bool                                                m_showQuadtreeEvents = false;
-    bool                                                m_showOBBs = false;
-    bool                                                m_showPhysicsBodies = false;
+    bool                                                m_showAABBs                     = false;
+    bool                                                m_showCollisions                = false;
+    bool                                                m_showQuadtree                  = false;
+    bool                                                m_showQuadtreeEvents            = false;
+    bool                                                m_showOBBs                      = false;
+    bool                                                m_showPhysicsBodies             = false;
     std::vector<PhysicsBody*>                           m_toAddBodies;
     std::vector<QuadtreeLocation>                       m_toRemoveBodiesPositions;
     std::vector<PhysicsBody*>                           m_toUpdateBodies;
     
-    static constexpr std::size_t                        MAX_BODIES_PER_NODE = 10;
+    static constexpr std::size_t                        MAX_BODIES_PER_NODE             = 10;
     static const sf::Color                              DEBUG_QUADTREE_NODES_COLOR;
     static const sf::Color                              DEBUG_COLLISION_FILL_COLOR;
     static const sf::Color                              DEBUG_COLLISION_OUTLINE_COLOR;

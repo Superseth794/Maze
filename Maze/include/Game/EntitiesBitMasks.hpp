@@ -10,8 +10,8 @@
 
 enum EntitiesBitMasks {
     PLAYER_MASK = 0b1,
-    WALLS_MASK = 0b01,
-    DEBUG_MASK = 0b00001
+    WALLS_MASK  = 0b01,
+    DEBUG_MASK  = 0b00001
 };
 
 #endif /* EntitiesBitMasks_h */

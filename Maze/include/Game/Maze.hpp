@@ -69,7 +69,7 @@ private:
 private:
     sf::Vector2f                                m_cameraPosition;
     std::unique_ptr<Console>                    m_console;
-    float                                       m_fps = 60.f;
+    float                                       m_fps               = 60.f;
     sf::Clock                                   m_gameClock;
     unsigned int                                m_height;
     PhysicsWorld                                m_physicsWorld;
@@ -79,11 +79,11 @@ private:
     sf::RenderWindow                            m_window;
     std::vector<std::unique_ptr<PhysicsBody>>   debug_bodies; // DEBUG
     
-    static constexpr int                        m_mazeWidth = 25;
-    static constexpr int                        m_mazeHeight = 25;
-    static constexpr float                      m_wallWidth = 240.f;
-    static constexpr float                      m_wallHeight = 240.f;
-    static constexpr bool                       SHOW_CONSOLE = true;
+    static constexpr int                        m_mazeWidth         = 25;
+    static constexpr int                        m_mazeHeight        = 25;
+    static constexpr float                      m_wallWidth         = 240.f;
+    static constexpr float                      m_wallHeight        = 240.f;
+    static constexpr bool                       SHOW_CONSOLE        = true;
 };
 
 }

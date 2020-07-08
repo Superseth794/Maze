@@ -110,7 +110,7 @@ public:
     void updateInWorld();
     
 protected:
-    mutable bool                                m_didCollide = false;
+    mutable bool                                m_didCollide                        = false;
     AABB                                        m_frame;
     
     static const sf::Color                      DEBUG_PHYSICS_FILL_COLOR;
@@ -123,7 +123,7 @@ private:
     CollisionCallback                           m_collisionCallback;
     std::uint32_t                               m_contactTestBitMask;
     std::uint64_t                               m_id = 0;
-    QuadtreeNode*                               m_parentNode = nullptr;
+    QuadtreeNode*                               m_parentNode                        = nullptr;
     PhysicsWorld*                               m_parentWorld;
     
     static std::optional<sf::RectangleShape>    AABBShape;

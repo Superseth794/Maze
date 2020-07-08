@@ -17,6 +17,8 @@ struct AABB {
     sf::Vector2f    origin;
     float           width;
     
+    AABB(sf::Vector2f const& _origin, float _width, float _height) : height(_height), origin(_origin), width(_width) {};
+    
     bool operator==(AABB const& box) {
         return (origin == box.origin && width == box.width && height == box.height);
     }

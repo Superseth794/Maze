@@ -35,9 +35,9 @@ public:
 private:
     sf::Font                    m_font;
     float                       m_height;
-    bool                        initialized = false;
-    Maze*                       m_maze = nullptr; // TODO change to Gamescene
-    PhysicsWorld*               m_physicsWorld = nullptr;
+    bool                        initialized     = false;
+    Maze*                       m_maze          = nullptr; // TODO change to Gamescene
+    PhysicsWorld*               m_physicsWorld  = nullptr;
     float                       m_width;
     
     static const std::string    FONT_FILENAME; // TODO: change s_ + lower case + std::filesystem

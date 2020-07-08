@@ -35,7 +35,7 @@ private:
     sf::CircleShape                     m_bodyShape;
     std::unordered_set<std::string>     m_directions;
     CirclePhysicsBody                   m_physicsBody;
-    float                               m_speed = 5.f;
+    float                               m_speed         = 5.f;
     std::shared_ptr<sf::RenderTexture>  m_texture;
     float                               m_width;
 };
