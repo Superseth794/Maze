@@ -75,7 +75,7 @@ void PhysicsWorld::addBody(PhysicsBody* body, QuadtreeNode* node) {
     }
     
     // Adds body to current node
-    if (node->bodies.size() < MAX_BODIES_PER_NODE || node->hasChildren()) {
+    if (node->bodies.size() < s_maxBodiesPerNode || node->hasChildren()) {
         node->bodies.emplace_back(body);
         body->setParentNode(node);
         return;
@@ -332,14 +332,14 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsTexture(float width, 
     
     std::function<void(QuadtreeNode*, PhysicsWorld*, std::unique_ptr<sf::RenderTexture>&, sf::Vector2f const&, std::vector<PhysicsBody*>&)> drawNode = [](QuadtreeNode* node, PhysicsWorld* world, std::unique_ptr<sf::RenderTexture>& texture, sf::Vector2f const& physicsShapesAnchor, std::vector<PhysicsBody*>& toDrawBodies) {
         if (world->m_showQuadtree) {
-            sf::Color nodeShapeFillColor = DEBUG_QUADTREE_NODES_COLOR;
+            sf::Color nodeShapeFillColor = s_debugQuadtreeNodesColor;
             
             // Displays quadtree events
             if (world->m_showQuadtreeEvents) {
                 // Displays node as debug node where body update happened
                 for (auto const& debugUpdateStruct : world->m_debugBodiesUpdateDisplay) {
                     if (debugUpdateStruct.second && *debugUpdateStruct.second == *node) {
-                        nodeShapeFillColor = DEBUG_QUADTREE_UPDATE_COLOR;
+                        nodeShapeFillColor = s_debugQuadtreeUpdateColor;
                         break;
                     }
                 }
@@ -347,7 +347,7 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsTexture(float width, 
                 // Displays node as debug node where body addition happened
                 for (auto const& debugBody : world->m_debugBodiesAdditionDisplay) {
                     if (debugBody && *debugBody->getParentNode() == *node) {
-                        nodeShapeFillColor = DEBUG_QUADTREE_ADDITION_COLOR;
+                        nodeShapeFillColor = s_debugQuadtreeAddtitionColor;
                         break;
                     }
                 }
@@ -401,10 +401,10 @@ std::unique_ptr<sf::RenderTexture> PhysicsWorld::getPhysicsTexture(float width, 
                     collisionPosition.x - 10.f - anchor.x + width / 2.f,
                     collisionPosition.y - 10.f - anchor.y + height / 2.f
                 };
-                sf::CircleShape debugCollisionSprite {DEBUG_COLLISION_WIDTH};
-                debugCollisionSprite.setFillColor(DEBUG_COLLISION_FILL_COLOR);
-                debugCollisionSprite.setOutlineColor(DEBUG_COLLISION_OUTLINE_COLOR);
-                debugCollisionSprite.setOutlineThickness(-DEBUG_COLLISION_WIDTH / 2.f);
+                sf::CircleShape debugCollisionSprite {s_debugCollisionWidth};
+                debugCollisionSprite.setFillColor(s_debugCollisionFillColor);
+                debugCollisionSprite.setOutlineColor(s_debugCollisionOutlineColor);
+                debugCollisionSprite.setOutlineThickness(-s_debugCollisionWidth / 2.f);
                 debugCollisionSprite.setPosition(debugSpritePosition);
                 texture->draw(debugCollisionSprite);
             }
@@ -617,11 +617,11 @@ void PhysicsWorld::updateAllBodies() {
     m_toUpdateBodies.clear();
 }
 
-const sf::Color PhysicsWorld::DEBUG_COLLISION_FILL_COLOR    = sf::Color{255, 0, 0, 255};
-const sf::Color PhysicsWorld::DEBUG_COLLISION_OUTLINE_COLOR = sf::Color{19, 64, 23, 255};
-const sf::Color PhysicsWorld::DEBUG_QUADTREE_NODES_COLOR    = sf::Color{255, 140, 255, 75};
-const sf::Color PhysicsWorld::DEBUG_QUADTREE_ADDITION_COLOR = sf::Color(255, 0, 0, 150);
-const sf::Color PhysicsWorld::DEBUG_QUADTREE_UPDATE_COLOR   = sf::Color(255, 255, 0, 200);
-const float     PhysicsWorld::DEBUG_COLLISION_WIDTH         = 10.0;
+const sf::Color PhysicsWorld::s_debugCollisionFillColor    = sf::Color{255, 0, 0, 255};
+const sf::Color PhysicsWorld::s_debugCollisionOutlineColor = sf::Color{19, 64, 23, 255};
+const sf::Color PhysicsWorld::s_debugQuadtreeNodesColor    = sf::Color{255, 140, 255, 75};
+const sf::Color PhysicsWorld::s_debugQuadtreeAddtitionColor = sf::Color(255, 0, 0, 150);
+const sf::Color PhysicsWorld::s_debugQuadtreeUpdateColor   = sf::Color(255, 255, 0, 200);
+const float     PhysicsWorld::s_debugCollisionWidth         = 10.0;
 
 }

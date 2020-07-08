@@ -59,12 +59,12 @@ std::unique_ptr<sf::RenderTexture> Console::display() {
 
 
 void Console::init(float width, float height, Maze* maze, PhysicsWorld* world) {
-    if (windowCreated) {
+    if (s_windowCreated) {
         std::cout << "Error: debug infos window already created" << std::endl;
         return;
     }
     
-    assert(m_font.loadFromFile(FONT_FILENAME));
+    assert(m_font.loadFromFile(s_font_filename));
     
     m_width = width;
     m_height = height;
@@ -72,11 +72,11 @@ void Console::init(float width, float height, Maze* maze, PhysicsWorld* world) {
     m_maze = maze;
     m_physicsWorld = world;
     
-    Console::windowCreated = true;
+    Console::s_windowCreated = true;
     initialized = true;
 }
 
-std::string const   Console::FONT_FILENAME = "../../Resources/Fonts/Cousine/Cousine-Regular.ttf";
-bool                Console::windowCreated = false;
+std::string const   Console::s_font_filename = "../../Resources/Fonts/Cousine/Cousine-Regular.ttf";
+bool                Console::s_windowCreated = false;
 
 }

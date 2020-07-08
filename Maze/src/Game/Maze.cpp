@@ -44,7 +44,7 @@ void Maze::display() {
 
     
     // Draw console
-    if (SHOW_CONSOLE) {
+    if (s_show_console) {
         auto consoleTexture {m_console->display()};
         sf::Sprite consoleSprite;
         consoleSprite.setTexture(consoleTexture->getTexture());
@@ -72,10 +72,10 @@ void Maze::generateMaze() {
     std::vector<Cell> cells;
     std::vector<bool> walls;
     
-    for (int y = 0; y < m_mazeHeight + 2; ++y) {
-        for (int x = 0; x < m_mazeWidth + 2; ++x) {
+    for (int y = 0; y < s_mazeHeight + 2; ++y) {
+        for (int x = 0; x < s_mazeWidth + 2; ++x) {
             walls.push_back(true);
-            cells.push_back({x, y, (x == 0 || y == 0 || x == m_mazeWidth + 1 || y == m_mazeHeight + 1)});
+            cells.push_back({x, y, (x == 0 || y == 0 || x == s_mazeWidth + 1 || y == s_mazeHeight + 1)});
         }
     }
     
@@ -88,9 +88,9 @@ void Maze::generateMaze() {
             for (int dx = -1; dx <= 1; ++dx) {
                 if ((dx != 0 && dy != 0) || dx == dy)
                     continue;
-                else if (cell.x + 2 * dx < 0 || cell.x + 2 * dx >= m_mazeWidth + 2 || cell.y + 2 * dy < 0 || cell.y + 2 * dy >= m_mazeHeight + 2)
+                else if (cell.x + 2 * dx < 0 || cell.x + 2 * dx >= s_mazeWidth + 2 || cell.y + 2 * dy < 0 || cell.y + 2 * dy >= s_mazeHeight + 2)
                     continue;
-                else if (!cells[cell.x + 2 * dx + (cell.y + 2 * dy) * (m_mazeWidth + 2)].visited)
+                else if (!cells[cell.x + 2 * dx + (cell.y + 2 * dy) * (s_mazeWidth + 2)].visited)
                     orientationsAvailables.push_back(Orientation::getOrientation(sf::Vector2i{dx, dy}));
             }
         }
@@ -104,11 +104,11 @@ void Maze::generateMaze() {
     while (!toVisitCells.empty()) {
         Cell currentCell {toVisitCells.top()};
         currentCell.visited = true;
-        walls[currentCell.x + currentCell.y * (m_mazeWidth + 2)] = false;
+        walls[currentCell.x + currentCell.y * (s_mazeWidth + 2)] = false;
         auto orientation {pickRandomOrientation(currentCell)};
         if (orientation != Orientation::UNDEFINED) {
-            walls[currentCell.x + orientation.toVector().x + (currentCell.y + orientation.toVector().y) * (m_mazeWidth + 2)] = false;
-            cells[currentCell.x + orientation.toVector().x * 2 + (currentCell.y + orientation.toVector().y * 2) * (m_mazeWidth + 2)].visited = true;
+            walls[currentCell.x + orientation.toVector().x + (currentCell.y + orientation.toVector().y) * (s_mazeWidth + 2)] = false;
+            cells[currentCell.x + orientation.toVector().x * 2 + (currentCell.y + orientation.toVector().y * 2) * (s_mazeWidth + 2)].visited = true;
             toVisitCells.push({static_cast<int>(currentCell.x + orientation.toVector().x * 2), static_cast<int>(currentCell.y + orientation.toVector().y * 2)});
         } else {
             toVisitCells.pop();
@@ -116,23 +116,23 @@ void Maze::generateMaze() {
     }
     
     auto filledWallTexture {std::make_shared<sf::RenderTexture>()};
-    filledWallTexture->create(m_wallWidth, m_wallHeight);
+    filledWallTexture->create(s_wallWidth, s_wallHeight);
     filledWallTexture->clear(sf::Color::White);
     filledWallTexture->display();
-    auto filledPhysicsBody = new RectanglePhysicsBody(m_wallWidth, m_wallHeight, sf::Vector2f{0.f, 0.f}, WALLS_MASK, &m_physicsWorld);
+    auto filledPhysicsBody = new RectanglePhysicsBody(s_wallWidth, s_wallHeight, sf::Vector2f{0.f, 0.f}, WALLS_MASK, &m_physicsWorld);
     
     auto emptyWallTexture {std::make_shared<sf::RenderTexture>()};
-    emptyWallTexture->create(m_wallWidth, m_wallHeight);
+    emptyWallTexture->create(s_wallWidth, s_wallHeight);
     emptyWallTexture->clear(sf::Color::Black);
     emptyWallTexture->display();
     auto emptyPhysicsBody = nullptr;
     
-    auto filledWallModel {std::make_shared<TileModel>(m_wallWidth, m_wallHeight, std::move(filledWallTexture), filledPhysicsBody)};
-    auto emptyWallModel {std::make_shared<TileModel>(m_wallWidth, m_wallHeight, std::move(emptyWallTexture), emptyPhysicsBody)};
+    auto filledWallModel {std::make_shared<TileModel>(s_wallWidth, s_wallHeight, std::move(filledWallTexture), filledPhysicsBody)};
+    auto emptyWallModel {std::make_shared<TileModel>(s_wallWidth, s_wallHeight, std::move(emptyWallTexture), emptyPhysicsBody)};
     
-    for (int y = 0; y < m_mazeHeight + 2; ++y) {
-        for (int x = 0; x < m_mazeWidth + 2; ++x) {
-            m_tiles.push_back(std::make_unique<Tile>(x * m_wallWidth, y * m_wallHeight, (walls[x + y * (m_mazeWidth + 2)] ? filledWallModel : emptyWallModel)));
+    for (int y = 0; y < s_mazeHeight + 2; ++y) {
+        for (int x = 0; x < s_mazeWidth + 2; ++x) {
+            m_tiles.push_back(std::make_unique<Tile>(x * s_wallWidth, y * s_wallHeight, (walls[x + y * (s_mazeWidth + 2)] ? filledWallModel : emptyWallModel)));
             m_physicsWorld.addBody(m_tiles.back()->getPhysicsBody());
         }
     }
@@ -163,18 +163,18 @@ void Maze::handleEvent(sf::Event const& event) {
 }
 
 void Maze::init() {
-    m_physicsWorld.init((m_mazeWidth + 2) * m_wallWidth, (m_mazeHeight + 2) * m_wallHeight);
+    m_physicsWorld.init((s_mazeWidth + 2) * s_wallWidth, (s_mazeHeight + 2) * s_wallHeight);
     
-    m_physicsWorld.setShowPhysicsBodies(true);
-    m_physicsWorld.setShowAABBs(true);
+    m_physicsWorld.setShowPhysicsBodies(false);
+    m_physicsWorld.setShowAABBs(false);
     m_physicsWorld.setShowOOBBs(false);
-    m_physicsWorld.setShowCollisions(true);
-    m_physicsWorld.setShowQuadtree(true);
-    m_physicsWorld.setShowQuadtreeEvents(true);
+    m_physicsWorld.setShowCollisions(false);
+    m_physicsWorld.setShowQuadtree(false);
+    m_physicsWorld.setShowQuadtreeEvents(false);
     
     generateMaze();
     
-    m_player.move(sf::Vector2f{m_wallWidth * 1.5f, m_wallHeight * 1.5f});
+    m_player.move(sf::Vector2f{s_wallWidth * 1.5f, s_wallHeight * 1.5f});
     m_player.getPhysicsBody()->addContactTestBitMask(EntitiesBitMasks::WALLS_MASK);
     m_physicsWorld.addBody(m_player.getPhysicsBody());
     m_physicsWorld.addBodyQuadtreeUpdateEvent(m_player.getPhysicsBody());
@@ -191,7 +191,7 @@ void Maze::init() {
     m_player.getPhysicsBody()->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
     m_player.getPhysicsBody()->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
     
-    if (SHOW_CONSOLE) {
+    if (s_show_console) {
         m_console = std::make_unique<Console>();
         m_console->init(500.f, 345.f, this, &m_physicsWorld);
     }
@@ -250,8 +250,8 @@ void Maze::updateCamera() {
     m_cameraPosition.y = std::clamp(m_cameraPosition.y, m_player.getPosition().y - margingAllowed.y, m_player.getPosition().y + margingAllowed.y);
     
     // Clamps camera inside maze // DEBUG
-    m_cameraPosition.x = std::clamp(m_cameraPosition.x, m_width / 2.f, m_wallWidth * (m_mazeWidth + 2) - m_width / 2.f);
-    m_cameraPosition.y = std::clamp(m_cameraPosition.y, m_height / 2.f, m_wallHeight * (m_mazeHeight + 2) - m_height / 2.f);
+    m_cameraPosition.x = std::clamp(m_cameraPosition.x, m_width / 2.f, s_wallWidth * (s_mazeWidth + 2) - m_width / 2.f);
+    m_cameraPosition.y = std::clamp(m_cameraPosition.y, m_height / 2.f, s_wallHeight * (s_mazeHeight + 2) - m_height / 2.f);
 }
 
 }

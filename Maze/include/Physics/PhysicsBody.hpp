@@ -113,9 +113,9 @@ protected:
     mutable bool                                m_didCollide                        = false;
     AABB                                        m_frame;
     
-    static const sf::Color                      DEBUG_PHYSICS_FILL_COLOR;
-    static const sf::Color                      DEBUG_PHYSICS_OUTLINE_COLOR;
-    static const sf::Color                      DEBUG_DID_COLLIDE_BODY_FILL_COLOR;
+    static const sf::Color                      s_debugPhysicsFillColor;
+    static const sf::Color                      s_debugPhysicsOutlineColor;
+    static const sf::Color                      s_debugDidCollideFillColor;
     
 private:
     std::uint32_t                               m_categoryBitMask;
@@ -126,9 +126,9 @@ private:
     QuadtreeNode*                               m_parentNode                        = nullptr;
     PhysicsWorld*                               m_parentWorld;
     
-    static std::optional<sf::RectangleShape>    AABBShape;
-    static const sf::Color                      DEBUG_AABB_FILL_COLOR;
-    static const sf::Color                      DEBUG_AABB_OUTLINE_COLOR;
+    static std::optional<sf::RectangleShape>    s_AABBShape;
+    static const sf::Color                      s_debugAABBFillColor;
+    static const sf::Color                      s_debugAABBOutlineColor;
 };
 
 }

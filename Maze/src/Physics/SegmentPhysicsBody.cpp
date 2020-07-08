@@ -142,16 +142,16 @@ bool SegmentPhysicsBody::isPositionInside(sf::Vector2f const& position) const {
 }
 
 sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {
-    if (!bodyTexture.has_value()) {
-        bodyTexture.emplace();
+    if (!s_bodyTexture.has_value()) {
+        s_bodyTexture.emplace();
         
-        auto& texture = bodyTexture.value();
-        texture.create(100.f, DEBUG_SHAPE_WIDTH);
+        auto& texture = s_bodyTexture.value();
+        texture.create(100.f, s_debugShapeWidth);
         texture.clear(sf::Color::Yellow);
         
         sf::RectangleShape shape;
-        shape.setSize(sf::Vector2f{100.f, DEBUG_SHAPE_WIDTH});
-        shape.setFillColor(DEBUG_PHYSICS_OUTLINE_COLOR);
+        shape.setSize(sf::Vector2f{100.f, s_debugShapeWidth});
+        shape.setFillColor(s_debugPhysicsOutlineColor);
         shape.setPosition(0.f, 0.f);
         
         texture.draw(shape);
@@ -163,9 +163,9 @@ sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) c
     float scaleFactor = length / 100;
     
     sf::Sprite bodySprite;
-    bodySprite.setTexture(bodyTexture.value().getTexture());
+    bodySprite.setTexture(s_bodyTexture.value().getTexture());
     bodySprite.setScale(scaleFactor, 1.f);
-    bodySprite.setPosition(m_startPos.x + anchor.x + DEBUG_SHAPE_WIDTH / 2.f, m_startPos.y + anchor.y + DEBUG_SHAPE_WIDTH / 2.f);
+    bodySprite.setPosition(m_startPos.x + anchor.x + s_debugShapeWidth / 2.f, m_startPos.y + anchor.y + s_debugShapeWidth / 2.f);
     bodySprite.setRotation(angle * 180.f / M_PI);
     
     bodySprite.setColor(m_didCollide ? sf::Color::Red : sf::Color::White);
@@ -200,6 +200,6 @@ void SegmentPhysicsBody::updateFrame() {
         m_frame.origin = origin;
 }
 
-std::optional<sf::RenderTexture>    SegmentPhysicsBody::bodyTexture = std::nullopt;
+std::optional<sf::RenderTexture>    SegmentPhysicsBody::s_bodyTexture = std::nullopt;
 
 }

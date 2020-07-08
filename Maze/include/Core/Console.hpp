@@ -40,8 +40,8 @@ private:
     PhysicsWorld*               m_physicsWorld  = nullptr;
     float                       m_width;
     
-    static const std::string    FONT_FILENAME; // TODO: change s_ + lower case + std::filesystem
-    static bool                 windowCreated;
+    static const std::string    s_font_filename; // TODO: change s_ + lower case + std::filesystem
+    static bool                 s_windowCreated;
 };
 
 }

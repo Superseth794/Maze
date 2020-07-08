@@ -116,17 +116,17 @@ std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWith(Segmen
 }
 
 sf::Sprite const CirclePhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {
-    if (!bodyTexture.has_value()) {
-        bodyTexture.emplace();
+    if (!s_bodyTexture.has_value()) {
+        s_bodyTexture.emplace();
         
-        auto& texture = bodyTexture.value();
+        auto& texture = s_bodyTexture.value();
         texture.create(100, 100);
         texture.clear(sf::Color::Transparent);
         
         sf::CircleShape shape;
         shape.setRadius(50.f);
-        shape.setFillColor(DEBUG_PHYSICS_FILL_COLOR);
-        shape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
+        shape.setFillColor(s_debugPhysicsFillColor);
+        shape.setOutlineColor(s_debugPhysicsOutlineColor);
         shape.setOutlineThickness(-10.f);
         shape.setPosition(0.f, 0.f);
         
@@ -137,7 +137,7 @@ sf::Sprite const CirclePhysicsBody::getBodySprite(sf::Vector2f const& anchor) co
     float scaleFactor = m_radius / 50.f;
     
     sf::Sprite bodySprite;
-    bodySprite.setTexture(bodyTexture.value().getTexture());
+    bodySprite.setTexture(s_bodyTexture.value().getTexture());
     bodySprite.setScale(scaleFactor, scaleFactor);
     bodySprite.setPosition(m_frame.origin.x + anchor.x, m_frame.origin.y + anchor.y);
     
@@ -196,6 +196,6 @@ void CirclePhysicsBody::updateFrame() {
         m_frame.origin = boxOrigin;
 }
 
-std::optional<sf::RenderTexture>    CirclePhysicsBody::bodyTexture = std::nullopt;
+std::optional<sf::RenderTexture>    CirclePhysicsBody::s_bodyTexture = std::nullopt;
 
 }

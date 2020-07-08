@@ -156,13 +156,13 @@ private:
     std::vector<QuadtreeLocation>                       m_toRemoveBodiesPositions;
     std::vector<PhysicsBody*>                           m_toUpdateBodies;
     
-    static constexpr std::size_t                        MAX_BODIES_PER_NODE             = 10;
-    static const sf::Color                              DEBUG_QUADTREE_NODES_COLOR;
-    static const sf::Color                              DEBUG_COLLISION_FILL_COLOR;
-    static const sf::Color                              DEBUG_COLLISION_OUTLINE_COLOR;
-    static const sf::Color                              DEBUG_QUADTREE_ADDITION_COLOR;
-    static const sf::Color                              DEBUG_QUADTREE_UPDATE_COLOR;
-    static const float                                  DEBUG_COLLISION_WIDTH;
+    static const sf::Color                              s_debugQuadtreeNodesColor; // TODO: remove debug from name
+    static const sf::Color                              s_debugCollisionFillColor; // TODO: remove debug from name
+    static const sf::Color                              s_debugCollisionOutlineColor; // TODO: remove debug from name
+    static const sf::Color                              s_debugQuadtreeAddtitionColor; // TODO: remove debug from name
+    static const sf::Color                              s_debugQuadtreeUpdateColor; // TODO: remove debug from name
+    static const float                                  s_debugCollisionWidth; // TODO: remove debug from name
+    static constexpr std::size_t                        s_maxBodiesPerNode              = 10;
 };
 
 }

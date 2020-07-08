@@ -49,7 +49,7 @@ public:
 private:
     float                                   m_radius;
     
-    static std::optional<sf::RenderTexture> bodyTexture;
+    static std::optional<sf::RenderTexture> s_bodyTexture;
 };
 
 }

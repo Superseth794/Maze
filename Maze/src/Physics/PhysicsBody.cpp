@@ -63,14 +63,14 @@ void PhysicsBody::didCollide(Collision const& collision) {
 }
 
 sf::RectangleShape const& PhysicsBody::getAABBShape(sf::Vector2f const& anchor) const {
-    if (!AABBShape.has_value()) {
-        AABBShape.emplace();
+    if (!s_AABBShape.has_value()) {
+        s_AABBShape.emplace();
         
-        auto& shape = AABBShape.value();
+        auto& shape = s_AABBShape.value();
         
         shape.setSize(sf::Vector2f{100.f, 100.f});
-        shape.setFillColor(DEBUG_AABB_FILL_COLOR);
-        shape.setOutlineColor(DEBUG_AABB_OUTLINE_COLOR);
+        shape.setFillColor(s_debugAABBFillColor);
+        shape.setOutlineColor(s_debugAABBOutlineColor);
         shape.setOutlineThickness(-2.f);
         shape.setPosition(0.f, 0.f);
     }
@@ -80,10 +80,10 @@ sf::RectangleShape const& PhysicsBody::getAABBShape(sf::Vector2f const& anchor) 
         m_frame.height / 100.f
     };
     
-    AABBShape.value().setScale(scaleFactors);
-    AABBShape.value().setPosition(m_frame.origin.x + anchor.x, m_frame.origin.y + anchor.y);
+    s_AABBShape.value().setScale(scaleFactors);
+    s_AABBShape.value().setPosition(m_frame.origin.x + anchor.x, m_frame.origin.y + anchor.y);
     
-    return AABBShape.value();
+    return s_AABBShape.value();
 }
 
 std::uint32_t PhysicsBody::getCategoryBitMask() const {
@@ -151,11 +151,11 @@ void PhysicsBody::updateInWorld() {
         m_parentWorld->updateBody(this);
 }
 
-std::optional<sf::RectangleShape>   PhysicsBody::AABBShape                          = std::nullopt;
-const sf::Color                     PhysicsBody::DEBUG_PHYSICS_FILL_COLOR           = sf::Color(56, 128, 78, 175); // 18, 217, 4
-const sf::Color                     PhysicsBody::DEBUG_PHYSICS_OUTLINE_COLOR        = sf::Color{22, 64, 25, 187};
-const sf::Color                     PhysicsBody::DEBUG_DID_COLLIDE_BODY_FILL_COLOR  = sf::Color{255, 0, 0, 135};
-const sf::Color                     PhysicsBody::DEBUG_AABB_FILL_COLOR              = sf::Color(3, 28, 252, 160);
-const sf::Color                     PhysicsBody::DEBUG_AABB_OUTLINE_COLOR           = sf::Color(52, 216, 235, 200);
+std::optional<sf::RectangleShape>   PhysicsBody::s_AABBShape                        = std::nullopt;
+const sf::Color                     PhysicsBody::s_debugAABBFillColor               = sf::Color(3, 28, 252, 160);
+const sf::Color                     PhysicsBody::s_debugAABBOutlineColor            = sf::Color(52, 216, 235, 200);
+const sf::Color                     PhysicsBody::s_debugDidCollideFillColor         = sf::Color{255, 0, 0, 135};
+const sf::Color                     PhysicsBody::s_debugPhysicsFillColor            = sf::Color(56, 128, 78, 175); // 18, 217, 4
+const sf::Color                     PhysicsBody::s_debugPhysicsOutlineColor         = sf::Color{22, 64, 25, 187};
 
 }

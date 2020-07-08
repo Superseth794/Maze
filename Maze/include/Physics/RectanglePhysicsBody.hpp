@@ -61,7 +61,7 @@ private:
     float                                   m_heigth;
     float                                   m_width;
     
-    static std::optional<sf::RenderTexture> bodyTexture;
+    static std::optional<sf::RenderTexture> s_bodyTexture;
 };
 
 }

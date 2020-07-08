@@ -70,8 +70,8 @@ private:
     sf::Vector2f                            m_endPos;
     sf::Vector2f                            m_startPos;
     
-    static std::optional<sf::RenderTexture> bodyTexture;
-    static constexpr float                  DEBUG_SHAPE_WIDTH = 6.f;
+    static std::optional<sf::RenderTexture> s_bodyTexture;
+    static constexpr float                  s_debugShapeWidth = 6.f; // TODO: remove debug from name
 };
 
 }

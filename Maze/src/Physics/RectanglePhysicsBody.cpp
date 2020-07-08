@@ -115,17 +115,17 @@ std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWith(Seg
 }
 
 sf::Sprite const RectanglePhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {
-    if (!bodyTexture.has_value()) {
-        bodyTexture.emplace();
+    if (!s_bodyTexture.has_value()) {
+        s_bodyTexture.emplace();
         
-        auto& texture = bodyTexture.value();
+        auto& texture = s_bodyTexture.value();
         texture.create(100.f, 100.f);
         texture.clear(sf::Color::Transparent);
         
         sf::RectangleShape shape;
         shape.setSize(sf::Vector2f{100.f, 100.f});
-        shape.setFillColor(DEBUG_PHYSICS_FILL_COLOR);
-        shape.setOutlineColor(DEBUG_PHYSICS_OUTLINE_COLOR);
+        shape.setFillColor(s_debugPhysicsFillColor);
+        shape.setOutlineColor(s_debugPhysicsOutlineColor);
         shape.setOutlineThickness(-5.f);
         shape.setPosition(0.f, 0.f);
         
@@ -139,7 +139,7 @@ sf::Sprite const RectanglePhysicsBody::getBodySprite(sf::Vector2f const& anchor)
     };
     
     sf::Sprite bodySprite;
-    bodySprite.setTexture(bodyTexture.value().getTexture());
+    bodySprite.setTexture(s_bodyTexture.value().getTexture());
     bodySprite.setScale(scaleFactors);
     bodySprite.setPosition(m_frame.origin.x + anchor.x, m_frame.origin.y + anchor.y);
     
@@ -207,6 +207,6 @@ void RectanglePhysicsBody::updateFrame() {
         m_frame.origin = origin;
 }
 
-std::optional<sf::RenderTexture>    RectanglePhysicsBody::bodyTexture   = std::nullopt;
+std::optional<sf::RenderTexture>    RectanglePhysicsBody::s_bodyTexture   = std::nullopt;
 
 }

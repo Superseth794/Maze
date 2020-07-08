@@ -79,11 +79,11 @@ private:
     sf::RenderWindow                            m_window;
     std::vector<std::unique_ptr<PhysicsBody>>   debug_bodies; // DEBUG
     
-    static constexpr int                        m_mazeWidth         = 25;
-    static constexpr int                        m_mazeHeight        = 25;
-    static constexpr float                      m_wallWidth         = 240.f;
-    static constexpr float                      m_wallHeight        = 240.f;
-    static constexpr bool                       SHOW_CONSOLE        = true;
+    static constexpr int                        s_mazeWidth         = 25;
+    static constexpr int                        s_mazeHeight        = 25;
+    static constexpr float                      s_wallWidth         = 240.f;
+    static constexpr float                      s_wallHeight        = 240.f;
+    static constexpr bool                       s_show_console      = true;
 };
 
 }
