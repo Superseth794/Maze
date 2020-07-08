@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 15/03/2020.
 //
 
-# include "../../../External/Catch/Catch.hpp"
+# include "../../../external/Catch/Catch.hpp"
 
 # include "../../../include/System/ExtraMaths.hpp"
 

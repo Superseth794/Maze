@@ -8,7 +8,7 @@
 #ifndef UnitTestsSession_hpp
 # define UnitTestsSession_hpp
 
-# include "../../External/Catch/Catch.hpp"
+# include "../../external/Catch/Catch.hpp"
 
 class UnitTestsSession {
 public:

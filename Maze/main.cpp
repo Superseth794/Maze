@@ -31,7 +31,7 @@ int main(int argc, const char * argv[]) {
 
 #elif !defined(VISUAL_TESTS)
 
-# include "Tests/UnitTests/UnitTestsSession.hpp"
+# include "tests/UnitTests/UnitTestsSession.hpp"
 
 int main(int argc, const char * argv[]) {
     UnitTestsSession session {"Unit tests session"};

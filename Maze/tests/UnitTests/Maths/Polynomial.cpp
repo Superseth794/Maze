@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 25/04/2020.
 //
 
-#include "../../../External/Catch/Catch.hpp"
+#include "../../../external/Catch/Catch.hpp"
 
 #include "../../../include/System/Polynomial.hpp"
 
