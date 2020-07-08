@@ -19,16 +19,18 @@ namespace mz {
 class Tile : public DrawableEntity {
 public:
     Tile(float x, float y, std::shared_ptr<TileModel> model);
+    
     ~Tile();
     
-    virtual void update(sf::Time timeElapsed);
     virtual std::shared_ptr<sf::RenderTexture> draw();
     
     PhysicsBody* getPhysicsBody();
     
+    virtual void update(sf::Time timeElapsed);
+    
 private:
-    std::shared_ptr<TileModel> m_model;
-    PhysicsBody* m_physicsBody;
+    std::shared_ptr<TileModel>  m_model;
+    PhysicsBody*                m_physicsBody;
 };
 
 }

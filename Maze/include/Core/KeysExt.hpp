@@ -32,7 +32,7 @@ public:
     }
     
 private:
-    static std::unordered_map<sf::Keyboard::Key, std::string> m_keysMap;
+    static std::unordered_map<sf::Keyboard::Key, std::string>   m_keysMap;
 };
 
 inline std::unordered_map<sf::Keyboard::Key, std::string> KeysExt::m_keysMap {

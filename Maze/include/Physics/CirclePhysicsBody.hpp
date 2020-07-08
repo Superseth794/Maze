@@ -26,23 +26,28 @@ public:
     
     virtual ~CirclePhysicsBody();
     
-    virtual void updateFrame();
+    virtual PhysicsBody* clone() const;
     
-    virtual bool isInsideAABB(AABB const& box) const;
-    virtual bool isCollidingWithAABB(AABB const& box) const;
-    virtual bool isPositionInside(sf::Vector2f const& position) const;
+    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(CirclePhysicsBody const& circle) const;
     
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(PhysicsBody* body) const;
-    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(SegmentPhysicsBody const& segment) const;
-    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(CirclePhysicsBody const& circle) const;
+    
     virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(RectanglePhysicsBody const& rectangle) const;
     
-    virtual PhysicsBody* clone() const;
+    virtual std::unique_ptr<std::vector<sf::Vector2f>> collideWith(SegmentPhysicsBody const& segment) const;
     
     virtual sf::Sprite const getBodySprite(sf::Vector2f const& anchor) const;
     
+    virtual bool isCollidingWithAABB(AABB const& box) const;
+    
+    virtual bool isInsideAABB(AABB const& box) const;
+    
+    virtual bool isPositionInside(sf::Vector2f const& position) const;
+    
+    virtual void updateFrame();
+    
 private:
-    float m_radius;
+    float                                   m_radius;
     
     static std::optional<sf::RenderTexture> bodyTexture;
 };

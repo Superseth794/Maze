@@ -27,17 +27,15 @@
 
 namespace mz {
 
+class Console;
 class PhysicsBody;
 
-class Console;
-
 struct QuadtreeNode {
-    AABB box;
-    
-    std::array<std::unique_ptr<QuadtreeNode>, 4> childs;
-    std::vector<PhysicsBody*> bodies;
-    QuadtreeNode* parent;
-    int depth;
+    std::vector<PhysicsBody*>                       bodies;
+    AABB                                            box;
+    std::array<std::unique_ptr<QuadtreeNode>, 4>    childs;
+    int                                             depth;
+    QuadtreeNode*                                   parent;
     
     QuadtreeNode(AABB const& box, int depth = 0, QuadtreeNode* parent = nullptr) {
         this->box = box;
@@ -45,12 +43,12 @@ struct QuadtreeNode {
         this->parent = parent;
     };
     
-    bool hasChildren() {
-        return (childs[0].get());
-    }
-    
     bool operator==(QuadtreeNode const& node) const {
         return (box.origin == node.box.origin && depth == node.depth);
+    }
+    
+    bool hasChildren() {
+        return (childs[0].get());
     }
 };
 
@@ -65,86 +63,72 @@ class PhysicsWorld {
     
 public:
     PhysicsWorld();
+    
     ~PhysicsWorld();
     
-    void init(float width, float height);
-    
     void addBody(PhysicsBody* body);
-    bool removeBody(PhysicsBody* body);
-    void updateBody(PhysicsBody* body);
     
     void addBodyQuadtreeAdditionEvent(PhysicsBody* body);
-    void addBodyQuadtreeUpdateEvent(PhysicsBody* body);
     
-    std::uint64_t generateBodyId();
-    int getBodiesCount();
+    void addBodyQuadtreeUpdateEvent(PhysicsBody* body);
     
     std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, sf::Vector2f const& anchor = sf::Vector2f{0.f, 0.f}, bool recursiveSearch = true);
     
+    std::uint64_t generateBodyId();
+    
+    int getBodiesCount();
+    
     std::unique_ptr<sf::RenderTexture> getPhysicsTexture(float width, float height, sf::Vector2f const& anchor);
+    
+    void init(float width, float height);
+    
+    bool removeBody(PhysicsBody* body);
+    
+    void setShowAABBs(bool show);
+    
+    void setShowCollisions(bool show);
+    
+    void setShowOOBBs(bool show);
+    
+    void setShowPhysicsBodies(bool show);
+    
+    void setShowQuadtree(bool show);
+    
+    void setShowQuadtreeEvents(bool show);
     
     void simulate();
     
-    void setShowPhysicsBodies(bool show);
-    void setShowAABBs(bool show);
-    void setShowOBBs(bool show);
-    void setShowCollisions(bool show);
-    void setShowQuadtree(bool show);
-    void setShowQuadtreeEvents(bool show);
+    void updateBody(PhysicsBody* body);
     
 private:
-    void addBody(PhysicsBody* body, QuadtreeNode* node);
     void addAllBodies();
-    void removeAllBodies();
-    void updateAllBodies();
-    void reorderBodies();
+    
+    void addBody(PhysicsBody* body, QuadtreeNode* node);
     
     void addChildrens(QuadtreeNode* node);
-    void addParent(QuadtreeNode* node, sf::Vector2f const& bodyPosition);
     
-    int getPreciseBodiesCount(bool checkvalidity = false); // TODO const;
-    int getIntersectionsCount() const;
-    int getQuadtreeNodesCount(); // TODO const;
-    int getQuadtreeMaxDepth(); // TODO const;
+    void addParent(QuadtreeNode* node, sf::Vector2f const& bodyPosition);
     
     std::unique_ptr<std::vector<Collision>> checkCollision(PhysicsBody* body, QuadtreeNode* node, bool recursiveSearch = true);
     
     std::optional<QuadtreeLocation> findBody(PhysicsBody* body, QuadtreeNode* rootNode);
     
-private:
-    QuadtreeNode m_root;
-    int m_bodiesCount = 0;
-    std::uint64_t m_currentBodyId = 1;
+    int getQuadtreeMaxDepth(); // TODO const;
     
-    std::vector<QuadtreeLocation> m_toRemoveBodiesPositions;
-    std::vector<PhysicsBody*> m_toAddBodies;
-    std::vector<PhysicsBody*> m_toUpdateBodies;
+    int getQuadtreeNodesCount(); // TODO const;
     
-    bool m_showPhysicsBodies = false;
-    bool m_showAABBs = false;
-    bool m_showOBBs = false;
-    bool m_showCollisions = false;
-    bool m_showQuadtree = false;
-    bool m_showQuadtreeEvents = false;
+    int getIntersectionsCount() const;
     
-    int m_computedCollisionsCount = 0;
-    std::vector<Collision> m_debugCollisions;
-    std::vector<PhysicsBody*> m_debugBodiesAdditionDisplay;
-    std::vector<std::pair<PhysicsBody*, QuadtreeNode*>> m_debugBodiesUpdateDisplay; // TODO remove debug
+    int getPreciseBodiesCount(bool checkvalidity = false); // TODO const;
     
-    static constexpr std::size_t MAX_BODIES_PER_NODE = 10;
+    void removeAllBodies();
     
-    static const sf::Color DEBUG_QUADTREE_NODES_COLOR;
-    static const sf::Color DEBUG_COLLISION_FILL_COLOR;
-    static const sf::Color DEBUG_COLLISION_OUTLINE_COLOR;
+    void reorderBodies();
     
-    static const sf::Color DEBUG_QUADTREE_ADDITION_COLOR;
-    static const sf::Color DEBUG_QUADTREE_UPDATE_COLOR;
-    
-    static const float DEBUG_COLLISION_WIDTH;
+    void updateAllBodies();
     
 private:
-    template<typename... Args> void forEachNode(std::function<void(QuadtreeNode*, Args...)>& func, Args... args) {
+    template<typename... Args> void forEachNode(std::function<void(QuadtreeNode*, Args...)>& func, Args... args) { // TODO: improve template
         std::stack<QuadtreeNode*> toInspectNodes;
         toInspectNodes.push(&m_root);
         while (!toInspectNodes.empty()) {
@@ -157,6 +141,32 @@ private:
             }
         }
     }
+    
+private:
+    int                                                 m_bodiesCount = 0;
+    int                                                 m_computedCollisionsCount = 0;
+    std::uint64_t                                       m_currentBodyId = 1;
+    std::vector<PhysicsBody*>                           m_debugBodiesAdditionDisplay; // TODO: remove debug from name
+    std::vector<std::pair<PhysicsBody*, QuadtreeNode*>> m_debugBodiesUpdateDisplay; // TODO: remove debug from name
+    std::vector<Collision>                              m_debugCollisions; // TODO: remove debug from name
+    QuadtreeNode                                        m_root;
+    bool                                                m_showAABBs = false;
+    bool                                                m_showCollisions = false;
+    bool                                                m_showQuadtree = false;
+    bool                                                m_showQuadtreeEvents = false;
+    bool                                                m_showOBBs = false;
+    bool                                                m_showPhysicsBodies = false;
+    std::vector<PhysicsBody*>                           m_toAddBodies;
+    std::vector<QuadtreeLocation>                       m_toRemoveBodiesPositions;
+    std::vector<PhysicsBody*>                           m_toUpdateBodies;
+    
+    static constexpr std::size_t                        MAX_BODIES_PER_NODE = 10;
+    static const sf::Color                              DEBUG_QUADTREE_NODES_COLOR;
+    static const sf::Color                              DEBUG_COLLISION_FILL_COLOR;
+    static const sf::Color                              DEBUG_COLLISION_OUTLINE_COLOR;
+    static const sf::Color                              DEBUG_QUADTREE_ADDITION_COLOR;
+    static const sf::Color                              DEBUG_QUADTREE_UPDATE_COLOR;
+    static const float                                  DEBUG_COLLISION_WIDTH;
 };
 
 }

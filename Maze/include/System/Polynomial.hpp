@@ -23,12 +23,14 @@
 
 namespace mz {
 
-template <typename T>
+template <typename T> // Put in external Traits file
 struct get_complexe_convertible_type {
 private:
-    using complex_float = std::complex<float>;
-    using complex_double = std::complex<double>;
-    using complex_long = std::complex<long double>;
+    
+    using complex_float     = std::complex<float>;
+    using complex_double    = std::complex<double>;
+    using complex_long      = std::complex<long double>;
+    
 public:
     using value = std::conditional_t<std::is_convertible_v<complex_float, T>, complex_float,
                     std::conditional_t<std::is_convertible_v<complex_double, T>, complex_double,
@@ -54,7 +56,8 @@ template <typename T>
 using get_complexe_convertible_type_v = typename get_complexe_convertible_type<T>::value;
 
 template <typename T>
-struct is_complexe_convertible : std::conditional_t<!std::is_same_v<get_complexe_convertible_type_v<T>, void>, std::true_type, std::false_type>{};
+struct is_complexe_convertible : std::conditional_t<
+                                    !std::is_same_v<get_complexe_convertible_type_v<T>, void>, std::true_type, std::false_type>{};
 
 template <typename T>
 inline constexpr bool is_complexe_convertible_v = is_complexe_convertible<T>::value;
@@ -76,28 +79,26 @@ public:
         std::move(list.begin(), list.begin() + maxDegreeGiven, m_coeficients.begin() + (degree + 1) - maxDegreeGiven);
     }
     
-    template <typename ComputationType = Type, typename = std::enable_if_t<std::is_convertible_v<Type, ComputationType>, ComputationType>>
+    template <typename ComputationType = Type, typename = std::enable_if_t<
+                                                            std::is_convertible_v<Type, ComputationType>, ComputationType>>
     ComputationType operator()(ComputationType value) const {
         return compute<ComputationType>(value);
     }
     
-    /**
-     \warning: Result is undefinied if coeficientDegree excess polynomial degree
-     */
-    const Type& getCoeficient(std::size_t coeficientDegree) const {
-        assert(coeficientDegree >= 0 && coeficientDegree <= degree);
-        return m_coeficients[degree - coeficientDegree];
-    };
-    
-    /**
-     \warning: Result is undefinied if coeficientDegree excess polynomial degree
-    */
-    void setCoeficient(std::size_t coeficientDegree, Type const& newValue) {
-        assert(coeficientDegree >= 0 && coeficientDegree <= degree);
-        m_coeficients[degree - coeficientDegree] = newValue;
+    Type* begin() {
+        return m_coeficients.begin();
     }
     
-    template <typename ComputationType = Type, typename = std::enable_if_t<std::is_convertible_v<Type, ComputationType>, ComputationType>>
+    const Type* cbegin() const {
+        return m_coeficients.cbegin();
+    }
+    
+    const Type* cend() const {
+        return m_coeficients.cend();
+    }
+    
+    template <typename ComputationType = Type, typename = std::enable_if_t<
+                                                            std::is_convertible_v<Type, ComputationType>, ComputationType>>
     ComputationType compute(ComputationType value) const {
         ComputationType result = m_coeficients[degree];
         for (size_t i = 1; i <= degree; ++i) {
@@ -130,6 +131,7 @@ public:
                 numberDisplayed = true;
             }
         }
+        
         if (m_coeficients[degree] != 0 || !numberDisplayed) {
             if (numberDisplayed) {
                 description << (m_coeficients[degree] > 0 ? " + " : " - ");
@@ -142,41 +144,51 @@ public:
         return description.str();
     }
     
-    Type* begin() {
-        return m_coeficients.begin();
-    }
-    
-    const Type* cbegin() const {
-        return m_coeficients.cbegin();
-    }
-    
     Type* end() {
         return m_coeficients.end();
     }
     
-    const Type* cend() const {
-        return m_coeficients.cend();
+    /**
+     \warning: Result is undefinied if coeficientDegree excess polynomial degree
+     */
+    const Type& getCoeficient(std::size_t coeficientDegree) const {
+        assert(coeficientDegree >= 0 && coeficientDegree <= degree);
+        return m_coeficients[degree - coeficientDegree];
+    };
+    
+    /**
+     \warning: Result is undefinied if coeficientDegree excess polynomial degree
+    */
+    void setCoeficient(std::size_t coeficientDegree, Type const& newValue) {
+        assert(coeficientDegree >= 0 && coeficientDegree <= degree);
+        m_coeficients[degree - coeficientDegree] = newValue;
     }
     
 private:
-    std::array<Type, degree + 1> m_coeficients;
+    std::array<Type, degree + 1>    m_coeficients;
 };
 
 template <std::size_t degree, typename Type = double>
 class Polynomial : public AbstractPolynomial<degree, Type> {
 public:
     Polynomial() {};
+    
     Polynomial(std::array<Type, degree + 1> && coefs) : AbstractPolynomial<degree, Type>(std::forward(coefs)) {};
+    
     Polynomial(std::initializer_list<Type> && list) : AbstractPolynomial<degree, Type>(std::move(list)) {};
 };
 
 template <typename Type>
 class Polynomial<0, Type> : public AbstractPolynomial<0, Type> {
-public:
-    static constexpr std::size_t degree = 0;
+// public: ??
     
+    static constexpr std::size_t degree = 0;
+
+public:
     Polynomial() {};
+    
     Polynomial(std::array<Type, degree + 1> && coefs) : AbstractPolynomial<degree, Type>(std::forward(coefs)) {};
+    
     Polynomial(std::initializer_list<Type> && list) : AbstractPolynomial<degree, Type>(std::move(list)) {};
     
     /**
@@ -191,10 +203,14 @@ public:
 template <typename Type>
 class Polynomial<1, Type> : public AbstractPolynomial<1, Type> {
 public:
+    
     static constexpr std::size_t degree = 1;
     
+public:
     Polynomial() {};
+    
     Polynomial(std::array<Type, degree + 1> && coefs) : AbstractPolynomial<degree, Type>(std::forward(coefs)) {};
+    
     Polynomial(std::initializer_list<Type> && list) : AbstractPolynomial<degree, Type>(std::move(list)) {};
     
     /**
@@ -214,10 +230,14 @@ public:
 template <typename Type>
 class Polynomial<2, Type> : public AbstractPolynomial<2, Type> {
 public:
+    
     static constexpr std::size_t degree = 2;
     
+public:
     Polynomial() {};
+    
     Polynomial(std::array<Type, degree + 1> && coefs) : AbstractPolynomial<degree, Type>(std::forward(coefs)) {};
+    
     Polynomial(std::initializer_list<Type> && list) : AbstractPolynomial<degree, Type>(std::move(list)) {};
     
     /**
@@ -237,12 +257,17 @@ public:
 
 template <typename Type>
 class Polynomial<3, Type> : public AbstractPolynomial<3, Type> {
-public:
+// public: ???
+    
     using ComplexConvertibleType = get_complexe_convertible_type<Type>;
+    
     static constexpr std::size_t degree = 3;
     
+public:
     Polynomial() {};
+    
     Polynomial(std::array<Type, degree + 1> && coefs) : AbstractPolynomial<degree, Type>(std::forward(coefs)) {};
+    
     Polynomial(std::initializer_list<Type> && list) : AbstractPolynomial<degree, Type>(std::move(list)) {};
     
     /**
@@ -262,12 +287,15 @@ public:
 
 template <typename Type>
 class Polynomial<4, Type> : public AbstractPolynomial<4, Type> {
-public:
+// public: ???
     using ComplexConvertibleType = get_complexe_convertible_type<Type>;
     static constexpr std::size_t degree = 4;
     
+public:
     Polynomial() {};
+    
     Polynomial(std::array<Type, degree + 1> && coefs) : AbstractPolynomial<degree, Type>(std::forward(coefs)) {};
+    
     Polynomial(std::initializer_list<Type> && list) : AbstractPolynomial<degree, Type>(std::move(list)) {};
     
     /**

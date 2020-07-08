@@ -13,12 +13,20 @@
 namespace mz {
 
 struct AABB {
-    sf::Vector2f origin;
-    float width;
-    float height;
+    float           height;
+    sf::Vector2f    origin;
+    float           width;
     
     bool operator==(AABB const& box) {
         return (origin == box.origin && width == box.width && height == box.height);
+    }
+    
+    sf::Vector2f getBottomLeftCorner() const {
+        return sf::Vector2f{origin.x, origin.y + height};
+    }
+    
+    sf::Vector2f getBottomRightCorner() const {
+        return sf::Vector2f{origin.x + width, origin.y + height};
     }
     
     sf::Vector2f getTopLeftCorner() const {
@@ -27,14 +35,6 @@ struct AABB {
     
     sf::Vector2f getTopRightCorner() const {
         return sf::Vector2f{origin.x + width, origin.y};
-    }
-    
-    sf::Vector2f getBottomRightCorner() const {
-        return sf::Vector2f{origin.x + width, origin.y + height};
-    }
-    
-    sf::Vector2f getBottomLeftCorner() const {
-        return sf::Vector2f{origin.x, origin.y + height};
     }
 };
 

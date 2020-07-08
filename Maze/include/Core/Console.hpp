@@ -27,22 +27,21 @@ class PhysicsWorld;
 class Console {
 public:
     Console() = default;
-    void init(float width, float height, Maze* maze = nullptr, PhysicsWorld* world = nullptr);
     
     std::unique_ptr<sf::RenderTexture> display();
     
+    void init(float width, float height, Maze* maze = nullptr, PhysicsWorld* world = nullptr);
+    
 private:
-    float m_width;
-    float m_height;
+    sf::Font                    m_font;
+    float                       m_height;
+    bool                        initialized = false;
+    Maze*                       m_maze = nullptr; // TODO change to Gamescene
+    PhysicsWorld*               m_physicsWorld = nullptr;
+    float                       m_width;
     
-    PhysicsWorld* m_physicsWorld = nullptr;
-    Maze* m_maze = nullptr; // TODO change to Gamescene
-    
-    static const std::string FONT_FILENAME;
-    sf::Font m_font;
-    
-    bool initialized = false;
-    static bool windowCreated;
+    static const std::string    FONT_FILENAME; // TODO: change s_ + lower case + std::filesystem
+    static bool                 windowCreated;
 };
 
 }

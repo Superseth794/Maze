@@ -23,13 +23,14 @@ class TileModel {
     
 public:
     TileModel(float width, float height, std::shared_ptr<sf::RenderTexture> && texture, PhysicsBody* physicsBody);
+    
     ~TileModel();
     
 private:
-    float m_width;
-    float m_height;
-    PhysicsBody* m_physicsBody;
-    std::shared_ptr<sf::RenderTexture> m_texture;
+    float                               m_height;
+    PhysicsBody*                        m_physicsBody;
+    std::shared_ptr<sf::RenderTexture>  m_texture;
+    float                               m_width;
 };
 
 }

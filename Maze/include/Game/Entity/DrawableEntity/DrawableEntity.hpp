@@ -19,11 +19,11 @@ namespace mz {
 class DrawableEntity : public Entity {
 public:
     DrawableEntity() = default;
+    
     virtual ~DrawableEntity() = default;
     
     virtual std::shared_ptr<sf::RenderTexture> draw() = 0;
 };
-
 
 }
 

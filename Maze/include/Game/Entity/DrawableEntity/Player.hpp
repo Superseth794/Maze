@@ -23,25 +23,22 @@ class Player : public DrawableEntity {
 public:
     Player(float width, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld);
     
-    virtual void update(sf::Time timeElapsed);
     virtual std::shared_ptr<sf::RenderTexture> draw();
-    
-    void orientedMove(Orientation const& orientation, bool isMoving);
     
     PhysicsBody* getPhysicsBody();
     
+    void orientedMove(Orientation const& orientation, bool isMoving);
+    
+    virtual void update(sf::Time timeElapsed);
+    
 private:
-    float m_width;
-    float m_speed = 5.f;
-    
-    std::unordered_set<std::string> m_directions;
-    
-    sf::CircleShape m_bodyShape;
-    std::shared_ptr<sf::RenderTexture> m_texture;
-    
-    CirclePhysicsBody m_physicsBody;
+    sf::CircleShape                     m_bodyShape;
+    std::unordered_set<std::string>     m_directions;
+    CirclePhysicsBody                   m_physicsBody;
+    float                               m_speed = 5.f;
+    std::shared_ptr<sf::RenderTexture>  m_texture;
+    float                               m_width;
 };
-
 
 }
 

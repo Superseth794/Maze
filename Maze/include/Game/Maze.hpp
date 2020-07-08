@@ -40,51 +40,51 @@ class Maze {
     
 public:
     Maze(unsigned int width, unsigned int height);
+    
     ~Maze() = default;
     
     Maze(Maze const& maze) = delete;
+    
     Maze(Maze && maze) = delete;
+    
     Maze& operator=(Maze const& maze) = delete;
     
     void lauch();
     
 private:
-    void init();
-    void generateMaze();
-    
-    void update();
-    void updateCamera();
-    
     void display();
+    
     void drawEntity(DrawableEntity const& entity, sf::Sprite & entitySprite);
+    
+    void generateMaze();
     
     void handleEvent(sf::Event const& event);
     
+    void init();
+    
+    void update();
+    
+    void updateCamera();
+    
 private:
-    unsigned int m_width;
-    unsigned int m_height;
-    static constexpr int m_mazeWidth = 25;
-    static constexpr int m_mazeHeight = 25;
-    static constexpr float m_wallWidth = 240.f;
-    static constexpr float m_wallHeight = 240.f;
+    sf::Vector2f                                m_cameraPosition;
+    std::unique_ptr<Console>                    m_console;
+    float                                       m_fps = 60.f;
+    sf::Clock                                   m_gameClock;
+    unsigned int                                m_height;
+    PhysicsWorld                                m_physicsWorld;
+    Player                                      m_player;
+    std::vector<std::unique_ptr<Tile>>          m_tiles;
+    unsigned int                                m_width;
+    sf::RenderWindow                            m_window;
+    std::vector<std::unique_ptr<PhysicsBody>>   debug_bodies; // DEBUG
     
-    sf::RenderWindow m_window;
-    sf::Clock m_gameClock;
-    float m_fps = 60.f;
-    
-    std::unique_ptr<Console> m_console;
-    static constexpr bool SHOW_CONSOLE = true;
-    
-    sf::Vector2f m_cameraPosition;
-    
-    PhysicsWorld m_physicsWorld;
-    
-    Player m_player;
-    std::vector<std::unique_ptr<Tile>> m_tiles;
-    
-    std::vector<std::unique_ptr<PhysicsBody>> debug_bodies; // DEBUG
+    static constexpr int                        m_mazeWidth = 25;
+    static constexpr int                        m_mazeHeight = 25;
+    static constexpr float                      m_wallWidth = 240.f;
+    static constexpr float                      m_wallHeight = 240.f;
+    static constexpr bool                       SHOW_CONSOLE = true;
 };
-
 
 }
 
