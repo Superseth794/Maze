@@ -37,61 +37,12 @@ RectanglePhysicsBody::~RectanglePhysicsBody() {
         getParentWorld()->removeBody(this);
 }
 
-void RectanglePhysicsBody::updateFrame() {
-    sf::Vector2f origin {
-        getCenter().x - m_width / 2.f,
-        getCenter().y - m_heigth / 2.f
-    };
-    if (m_frame.origin != origin)
-        m_frame.origin = origin;
-}
-
-bool RectanglePhysicsBody::isInsideAABB(AABB const& box) const {
-    return (isPositionInsideAABB(box, getTopLeftCorner()) &&
-            isPositionInsideAABB(box, getTopRightCorner()) &&
-            isPositionInsideAABB(box, getBottomRightCorner()) &&
-            isPositionInsideAABB(box, getBottomLeftCorner()));
-}
-
-bool RectanglePhysicsBody::isCollidingWithAABB(AABB const& box) const {
-    return !(getTopLeftCorner().x > box.origin.x + box.width ||
-             getTopLeftCorner().y > box.origin.y + box.height ||
-             getBottomRightCorner().x < box.origin.x ||
-             getBottomRightCorner().y < box.origin.y);
-}
-
-bool RectanglePhysicsBody::isPositionInside(sf::Vector2f const& position) const {
-    return !(position.x < getTopLeftCorner().x ||
-             position.y < getTopLeftCorner().y ||
-             position.x > getBottomRightCorner().x ||
-             position.y > getBottomRightCorner().y);
+PhysicsBody* RectanglePhysicsBody::clone() const {
+    return new RectanglePhysicsBody(*this);
 }
 
 std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWith(PhysicsBody* body) const {
     return body->collideWith(*this);
-}
-
-std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWith(SegmentPhysicsBody const& segment) const {
-    SegmentPhysicsBody seg1 {getTopLeftCorner(), getTopRightCorner()};
-    SegmentPhysicsBody seg2 {getTopRightCorner(), getBottomRightCorner()};
-    SegmentPhysicsBody seg3 {getBottomRightCorner(), getBottomLeftCorner()};
-    SegmentPhysicsBody seg4 {getBottomLeftCorner(), getTopLeftCorner()};
-    
-    std::array<std::unique_ptr<std::vector<sf::Vector2f>>, 4> inters {
-        segment.collideWith(seg1),
-        segment.collideWith(seg2),
-        segment.collideWith(seg3),
-        segment.collideWith(seg4)
-    };
-    
-    auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
-    for (auto & array : inters) {
-        for (int i = 0; i < array->size(); ++i) {
-            intersections->emplace_back(std::move((*array)[i]));
-        }
-    }
-    
-    return intersections;
 }
 
 std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWith(CirclePhysicsBody const& circle) const {
@@ -140,36 +91,27 @@ std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWith(Rec
     return intersections;
 }
 
-PhysicsBody* RectanglePhysicsBody::clone() const {
-    return new RectanglePhysicsBody(*this);
-}
-
-sf::Vector2f RectanglePhysicsBody::getTopLeftCorner() const {
-    return sf::Vector2f {
-        getCenter().x - m_width / 2.f,
-        getCenter().y - m_heigth / 2.f
+std::unique_ptr<std::vector<sf::Vector2f>> RectanglePhysicsBody::collideWith(SegmentPhysicsBody const& segment) const {
+    SegmentPhysicsBody seg1 {getTopLeftCorner(), getTopRightCorner()};
+    SegmentPhysicsBody seg2 {getTopRightCorner(), getBottomRightCorner()};
+    SegmentPhysicsBody seg3 {getBottomRightCorner(), getBottomLeftCorner()};
+    SegmentPhysicsBody seg4 {getBottomLeftCorner(), getTopLeftCorner()};
+    
+    std::array<std::unique_ptr<std::vector<sf::Vector2f>>, 4> inters {
+        segment.collideWith(seg1),
+        segment.collideWith(seg2),
+        segment.collideWith(seg3),
+        segment.collideWith(seg4)
     };
-}
-
-sf::Vector2f RectanglePhysicsBody::getTopRightCorner() const {
-    return sf::Vector2f {
-        getCenter().x + m_width / 2.f,
-        getCenter().y - m_heigth / 2.f
-    };
-}
-
-sf::Vector2f RectanglePhysicsBody::getBottomRightCorner() const {
-    return sf::Vector2f {
-        getCenter().x + m_width / 2.f,
-        getCenter().y + m_heigth / 2.f
-    };
-}
-
-sf::Vector2f RectanglePhysicsBody::getBottomLeftCorner() const {
-    return sf::Vector2f {
-        getCenter().x - m_width / 2.f,
-        getCenter().y + m_heigth / 2.f
-    };
+    
+    auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
+    for (auto & array : inters) {
+        for (int i = 0; i < array->size(); ++i) {
+            intersections->emplace_back(std::move((*array)[i]));
+        }
+    }
+    
+    return intersections;
 }
 
 sf::Sprite const RectanglePhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {
@@ -207,6 +149,64 @@ sf::Sprite const RectanglePhysicsBody::getBodySprite(sf::Vector2f const& anchor)
     return bodySprite;
 }
 
-std::optional<sf::RenderTexture> RectanglePhysicsBody::bodyTexture = std::nullopt;
+sf::Vector2f RectanglePhysicsBody::getBottomLeftCorner() const {
+    return sf::Vector2f {
+        getCenter().x - m_width / 2.f,
+        getCenter().y + m_heigth / 2.f
+    };
+}
+
+sf::Vector2f RectanglePhysicsBody::getBottomRightCorner() const {
+    return sf::Vector2f {
+        getCenter().x + m_width / 2.f,
+        getCenter().y + m_heigth / 2.f
+    };
+}
+
+sf::Vector2f RectanglePhysicsBody::getTopLeftCorner() const {
+    return sf::Vector2f {
+        getCenter().x - m_width / 2.f,
+        getCenter().y - m_heigth / 2.f
+    };
+}
+
+sf::Vector2f RectanglePhysicsBody::getTopRightCorner() const {
+    return sf::Vector2f {
+        getCenter().x + m_width / 2.f,
+        getCenter().y - m_heigth / 2.f
+    };
+}
+
+bool RectanglePhysicsBody::isCollidingWithAABB(AABB const& box) const {
+    return !(getTopLeftCorner().x > box.origin.x + box.width ||
+             getTopLeftCorner().y > box.origin.y + box.height ||
+             getBottomRightCorner().x < box.origin.x ||
+             getBottomRightCorner().y < box.origin.y);
+}
+
+bool RectanglePhysicsBody::isInsideAABB(AABB const& box) const {
+    return (isPositionInsideAABB(box, getTopLeftCorner()) &&
+            isPositionInsideAABB(box, getTopRightCorner()) &&
+            isPositionInsideAABB(box, getBottomRightCorner()) &&
+            isPositionInsideAABB(box, getBottomLeftCorner()));
+}
+
+bool RectanglePhysicsBody::isPositionInside(sf::Vector2f const& position) const {
+    return !(position.x < getTopLeftCorner().x ||
+             position.y < getTopLeftCorner().y ||
+             position.x > getBottomRightCorner().x ||
+             position.y > getBottomRightCorner().y);
+}
+
+void RectanglePhysicsBody::updateFrame() {
+    sf::Vector2f origin {
+        getCenter().x - m_width / 2.f,
+        getCenter().y - m_heigth / 2.f
+    };
+    if (m_frame.origin != origin)
+        m_frame.origin = origin;
+}
+
+std::optional<sf::RenderTexture>    RectanglePhysicsBody::bodyTexture   = std::nullopt;
 
 }

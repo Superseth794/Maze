@@ -9,24 +9,6 @@
 
 namespace mz {
 
-void Console::init(float width, float height, Maze* maze, PhysicsWorld* world) {
-    if (windowCreated) {
-        std::cout << "Error: debug infos window already created" << std::endl;
-        return;
-    }
-    
-    assert(m_font.loadFromFile(FONT_FILENAME));
-    
-    m_width = width;
-    m_height = height;
-    
-    m_maze = maze;
-    m_physicsWorld = world;
-    
-    Console::windowCreated = true;
-    initialized = true;
-}
-
 std::unique_ptr<sf::RenderTexture> Console::display() {
     if (!initialized)
         return std::make_unique<sf::RenderTexture>();
@@ -75,7 +57,26 @@ std::unique_ptr<sf::RenderTexture> Console::display() {
     return infosTexture;
 }
 
-std::string const Console::FONT_FILENAME = "../../Resources/Fonts/Cousine/Cousine-Regular.ttf";
-bool Console::windowCreated = false;
+
+void Console::init(float width, float height, Maze* maze, PhysicsWorld* world) {
+    if (windowCreated) {
+        std::cout << "Error: debug infos window already created" << std::endl;
+        return;
+    }
+    
+    assert(m_font.loadFromFile(FONT_FILENAME));
+    
+    m_width = width;
+    m_height = height;
+    
+    m_maze = maze;
+    m_physicsWorld = world;
+    
+    Console::windowCreated = true;
+    initialized = true;
+}
+
+std::string const   Console::FONT_FILENAME = "../../Resources/Fonts/Cousine/Cousine-Regular.ttf";
+bool                Console::windowCreated = false;
 
 }

@@ -36,49 +36,12 @@ SegmentPhysicsBody::~SegmentPhysicsBody() {
         getParentWorld()->removeBody(this);
 }
 
-void SegmentPhysicsBody::updateFrame() {
-    sf::Vector2f origin {std::min(m_startPos.x, m_endPos.x), std::min(m_startPos.y, m_endPos.y)};
-    if (m_frame.origin != origin)
-        m_frame.origin = origin;
-}
-
-bool SegmentPhysicsBody::isInsideAABB(AABB const& box) const {
-    return (isPositionInsideAABB(box, m_startPos) &&
-            isPositionInsideAABB(box, m_endPos));
-}
-
-bool SegmentPhysicsBody::isCollidingWithAABB(AABB const& box) const {
-    // TODO update computation : here -> bad segment - AABB collision computation
-    return isInsideAABB(box); // TOFIX - TODO
-}
-
-bool SegmentPhysicsBody::isPositionInside(sf::Vector2f const& position) const {
-    const sf::Vector2f vect {getVector()};
-    
-    const float coef1 = (position.x - m_startPos.x) / vect.x;
-    const float coef2 = (position.y - m_startPos.y) / vect.y;
-    
-    if (!nearlyEquals(coef1, coef2))
-        return false;
-    
-    float scalar = getVector().x * vect.x + getVector().y * vect.y;
-    return (scalar < 0 || scalar * scalar > getLength2());
-    
-    const sf::Vector2f vect1 {position - m_startPos};
-    const sf::Vector2f vect2 {position - m_endPos};
-    
-    const float scalar1 = vect.x * vect1.x + vect.y * vect1.y;
-    const float scalar2 = -vect.x * vect2.x + -vect.y * vect2.y;
-    
-    return (scalar1 >= 0 && scalar2 >= 0);
+PhysicsBody* SegmentPhysicsBody::clone() const {
+    return new SegmentPhysicsBody(*this);
 }
 
 std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(PhysicsBody* body) const {
     return body->collideWith(*this);
-}
-
-std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(SegmentPhysicsBody const& segment) const {
-    return collisionBetweenSegments(m_startPos, m_endPos, segment.m_startPos, segment.m_endPos);
 }
 
 std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(CirclePhysicsBody const& circle) const {
@@ -89,81 +52,8 @@ std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(Recta
     return rectangle.collideWith(*this);
 }
 
-PhysicsBody* SegmentPhysicsBody::clone() const {
-    return new SegmentPhysicsBody(*this);
-}
-
-sf::Vector2f const& SegmentPhysicsBody::getStartPos() const {
-    return m_startPos;
-}
-
-sf::Vector2f const& SegmentPhysicsBody::getEndPos() const {
-    return m_endPos;
-}
-
-sf::Vector2f SegmentPhysicsBody::getVector() const {
-    return sf::Vector2f{m_endPos.x - m_startPos.x, m_endPos.y - m_startPos.y};
-}
-
-float SegmentPhysicsBody::getLength() const {
-    return mz::getVectorLength(getVector());
-}
-
-float SegmentPhysicsBody::getLength2() const {
-    return mz::getVectorLength2(getVector());
-}
-
-sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {
-    if (!bodyTexture.has_value()) {
-        bodyTexture.emplace();
-        
-        auto& texture = bodyTexture.value();
-        texture.create(100.f, DEBUG_SHAPE_WIDTH);
-        texture.clear(sf::Color::Yellow);
-        
-        sf::RectangleShape shape;
-        shape.setSize(sf::Vector2f{100.f, DEBUG_SHAPE_WIDTH});
-        shape.setFillColor(DEBUG_PHYSICS_OUTLINE_COLOR);
-        shape.setPosition(0.f, 0.f);
-        
-        texture.draw(shape);
-        texture.display();
-    }
-    
-    float length = getLength();
-    float angle = std::acos(getVector().x / length);
-    float scaleFactor = length / 100;
-    
-    sf::Sprite bodySprite;
-    bodySprite.setTexture(bodyTexture.value().getTexture());
-    bodySprite.setScale(scaleFactor, 1.f);
-    bodySprite.setPosition(m_startPos.x + anchor.x + DEBUG_SHAPE_WIDTH / 2.f, m_startPos.y + anchor.y + DEBUG_SHAPE_WIDTH / 2.f);
-    bodySprite.setRotation(angle * 180.f / M_PI);
-    
-    bodySprite.setColor(m_didCollide ? sf::Color::Red : sf::Color::White);
-    m_didCollide = false;
-    
-    return bodySprite;
-}
-
-bool SegmentPhysicsBody::isCollisionBetweenSegments(sf::Vector2f const& pA, sf::Vector2f const& pB, sf::Vector2f const& p1, sf::Vector2f const& p2) {
-    sf::Vector2f AB {pB - pA};
-    sf::Vector2f OP {p2 - p1};
-    sf::Vector2f AO {p1 - pA};
-    
-    float scalar1 = AO.x * AB.x + AO.y * AB.y;
-    float scalar2 = -AO.x * OP.x + -AO.y * OP.y;
-    
-    float lengthAB2 = getVectorLength2(AB);
-    float lengthOP2 = getVectorLength2(OP);
-    
-//    return (scalar1 >= 0 && scalar2 >= 0);
-    std::cout << "isCollisionBetweenSegments --> TOFIX\n";
-    return (true); // TOFIX
-}
-
-bool SegmentPhysicsBody::isCollisionBetweenSegments(sf::Vector2f const& pA, float lengthA, float angleA, sf::Vector2f const& p1, float length1, float angle1) {
-    return isCollisionBetweenSegments(pA, sf::Vector2f{pA.x + std::cos(angleA), pA.y + std::sin(angleA)}, p1, sf::Vector2f{p1.x + std::cos(angle1), p1.y + std::sin(angle1)});
+std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collideWith(SegmentPhysicsBody const& segment) const {
+    return collisionBetweenSegments(m_startPos, m_endPos, segment.m_startPos, segment.m_endPos);
 }
 
 std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collisionBetweenSegments(sf::Vector2f const& pA, sf::Vector2f const& pB, sf::Vector2f const& p1, sf::Vector2f const& p2) {
@@ -200,6 +90,116 @@ std::unique_ptr<std::vector<sf::Vector2f>> SegmentPhysicsBody::collisionBetweenS
     return collisionBetweenSegments(pA, sf::Vector2f{pA.x + std::cos(lengthA), pA.y + std::sin(lengthA)}, p1, sf::Vector2f{p1.x + std::cos(length1), p1.y + std::sin(length1)});
 }
 
-std::optional<sf::RenderTexture> SegmentPhysicsBody::bodyTexture = std::nullopt;
+bool SegmentPhysicsBody::isCollidingWithAABB(AABB const& box) const {
+    // TODO update computation : here -> bad segment - AABB collision computation
+    return isInsideAABB(box); // TOFIX - TODO
+}
+
+bool SegmentPhysicsBody::isCollisionBetweenSegments(sf::Vector2f const& pA, sf::Vector2f const& pB, sf::Vector2f const& p1, sf::Vector2f const& p2) {
+    sf::Vector2f AB {pB - pA};
+    sf::Vector2f OP {p2 - p1};
+    sf::Vector2f AO {p1 - pA};
+    
+    float scalar1 = AO.x * AB.x + AO.y * AB.y;
+    float scalar2 = -AO.x * OP.x + -AO.y * OP.y;
+    
+    float lengthAB2 = getVectorLength2(AB);
+    float lengthOP2 = getVectorLength2(OP);
+    
+//    return (scalar1 >= 0 && scalar2 >= 0);
+    std::cout << "isCollisionBetweenSegments --> TOFIX\n";
+    return (true); // TOFIX
+}
+
+bool SegmentPhysicsBody::isCollisionBetweenSegments(sf::Vector2f const& pA, float lengthA, float angleA, sf::Vector2f const& p1, float length1, float angle1) {
+    return isCollisionBetweenSegments(pA, sf::Vector2f{pA.x + std::cos(angleA), pA.y + std::sin(angleA)}, p1, sf::Vector2f{p1.x + std::cos(angle1), p1.y + std::sin(angle1)});
+}
+
+bool SegmentPhysicsBody::isInsideAABB(AABB const& box) const {
+    return (isPositionInsideAABB(box, m_startPos) &&
+            isPositionInsideAABB(box, m_endPos));
+}
+
+bool SegmentPhysicsBody::isPositionInside(sf::Vector2f const& position) const {
+    const sf::Vector2f vect {getVector()};
+    
+    const float coef1 = (position.x - m_startPos.x) / vect.x;
+    const float coef2 = (position.y - m_startPos.y) / vect.y;
+    
+    if (!nearlyEquals(coef1, coef2))
+        return false;
+    
+    float scalar = getVector().x * vect.x + getVector().y * vect.y;
+    return (scalar < 0 || scalar * scalar > getLength2());
+    
+    const sf::Vector2f vect1 {position - m_startPos};
+    const sf::Vector2f vect2 {position - m_endPos};
+    
+    const float scalar1 = vect.x * vect1.x + vect.y * vect1.y;
+    const float scalar2 = -vect.x * vect2.x + -vect.y * vect2.y;
+    
+    return (scalar1 >= 0 && scalar2 >= 0);
+}
+
+sf::Sprite const SegmentPhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {
+    if (!bodyTexture.has_value()) {
+        bodyTexture.emplace();
+        
+        auto& texture = bodyTexture.value();
+        texture.create(100.f, DEBUG_SHAPE_WIDTH);
+        texture.clear(sf::Color::Yellow);
+        
+        sf::RectangleShape shape;
+        shape.setSize(sf::Vector2f{100.f, DEBUG_SHAPE_WIDTH});
+        shape.setFillColor(DEBUG_PHYSICS_OUTLINE_COLOR);
+        shape.setPosition(0.f, 0.f);
+        
+        texture.draw(shape);
+        texture.display();
+    }
+    
+    float length = getLength();
+    float angle = std::acos(getVector().x / length);
+    float scaleFactor = length / 100;
+    
+    sf::Sprite bodySprite;
+    bodySprite.setTexture(bodyTexture.value().getTexture());
+    bodySprite.setScale(scaleFactor, 1.f);
+    bodySprite.setPosition(m_startPos.x + anchor.x + DEBUG_SHAPE_WIDTH / 2.f, m_startPos.y + anchor.y + DEBUG_SHAPE_WIDTH / 2.f);
+    bodySprite.setRotation(angle * 180.f / M_PI);
+    
+    bodySprite.setColor(m_didCollide ? sf::Color::Red : sf::Color::White);
+    m_didCollide = false;
+    
+    return bodySprite;
+}
+
+sf::Vector2f const& SegmentPhysicsBody::getEndPos() const {
+    return m_endPos;
+}
+
+float SegmentPhysicsBody::getLength() const {
+    return mz::getVectorLength(getVector());
+}
+
+float SegmentPhysicsBody::getLength2() const {
+    return mz::getVectorLength2(getVector());
+}
+
+sf::Vector2f const& SegmentPhysicsBody::getStartPos() const {
+    return m_startPos;
+}
+
+sf::Vector2f SegmentPhysicsBody::getVector() const {
+    return sf::Vector2f{m_endPos.x - m_startPos.x, m_endPos.y - m_startPos.y};
+}
+
+void SegmentPhysicsBody::updateFrame() {
+    sf::Vector2f origin {std::min(m_startPos.x, m_endPos.x), std::min(m_startPos.y, m_endPos.y)};
+    if (m_frame.origin != origin)
+        m_frame.origin = origin;
+}
+
+std::optional<sf::RenderTexture>    SegmentPhysicsBody::bodyTexture = std::nullopt;
 
 }

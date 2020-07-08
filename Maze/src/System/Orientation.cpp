@@ -9,24 +9,16 @@
 
 namespace mz {
 
-const Orientation Orientation::UP("UP", sf::Vector2f(0, -1));
-const Orientation Orientation::RIGHT("RIGHT", sf::Vector2f(1, 0));
-const Orientation Orientation::DOWN("DOWN", sf::Vector2f(0, 1));
-const Orientation Orientation::LEFT("LEFT", sf::Vector2f(-1, 0));
-const Orientation Orientation::UNDEFINED("UNDEFINED", sf::Vector2f(0.f, 0.f));
+const Orientation   Orientation::UP         ("UP", sf::Vector2f(0, -1));
+const Orientation   Orientation::RIGHT      ("RIGHT", sf::Vector2f(1, 0));
+const Orientation   Orientation::DOWN       ("DOWN", sf::Vector2f(0, 1));
+const Orientation   Orientation::LEFT       ("LEFT", sf::Vector2f(-1, 0));
+const Orientation   Orientation::UNDEFINED  ("UNDEFINED", sf::Vector2f(0.f, 0.f));
 
 Orientation::Orientation(std::string const& name, sf::Vector2f vector) :
 m_name(name),
 m_direction(vector)
 {
-}
-
-std::string const& Orientation::getName() const{
-    return m_name;
-}
-
-sf::Vector2f const& Orientation::toVector() const{
-    return m_direction;
 }
 
 bool Orientation::operator==(Orientation const& orientation) const {
@@ -35,6 +27,10 @@ bool Orientation::operator==(Orientation const& orientation) const {
 
 bool Orientation::operator!=(Orientation const& orientation) const {
     return m_direction != orientation.m_direction;
+}
+
+std::string const& Orientation::getName() const{
+    return m_name;
 }
 
 Orientation const& Orientation::getOrientation(std::string const& name) {
@@ -65,6 +61,10 @@ Orientation const& Orientation::getOrientation(sf::Vector2f const& direction) {
 
 Orientation const& Orientation::getOrientation(sf::Vector2i const& direction) {
     return getOrientation(sf::Vector2f(direction.x, direction.y));
+}
+
+sf::Vector2f const& Orientation::toVector() const{
+    return m_direction;
 }
 
 }

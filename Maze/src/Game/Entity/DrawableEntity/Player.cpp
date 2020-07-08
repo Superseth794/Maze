@@ -11,7 +11,7 @@ namespace mz {
 
 Player::Player(float width, std::uint32_t categoryBitMask, PhysicsWorld* parentWorld) :
 m_width(width),
-m_bodyShape(m_width / 2.f),
+m_bodyShape(width / 2.f),
 m_texture(std::make_shared<sf::RenderTexture>()),
 m_physicsBody(width / 2.f, sf::Vector2f{width / 2.f, width / 2.f}, categoryBitMask, parentWorld)
 {
@@ -29,9 +29,26 @@ m_physicsBody(width / 2.f, sf::Vector2f{width / 2.f, width / 2.f}, categoryBitMa
     });
 }
 
+std::shared_ptr<sf::RenderTexture> Player::draw() {
+    return m_texture;
+}
+
+PhysicsBody* Player::getPhysicsBody() {
+    return &m_physicsBody;
+}
+
+void Player::orientedMove(Orientation const& orientation, bool isMoving) {
+    if (isMoving) {
+        m_directions.insert(orientation.getName());
+    } else {
+        m_directions.erase(orientation.getName());
+    }
+}
+
+
 void Player::update(sf::Time timeElapsed) {
     
-    auto previousPosition {getPosition()};
+//    auto previousPosition {getPosition()};
     
     for (auto it = m_directions.begin(); it != m_directions.end(); ++it) {
         auto delta {Orientation::getOrientation(*it).toVector()};
@@ -55,22 +72,6 @@ void Player::update(sf::Time timeElapsed) {
 //        m_physicsBody.setCenter(sf::Vector2f{getPosition().x + m_width / 2.f, getPosition().y + m_width / 2.f});
 //        m_physicsBody.updateInWorld();
 //    }
-}
-
-std::shared_ptr<sf::RenderTexture> Player::draw() {
-    return m_texture;
-}
-
-void Player::orientedMove(Orientation const& orientation, bool isMoving) {
-    if (isMoving) {
-        m_directions.insert(orientation.getName());
-    } else {
-        m_directions.erase(orientation.getName());
-    }
-}
-
-PhysicsBody* Player::getPhysicsBody() {
-    return &m_physicsBody;
 }
 
 }

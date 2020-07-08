@@ -29,99 +29,12 @@ CirclePhysicsBody::~CirclePhysicsBody() {
         getParentWorld()->removeBody(this);
 }
 
-void CirclePhysicsBody::updateFrame() {
-    sf::Vector2f boxOrigin {getCenter().x - m_radius, getCenter().y - m_radius};
-    if (boxOrigin != m_frame.origin)
-        m_frame.origin = boxOrigin;
-}
-
-bool CirclePhysicsBody::isInsideAABB(AABB const& box) const {
-    return (isPositionInsideAABB(box, getCenter()) &&
-            isPositionInsideAABB(box, sf::Vector2f{getCenter().x + m_radius, getCenter().y}) &&
-            isPositionInsideAABB(box, sf::Vector2f{getCenter().x, getCenter().y + m_radius}) &&
-            isPositionInsideAABB(box, sf::Vector2f{getCenter().x - m_radius, getCenter().y}) &&
-            isPositionInsideAABB(box, sf::Vector2f{getCenter().x, getCenter().y - m_radius}));
-}
-
-bool CirclePhysicsBody::isCollidingWithAABB(AABB const& box) const {
-    for (auto corner : {box.getTopLeftCorner(), box.getTopRightCorner(), box.getBottomRightCorner(), box.getBottomLeftCorner()}) {
-        if (isPositionInside(corner))
-            return true;
-    }
-    
-    if (isPositionInsideAABB(box, getCenter()))
-        return true;
-    
-    const sf::Vector2f border1 = box.getTopRightCorner() - box.getTopLeftCorner();
-    const sf::Vector2f segment1a = getCenter() - box.getTopLeftCorner();
-    const sf::Vector2f segment1b = getCenter() - box.getTopRightCorner();
-    const float scalar1a = border1.x * segment1a.x + border1.y * segment1a.y;
-    const float scalar1b = -border1.x * segment1b.x + -border1.y * segment1b.y;
-    
-    if (scalar1a >= 0 && scalar1b >= 0)
-        return true;
-    
-    sf::Vector2f border2 = box.getTopRightCorner() - box.getBottomRightCorner();
-    sf::Vector2f segment2a = getCenter() - box.getTopRightCorner();
-    sf::Vector2f segment2b = getCenter() - box.getBottomRightCorner();
-    float scalar2a = border2.x * segment2a.x + border2.y * segment2a.y;
-    float scalar2b = -border2.x * segment2b.x + -border2.y * segment2b.y;
-    
-    if (scalar2a >= 0 && scalar2b >= 0)
-        return true;
-    
-    return false;
-}
-
-bool CirclePhysicsBody::isPositionInside(sf::Vector2f const& position) const {
-    float distance2 = (getCenter().x - position.x) * (getCenter().x - position.x) + (getCenter().y - position.y) * (getCenter().y - position.y);
-    return distance2 <= m_radius * m_radius;
+PhysicsBody* CirclePhysicsBody::clone() const {
+    return new CirclePhysicsBody(*this);
 }
 
 std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWith(PhysicsBody* body) const {
     return body->collideWith(*this);
-}
-
-std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWith(SegmentPhysicsBody const& segment) const {
-    auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
-    
-    sf::Vector2f AB {segment.getVector()};
-    if (AB.x == 0)
-        return intersections;
-    
-    const float a = AB.y / AB.x;
-    const float b = segment.getStartPos().y - a * segment.getStartPos().x;
-    
-    const float coefA = 1 + a * a;
-    const float coefB = 2 * a * b - 2 * getCenter().x - 2 * getCenter().y * a;
-    const float coefC = getCenter().x * getCenter().x + getCenter().y * getCenter().y + b * b - 2 * getCenter().y * b - m_radius * m_radius;
-    
-    float delta = coefB * coefB - 4 * coefA * coefC;
-    
-    if (delta < 0)
-        return intersections;
-    
-    if (delta == 0) {
-        const float x = -coefB / (2 * coefA);
-        const float y = a * x + b;
-        
-        if (segment.isPositionInside(sf::Vector2f{x, y}))
-            intersections->emplace_back(x, y);
-    } else {
-        float deltaSqrt = std::sqrt(delta);
-        
-        const float x1 = (-coefB - deltaSqrt) / (2 * coefA);
-        const float x2 = (-coefB + deltaSqrt) / (2 * coefA);
-        const float y1 = a * x1 + b;    
-        const float y2 = a * x2 + b;
-        
-        if (segment.isPositionInside(sf::Vector2f{x1, y1}))
-            intersections->emplace_back(x1, y1);
-        if (segment.isPositionInside(sf::Vector2f{x2, y2}))
-            intersections->emplace_back(x2, y2);
-    }
-    
-    return intersections;
 }
 
 std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWith(CirclePhysicsBody const& circle) const {
@@ -160,8 +73,46 @@ std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWith(Rectan
     return rectangle.collideWith(*this);
 }
 
-PhysicsBody* CirclePhysicsBody::clone() const {
-    return new CirclePhysicsBody(*this);
+std::unique_ptr<std::vector<sf::Vector2f>> CirclePhysicsBody::collideWith(SegmentPhysicsBody const& segment) const {
+    auto intersections {std::make_unique<std::vector<sf::Vector2f>>()};
+    
+    sf::Vector2f AB {segment.getVector()};
+    if (AB.x == 0)
+        return intersections;
+    
+    const float a = AB.y / AB.x;
+    const float b = segment.getStartPos().y - a * segment.getStartPos().x;
+    
+    const float coefA = 1 + a * a;
+    const float coefB = 2 * a * b - 2 * getCenter().x - 2 * getCenter().y * a;
+    const float coefC = getCenter().x * getCenter().x + getCenter().y * getCenter().y + b * b - 2 * getCenter().y * b - m_radius * m_radius;
+    
+    float delta = coefB * coefB - 4 * coefA * coefC;
+    
+    if (delta < 0)
+        return intersections;
+    
+    if (delta == 0) {
+        const float x = -coefB / (2 * coefA);
+        const float y = a * x + b;
+        
+        if (segment.isPositionInside(sf::Vector2f{x, y}))
+            intersections->emplace_back(x, y);
+    } else {
+        float deltaSqrt = std::sqrt(delta);
+        
+        const float x1 = (-coefB - deltaSqrt) / (2 * coefA);
+        const float x2 = (-coefB + deltaSqrt) / (2 * coefA);
+        const float y1 = a * x1 + b;
+        const float y2 = a * x2 + b;
+        
+        if (segment.isPositionInside(sf::Vector2f{x1, y1}))
+            intersections->emplace_back(x1, y1);
+        if (segment.isPositionInside(sf::Vector2f{x2, y2}))
+            intersections->emplace_back(x2, y2);
+    }
+    
+    return intersections;
 }
 
 sf::Sprite const CirclePhysicsBody::getBodySprite(sf::Vector2f const& anchor) const {
@@ -196,6 +147,55 @@ sf::Sprite const CirclePhysicsBody::getBodySprite(sf::Vector2f const& anchor) co
     return bodySprite;
 }
 
-std::optional<sf::RenderTexture> CirclePhysicsBody::bodyTexture = std::nullopt;
+bool CirclePhysicsBody::isCollidingWithAABB(AABB const& box) const {
+    for (auto corner : {box.getTopLeftCorner(), box.getTopRightCorner(), box.getBottomRightCorner(), box.getBottomLeftCorner()}) {
+        if (isPositionInside(corner))
+            return true;
+    }
+    
+    if (isPositionInsideAABB(box, getCenter()))
+        return true;
+    
+    const sf::Vector2f border1 = box.getTopRightCorner() - box.getTopLeftCorner();
+    const sf::Vector2f segment1a = getCenter() - box.getTopLeftCorner();
+    const sf::Vector2f segment1b = getCenter() - box.getTopRightCorner();
+    const float scalar1a = border1.x * segment1a.x + border1.y * segment1a.y;
+    const float scalar1b = -border1.x * segment1b.x + -border1.y * segment1b.y;
+    
+    if (scalar1a >= 0 && scalar1b >= 0)
+        return true;
+    
+    sf::Vector2f border2 = box.getTopRightCorner() - box.getBottomRightCorner();
+    sf::Vector2f segment2a = getCenter() - box.getTopRightCorner();
+    sf::Vector2f segment2b = getCenter() - box.getBottomRightCorner();
+    float scalar2a = border2.x * segment2a.x + border2.y * segment2a.y;
+    float scalar2b = -border2.x * segment2b.x + -border2.y * segment2b.y;
+    
+    if (scalar2a >= 0 && scalar2b >= 0)
+        return true;
+    
+    return false;
+}
+
+bool CirclePhysicsBody::isInsideAABB(AABB const& box) const {
+    return (isPositionInsideAABB(box, getCenter()) &&
+            isPositionInsideAABB(box, sf::Vector2f{getCenter().x + m_radius, getCenter().y}) &&
+            isPositionInsideAABB(box, sf::Vector2f{getCenter().x, getCenter().y + m_radius}) &&
+            isPositionInsideAABB(box, sf::Vector2f{getCenter().x - m_radius, getCenter().y}) &&
+            isPositionInsideAABB(box, sf::Vector2f{getCenter().x, getCenter().y - m_radius}));
+}
+
+bool CirclePhysicsBody::isPositionInside(sf::Vector2f const& position) const {
+    float distance2 = (getCenter().x - position.x) * (getCenter().x - position.x) + (getCenter().y - position.y) * (getCenter().y - position.y);
+    return distance2 <= m_radius * m_radius;
+}
+
+void CirclePhysicsBody::updateFrame() {
+    sf::Vector2f boxOrigin {getCenter().x - m_radius, getCenter().y - m_radius};
+    if (boxOrigin != m_frame.origin)
+        m_frame.origin = boxOrigin;
+}
+
+std::optional<sf::RenderTexture>    CirclePhysicsBody::bodyTexture = std::nullopt;
 
 }

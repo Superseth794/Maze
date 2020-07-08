@@ -24,17 +24,17 @@ Tile::~Tile() {
         delete m_physicsBody;
 }
 
-void Tile::update(sf::Time timeElapsed) {
-    if (m_physicsBody)
-        m_physicsBody->setCenter({getPosition().x + m_model->m_width / 2.f, getPosition().y + m_model->m_width / 2.f});
-}
-
 std::shared_ptr<sf::RenderTexture> Tile::draw() {
     return m_model->m_texture;
 }
 
 PhysicsBody* Tile::getPhysicsBody() {
     return m_physicsBody;
+}
+
+void Tile::update(sf::Time timeElapsed) {
+    if (m_physicsBody)
+        m_physicsBody->setCenter({getPosition().x + m_model->m_width / 2.f, getPosition().y + m_model->m_width / 2.f});
 }
 
 }

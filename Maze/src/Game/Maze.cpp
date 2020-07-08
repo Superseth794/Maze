@@ -20,75 +20,48 @@ m_cameraPosition(0.f, 0.f)
 {
 }
 
-void Maze::lauch() {
-    m_window.setFramerateLimit(60);
-    m_gameClock.restart();
+void Maze::display() {
+    // Draws tiles
+    for (auto const& tile : m_tiles) {
+        auto tileTexture {tile->draw()};
+        sf::Sprite tileSprite;
+        tileSprite.setTexture(tileTexture->getTexture());
+        drawEntity(*tile, tileSprite);
+    }
+
+    // Draws player
+    auto playerTexture {m_player.draw()};
+    sf::Sprite playerSprite;
+    playerSprite.setTexture(playerTexture->getTexture());
+    drawEntity(m_player, playerSprite);
+
+    // Draw physics
+    auto physicsTexture {m_physicsWorld.getPhysicsTexture(m_width, m_height, m_cameraPosition)};
+    sf::Sprite physicsSprite;
+    physicsSprite.setTexture(physicsTexture->getTexture());
+    physicsSprite.setPosition(0.f, 0.f);
+    m_window.draw(physicsSprite);
+
     
-    init();
-    
-    while (m_window.isOpen()) {
-        
-        sf::Event event;
-        while (m_window.pollEvent(event)) {
-            
-            if (event.type == sf::Event::Closed) {
-                m_window.close();
-            } else {
-                handleEvent(event);
-            }
-            
-        }
-        
-        // update
-        update();
-        updateCamera();
-        
-        m_fps = 1.f / m_gameClock.getElapsedTime().asMilliseconds() * 1000.f; // TODO show_fps debug var
-        m_gameClock.restart();
-        
-        // Display
-        m_window.clear();
-        
-        display();
-        
-        m_window.display();
+    // Draw console
+    if (SHOW_CONSOLE) {
+        auto consoleTexture {m_console->display()};
+        sf::Sprite consoleSprite;
+        consoleSprite.setTexture(consoleTexture->getTexture());
+        consoleSprite.setPosition(0.f, 0.f);
+        m_window.draw(consoleSprite);
     }
 }
 
-void Maze::init() {
-    m_physicsWorld.init((m_mazeWidth + 2) * m_wallWidth, (m_mazeHeight + 2) * m_wallHeight);
-    
-    m_physicsWorld.setShowPhysicsBodies(true);
-    m_physicsWorld.setShowAABBs(true);
-    m_physicsWorld.setShowOBBs(false);
-    m_physicsWorld.setShowCollisions(true);
-    m_physicsWorld.setShowQuadtree(true);
-    m_physicsWorld.setShowQuadtreeEvents(true);
-    
-    generateMaze();
-    
-    m_player.move(sf::Vector2f{m_wallWidth * 1.5f, m_wallHeight * 1.5f});
-    m_player.getPhysicsBody()->addContactTestBitMask(EntitiesBitMasks::WALLS_MASK);
-    m_physicsWorld.addBody(m_player.getPhysicsBody());
-    m_physicsWorld.addBodyQuadtreeUpdateEvent(m_player.getPhysicsBody());
-//    m_physicsWorld.addBodyQuadtreeAdditionEvent(m_player.getPhysicsBody());
-    
-    auto b1 = std::make_unique<SegmentPhysicsBody>(sf::Vector2f{-400.f, -400.f}, sf::Vector2f{200.f, 200.f}, 15, &m_physicsWorld);
-    b1->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
-//    m_physicsWorld.addBody(b1.get());
-    debug_bodies.emplace_back(std::move(b1));
-    auto b2 = std::make_unique<SegmentPhysicsBody>(sf::Vector2f{200.f, 0.f}, sf::Vector2f{0.f, 200.f}, 16, &m_physicsWorld);
-    b2->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
-//    m_physicsWorld.addBody(b2.get());
-    debug_bodies.emplace_back(std::move(b2));
-    m_player.getPhysicsBody()->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
-    m_player.getPhysicsBody()->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
-    
-    if (SHOW_CONSOLE) {
-        m_console = std::make_unique<Console>();
-        m_console->init(500.f, 345.f, this, &m_physicsWorld);
-    }
+void Maze::drawEntity(DrawableEntity const& entity, sf::Sprite & entitySprite) {
+    sf::Vector2f relativePos {
+        entity.getPosition().x - m_cameraPosition.x + m_width / 2.f,
+        entity.getPosition().y - m_cameraPosition.y + m_height / 2.f
+    };
+    entitySprite.setPosition(relativePos);
+    m_window.draw(entitySprite);
 }
+
 
 void Maze::generateMaze() {
     struct Cell {
@@ -165,70 +138,6 @@ void Maze::generateMaze() {
     }
 }
 
-void Maze::update() {
-    auto timeElpased {m_gameClock.getElapsedTime()};
-    m_player.update(timeElpased);
-    m_physicsWorld.simulate();
-}
-
-void Maze::updateCamera() {
-    constexpr float marging = 0.4f;
-    sf::Vector2f margingAllowed = {
-        (1.f - marging) * m_width / 2.f,
-        (1.f - marging) * m_height / 2.f
-    };
-    
-    // Clamps camera around player
-    m_cameraPosition.x = std::clamp(m_cameraPosition.x, m_player.getPosition().x - margingAllowed.x, m_player.getPosition().x + margingAllowed.x);
-    m_cameraPosition.y = std::clamp(m_cameraPosition.y, m_player.getPosition().y - margingAllowed.y, m_player.getPosition().y + margingAllowed.y);
-    
-    // Clamps camera inside maze // DEBUG
-    m_cameraPosition.x = std::clamp(m_cameraPosition.x, m_width / 2.f, m_wallWidth * (m_mazeWidth + 2) - m_width / 2.f);
-    m_cameraPosition.y = std::clamp(m_cameraPosition.y, m_height / 2.f, m_wallHeight * (m_mazeHeight + 2) - m_height / 2.f);
-}
-
-void Maze::display() {
-    // Draws tiles
-    for (auto const& tile : m_tiles) {
-        auto tileTexture {tile->draw()};
-        sf::Sprite tileSprite;
-        tileSprite.setTexture(tileTexture->getTexture());
-        drawEntity(*tile, tileSprite);
-    }
-
-    // Draws player
-    auto playerTexture {m_player.draw()};
-    sf::Sprite playerSprite;
-    playerSprite.setTexture(playerTexture->getTexture());
-    drawEntity(m_player, playerSprite);
-
-    // Draw physics
-    auto physicsTexture {m_physicsWorld.getPhysicsTexture(m_width, m_height, m_cameraPosition)};
-    sf::Sprite physicsSprite;
-    physicsSprite.setTexture(physicsTexture->getTexture());
-    physicsSprite.setPosition(0.f, 0.f);
-    m_window.draw(physicsSprite);
-
-    
-    // Draw console
-    if (SHOW_CONSOLE) {
-        auto consoleTexture {m_console->display()};
-        sf::Sprite consoleSprite;
-        consoleSprite.setTexture(consoleTexture->getTexture());
-        consoleSprite.setPosition(0.f, 0.f);
-        m_window.draw(consoleSprite);
-    }
-}
-
-void Maze::drawEntity(DrawableEntity const& entity, sf::Sprite & entitySprite) {
-    sf::Vector2f relativePos {
-        entity.getPosition().x - m_cameraPosition.x + m_width / 2.f,
-        entity.getPosition().y - m_cameraPosition.y + m_height / 2.f
-    };
-    entitySprite.setPosition(relativePos);
-    m_window.draw(entitySprite);
-}
-
 void Maze::handleEvent(sf::Event const& event) {
     if (event.type == sf::Event::KeyPressed) {
         if (event.key.code == sf::Keyboard::Up) {
@@ -251,6 +160,98 @@ void Maze::handleEvent(sf::Event const& event) {
             m_player.orientedMove(Orientation::LEFT, false);
         }
     }
+}
+
+void Maze::init() {
+    m_physicsWorld.init((m_mazeWidth + 2) * m_wallWidth, (m_mazeHeight + 2) * m_wallHeight);
+    
+    m_physicsWorld.setShowPhysicsBodies(true);
+    m_physicsWorld.setShowAABBs(true);
+    m_physicsWorld.setShowOOBBs(false);
+    m_physicsWorld.setShowCollisions(true);
+    m_physicsWorld.setShowQuadtree(true);
+    m_physicsWorld.setShowQuadtreeEvents(true);
+    
+    generateMaze();
+    
+    m_player.move(sf::Vector2f{m_wallWidth * 1.5f, m_wallHeight * 1.5f});
+    m_player.getPhysicsBody()->addContactTestBitMask(EntitiesBitMasks::WALLS_MASK);
+    m_physicsWorld.addBody(m_player.getPhysicsBody());
+    m_physicsWorld.addBodyQuadtreeUpdateEvent(m_player.getPhysicsBody());
+//    m_physicsWorld.addBodyQuadtreeAdditionEvent(m_player.getPhysicsBody());
+    
+    auto b1 = std::make_unique<SegmentPhysicsBody>(sf::Vector2f{-400.f, -400.f}, sf::Vector2f{200.f, 200.f}, 15, &m_physicsWorld);
+    b1->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
+//    m_physicsWorld.addBody(b1.get());
+    debug_bodies.emplace_back(std::move(b1));
+    auto b2 = std::make_unique<SegmentPhysicsBody>(sf::Vector2f{200.f, 0.f}, sf::Vector2f{0.f, 200.f}, 16, &m_physicsWorld);
+    b2->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
+//    m_physicsWorld.addBody(b2.get());
+    debug_bodies.emplace_back(std::move(b2));
+    m_player.getPhysicsBody()->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
+    m_player.getPhysicsBody()->addContactTestBitMask(EntitiesBitMasks::DEBUG_MASK);
+    
+    if (SHOW_CONSOLE) {
+        m_console = std::make_unique<Console>();
+        m_console->init(500.f, 345.f, this, &m_physicsWorld);
+    }
+}
+
+void Maze::lauch() {
+    m_window.setFramerateLimit(60);
+    m_gameClock.restart();
+    
+    init();
+    
+    while (m_window.isOpen()) {
+        
+        sf::Event event;
+        while (m_window.pollEvent(event)) {
+            
+            if (event.type == sf::Event::Closed) {
+                m_window.close();
+            } else {
+                handleEvent(event);
+            }
+            
+        }
+        
+        // update
+        update();
+        updateCamera();
+        
+        m_fps = 1.f / m_gameClock.getElapsedTime().asMilliseconds() * 1000.f; // TODO show_fps debug var
+        m_gameClock.restart();
+        
+        // Display
+        m_window.clear();
+        
+        display();
+        
+        m_window.display();
+    }
+}
+
+void Maze::update() {
+    auto timeElpased {m_gameClock.getElapsedTime()};
+    m_player.update(timeElpased);
+    m_physicsWorld.simulate();
+}
+
+void Maze::updateCamera() {
+    constexpr float marging = 0.4f;
+    sf::Vector2f margingAllowed = {
+        (1.f - marging) * m_width / 2.f,
+        (1.f - marging) * m_height / 2.f
+    };
+    
+    // Clamps camera around player
+    m_cameraPosition.x = std::clamp(m_cameraPosition.x, m_player.getPosition().x - margingAllowed.x, m_player.getPosition().x + margingAllowed.x);
+    m_cameraPosition.y = std::clamp(m_cameraPosition.y, m_player.getPosition().y - margingAllowed.y, m_player.getPosition().y + margingAllowed.y);
+    
+    // Clamps camera inside maze // DEBUG
+    m_cameraPosition.x = std::clamp(m_cameraPosition.x, m_width / 2.f, m_wallWidth * (m_mazeWidth + 2) - m_width / 2.f);
+    m_cameraPosition.y = std::clamp(m_cameraPosition.y, m_height / 2.f, m_wallHeight * (m_mazeHeight + 2) - m_height / 2.f);
 }
 
 }

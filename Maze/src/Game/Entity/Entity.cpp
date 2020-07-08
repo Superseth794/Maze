@@ -24,17 +24,17 @@ void Entity::move(sf::Vector2f direction) {
     m_y += direction.y;
 }
 
+void Entity::moveTo(sf::Vector2f const& position) {
+    m_x = position.x;
+    m_y = position.y;
+}
+
 void Entity::moveX(float dx) {
     m_x += dx;
 }
 
 void Entity::moveY(float dy) {
     m_y += dy;
-}
-
-void Entity::moveTo(sf::Vector2f const& position) {
-    m_x = position.x;
-    m_y = position.y;
 }
 
 }
