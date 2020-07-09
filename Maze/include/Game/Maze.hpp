@@ -10,25 +10,23 @@
 #ifndef Maze_hpp
 # define Maze_hpp
 
-# include <iostream>
-# include <cmath>
 # include <algorithm>
-# include <vector>
 # include <array>
+# include <cmath>
+# include <iostream>
 # include <memory>
 # include <stack>
 # include <stdlib.h>
+# include <vector>
 
 # include <SFML/Graphics.hpp>
 
+# include "EntitiesBitMasks.hpp"
 # include "Entity/DrawableEntity/Player.hpp"
 # include "Entity/DrawableEntity/Tile/Tile.hpp"
-# include "EntitiesBitMasks.hpp"
-
+# include "../Core/Console.hpp"
 # include "../Physics/PhysicsWorld.hpp"
 # include "../Physics/RectanglePhysicsBody.hpp"
-
-# include "../Core/Console.hpp"
 
 namespace mz {
 

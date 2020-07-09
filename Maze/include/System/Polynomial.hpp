@@ -8,16 +8,15 @@
 #ifndef Polynomial_h
 # define Polynomial_h
 
-# include <cmath>
 # include <array>
-# include <initializer_list>
-# include <string>
-# include <sstream>
-# include <iomanip>
-# include <optional>
+# include <cmath>
 # include <complex>
-
+# include <initializer_list>
+# include <iomanip>
 # include <iostream>
+# include <optional>
+# include <sstream>
+# include <string>
 
 # include "ExtraMaths.hpp"
 

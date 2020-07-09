@@ -8,10 +8,10 @@
 #ifndef Collisions_h
 # define Collisions_h
 
-# include <vector>
 # include <array>
-# include <memory>
 # include <cmath>
+# include <memory>
+# include <vector>
 
 # include <SFML/Graphics.hpp>
 

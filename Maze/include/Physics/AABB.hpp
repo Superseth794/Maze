@@ -6,7 +6,7 @@
 //
 
 #ifndef AABB_hpp
-#define AABB_hpp
+# define AABB_hpp
 
 # include <SFML/Graphics.hpp>
 

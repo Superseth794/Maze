@@ -8,22 +8,22 @@
 #ifndef PhysicsWorld_hpp
 # define PhysicsWorld_hpp
 
-# include <iostream>
-# include <cmath>
 # include <array>
-# include <vector>
-# include <tuple>
+# include <cmath>
+# include <functional>
+# include <iostream>
+# include <optional>
 # include <queue>
 # include <stack>
+# include <tuple>
 # include <utility>
-# include <functional>
-# include <optional>
+# include <vector>
 
 # include <SFML/Graphics.hpp>
 
 # include "AABB.hpp"
-# include "PhysicsBody.hpp"
 # include "Collisions.hpp"
+# include "PhysicsBody.hpp"
 
 namespace mz {
 

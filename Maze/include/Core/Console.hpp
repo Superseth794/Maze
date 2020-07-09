@@ -10,10 +10,10 @@
 #ifndef DebugInfosWindow_hpp
 # define DebugInfosWindow_hpp
 
-# include <iostream>
-# include <sstream>
-# include <memory>
 # include <cmath>
+# include <iostream>
+# include <memory>
+# include <sstream>
 
 # include <SFML/Graphics.hpp>
 

@@ -9,13 +9,13 @@
 #define Player_hpp
 
 # include <cmath>
-# include <unordered_set>
 # include <iostream>
+# include <unordered_set>
 
-# include "../../../System/Orientation.hpp"
 # include "DrawableEntity.hpp"
-# include "../../../Physics/PhysicsWorld.hpp"
 # include "../../../Physics/CirclePhysicsBody.hpp"
+# include "../../../Physics/PhysicsWorld.hpp"
+# include "../../../System/Orientation.hpp"
 
 namespace mz {
 

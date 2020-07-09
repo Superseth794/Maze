@@ -8,14 +8,14 @@
 #ifndef PhysicsBody_hpp
 # define PhysicsBody_hpp
 
-# include <cmath>
 # include <algorithm>
+# include <cmath>
 # include <optional>
 
 # include <SFML/Graphics.hpp>
 
-# include "PhysicsWorld.hpp"
 # include "AABB.hpp"
+# include "PhysicsWorld.hpp"
 
 namespace mz {
 

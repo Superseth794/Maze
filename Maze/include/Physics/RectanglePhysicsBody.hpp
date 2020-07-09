@@ -11,10 +11,10 @@
 # include <array>
 # include <optional>
 
-# include "PhysicsBody.hpp"
-# include "CirclePhysicsBody.hpp"
-# include "SegmentPhysicsBody.hpp"
 # include "AABB.hpp"
+# include "CirclePhysicsBody.hpp"
+# include "PhysicsBody.hpp"
+# include "SegmentPhysicsBody.hpp"
 # include "../System/ExtraMaths.hpp"
 
 namespace mz {
