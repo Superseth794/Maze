@@ -1,5 +1,5 @@
 //
-//  InputsExt.hpp
+//  KeysExt.hpp
 //  Maze
 //
 //  Created by Jaraxus on 07/07/2020.

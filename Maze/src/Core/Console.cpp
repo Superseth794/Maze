@@ -1,5 +1,5 @@
 //
-//  DebugInfosWindow.cpp
+//  Console.cpp
 //  Maze
 //
 //  Created by Jaraxus on 28/02/2020.

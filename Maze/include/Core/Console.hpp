@@ -1,5 +1,5 @@
 //
-//  DebugInfosWindow.hpp
+//  Console.hpp
 //  Maze
 //
 //  Created by Jaraxus on 28/02/2020.
