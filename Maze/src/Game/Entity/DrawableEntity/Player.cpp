@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 06/02/2020.
 //
 
-#include "Player.hpp"
+#include "../../../../include/Game/Entity/DrawableEntity/Player.hpp"
 
 namespace mz {
 

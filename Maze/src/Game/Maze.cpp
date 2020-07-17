@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 06/02/2020.
 //
 
-#include "Maze.hpp"
+#include "../../include/Game/Maze.hpp"
 
 namespace mz {
 
