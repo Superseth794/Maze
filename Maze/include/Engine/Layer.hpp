@@ -17,8 +17,10 @@ namespace mz {
 class Layer {
 public:
     Layer() noexcept = default;
-    Layer(Layer const& layer) = delete;
-    Layer(Layer && layer) = default;
+    Layer(Layer const& layer) noexcept = delete;
+    Layer(Layer && layer) noexcept = default;
+    
+    Layer& operator=(Layer && layer) noexcept = default;
     
     virtual ~Layer() = default;
     

@@ -28,7 +28,7 @@ void Maze::display() {
         tileSprite.setTexture(tileTexture->getTexture());
         drawEntity(*tile, tileSprite);
     }
-
+    
     // Draws player
     auto playerTexture {m_player.draw()};
     sf::Sprite playerSprite;
@@ -41,7 +41,6 @@ void Maze::display() {
     physicsSprite.setTexture(physicsTexture->getTexture());
     physicsSprite.setPosition(0.f, 0.f);
     m_window.draw(physicsSprite);
-
     
     // Draw console
     if (s_show_console) {

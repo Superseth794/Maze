@@ -25,6 +25,7 @@
 # include "Entity/DrawableEntity/Player.hpp"
 # include "Entity/DrawableEntity/Tile/Tile.hpp"
 # include "../Core/Console.hpp"
+# include "../Engine/GameScene.hpp"
 # include "../Physics/PhysicsWorld.hpp"
 # include "../Physics/RectanglePhysicsBody.hpp"
 
