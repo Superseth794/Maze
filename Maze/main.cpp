@@ -11,12 +11,13 @@
 #define RUN_UNIT_TESTS
 //#define VISUAL_TESTS
 
+#include "include/Core/Logs.hpp"
+
+mz::Logs mz::Logs::Global(std::cerr, true);
+
 #if !defined(RUN_UNIT_TESTS)
 
 #   include "include/Game/Maze.hpp"
-#   include "include/Core/Logs.hpp"
-
-mz::Logs mz::Logs::Global(std::cerr, true);
 
 int main(int argc, const char * argv[]) {
     
@@ -35,9 +36,6 @@ int main(int argc, const char * argv[]) {
 #elif !defined(VISUAL_TESTS)
 
 #   include "tests/UnitTests/UnitTestsSession.hpp"
-#   include "include/Core/Logs.hpp"
-
-mz::Logs mz::Logs::Global(std::cerr, true);
 
 int main(int argc, const char * argv[]) {
     UnitTestsSession session {"Unit tests session"};
@@ -47,9 +45,6 @@ int main(int argc, const char * argv[]) {
 #else
 
 #   include "tests/VisualTests/VisualTestsSession.hpp"
-#   include "include/Core/Logs.hpp"
-
-mz::Logs mz::Logs::Global(std::cerr, true);
 
 int main(int argc, const char * argv[]) {
     srand(static_cast<unsigned int>(time(nullptr)));
