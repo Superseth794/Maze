@@ -12,5 +12,8 @@ Build/*.make
 build/bin/*
 build/Obj/*
 
+# ignores doc files
+doc/*
+
 # ignores platform-dependent files
 premake5
