@@ -14,7 +14,7 @@
 # include "PhysicsBody.hpp"
 # include "RectanglePhysicsBody.hpp"
 # include "SegmentPhysicsBody.hpp"
-# include "../System/ExtraMaths.hpp"
+# include "../System/MathsExtr.hpp"
 
 namespace mz {
 

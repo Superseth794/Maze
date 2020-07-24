@@ -17,7 +17,7 @@
 # include <sstream>
 # include <string>
 
-# include "ExtraMaths.hpp"
+# include "MathsExtr.hpp"
 # include "TraitsExtr.hpp"
 
 namespace mz {

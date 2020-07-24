@@ -1,12 +1,12 @@
 //
-//  ExtraMaths.hpp
+//  MathsExtr.hpp
 //  Maze
 //
 //  Created by Jaraxus on 13/02/2020.
 //
 
-#ifndef ExtraMaths_hpp
-# define ExtraMaths_hpp
+#ifndef MathsExtr_hpp
+# define MathsExtr_hpp
 
 # include <cmath>
 
@@ -124,4 +124,4 @@ template<typename T> constexpr sf::Vector2<T> normalizeVector(sf::Vector2<T> con
 
 }
 
-#endif /* ExtraMaths_hpp */
+#endif /* MathsExtr_hpp */
