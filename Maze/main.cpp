@@ -15,6 +15,10 @@
 
 # include "include/Game/Maze.hpp"
 
+# include "include/Core/Logs.hpp"
+
+mz::Logs mz::Logs::Global(std::cerr, true);
+
 int main(int argc, const char * argv[]) {
     
     srand(static_cast<unsigned int>(time(nullptr)));
@@ -33,6 +37,10 @@ int main(int argc, const char * argv[]) {
 
 # include "tests/UnitTests/UnitTestsSession.hpp"
 
+# include "include/Core/Logs.hpp"
+
+mz::Logs mz::Logs::Global(std::cerr, true);
+
 int main(int argc, const char * argv[]) {
     UnitTestsSession session {"Unit tests session"};
     return session.run();
@@ -40,7 +48,11 @@ int main(int argc, const char * argv[]) {
 
 #else
 
-# include "Tests/VisualTests/VisualTestsSession.hpp"
+# include "tests/VisualTests/VisualTestsSession.hpp"
+
+# include "include/Core/Logs.hpp"
+
+mz::Logs mz::Logs::Global(std::cerr, true);
 
 int main(int argc, const char * argv[]) {
     srand(static_cast<unsigned int>(time(nullptr)));
