@@ -120,10 +120,6 @@ public:
     */
     void display(std::string const& text, LogMessageType type, bool displayLogMessageType, bool displayTime, std::string && fileLocation = "", bool displayAbsolutePath = false, std::string && logColor = "");
     
-public:
-    // TODO: Refactoring - bring closer attributes members
-    static Logs     Global;                 //> Default global Logs object that can be accessed from anywhere. The object is not default-initialized and must be initialized outside of this class
-    
 private:
 #if defined(MAZE_PLATFORM_WINDOWS)
     /**
@@ -140,6 +136,9 @@ private:
     */
     void changeOutputColorPosix(LogMessageType type, std::string && logColor = "");
 #endif
+    
+public:
+    static Logs     Global;                 //> Default global Logs object that can be accessed from anywhere. The object is not default-initialized and must be initialized outside of this class
     
 private:
     const bool      m_allowColorizedOutput; //> Defines if the messages in the output stream should be colorized

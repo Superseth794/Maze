@@ -14,15 +14,6 @@ namespace mz {
 
 class Orientation {
 public:
-    
-    static const Orientation    UP;
-    static const Orientation    RIGHT;
-    static const Orientation    DOWN;
-    static const Orientation    LEFT;
-    static const Orientation    UNDEFINED;
-    
-public:
-    
     bool operator==(Orientation const& orientation) const;
     bool operator!=(Orientation const& orientation) const;
     
@@ -40,6 +31,13 @@ public:
     
 private:
     Orientation(std::string const& name, sf::Vector2f vector);
+    
+public:
+    static const Orientation    UP;
+    static const Orientation    RIGHT;
+    static const Orientation    DOWN;
+    static const Orientation    LEFT;
+    static const Orientation    UNDEFINED;
     
 private:
     std::string                 m_name;
