@@ -110,12 +110,7 @@ template<typename T> constexpr T getVectorLength2(sf::Vector2<T> const& vect) {
     return (vect.x * vect.x + vect.y * vect.y);
 }
 
-template<typename T> constexpr bool nearlyEquals(T a, T b) { // TODO: merge with below func
-    T diff = std::abs(b - a);
-    return (diff <= std::numeric_limits<T>::epsilon());
-}
-
-template<typename T> constexpr bool nearlyEquals(T a, T b, T maxDiff) {
+template<typename T> constexpr bool nearlyEquals(T a, T b, T maxDiff = std::numeric_limits<T>::epsilon()) {
     T diff = std::abs(b - a);
     return (diff <= maxDiff);
 }

@@ -21,7 +21,7 @@ public:
     
     sf::Vector2f const& toVector() const;
     
-    // turn clockwise / counterclockwise
+    // TODO: turn clockwise / counterclockwise
     
     static Orientation const& getOrientation(std::string const& name);
     
