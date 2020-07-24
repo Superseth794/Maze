@@ -6,19 +6,19 @@
 //
 
 #ifndef Polynomial_h
-# define Polynomial_h
+#define Polynomial_h
 
-# include <array>
-# include <cmath>
-# include <initializer_list>
-# include <iomanip>
-# include <iostream>
-# include <optional>
-# include <sstream>
-# include <string>
+#include <array>
+#include <cmath>
+#include <initializer_list>
+#include <iomanip>
+#include <iostream>
+#include <optional>
+#include <sstream>
+#include <string>
 
-# include "MathsExtr.hpp"
-# include "TraitsExtr.hpp"
+#include "MathsExtr.hpp"
+#include "TraitsExtr.hpp"
 
 namespace mz {
 

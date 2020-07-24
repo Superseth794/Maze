@@ -6,9 +6,9 @@
 //
 
 #ifndef Orientation_h
-# define Orientation_h
+#define Orientation_h
 
-# include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 namespace mz {
 

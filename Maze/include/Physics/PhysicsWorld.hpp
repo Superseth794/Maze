@@ -6,25 +6,25 @@
 //
 
 #ifndef PhysicsWorld_hpp
-# define PhysicsWorld_hpp
+#define PhysicsWorld_hpp
 
-# include <array>
-# include <cmath>
-# include <functional>
-# include <iostream>
-# include <optional>
-# include <queue>
-# include <stack>
-# include <tuple>
-# include <utility>
-# include <vector>
+#include <array>
+#include <cmath>
+#include <functional>
+#include <iostream>
+#include <optional>
+#include <queue>
+#include <stack>
+#include <tuple>
+#include <utility>
+#include <vector>
 
-# include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
-# include "AABB.hpp"
-# include "Collisions.hpp"
-# include "PhysicsBody.hpp"
-# include "Collisions.hpp"
+#include "AABB.hpp"
+#include "Collisions.hpp"
+#include "PhysicsBody.hpp"
+#include "Collisions.hpp"
 
 namespace mz {
 

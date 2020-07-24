@@ -6,7 +6,7 @@
 //
 
 #ifndef Config_h
-#define Config_h // TODO: update indentation
+#define Config_h
 
 #define MAZE_MAJOR_VERSION 0
 #define MAZE_MINOR_VERSION 1

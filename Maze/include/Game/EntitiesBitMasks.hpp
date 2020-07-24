@@ -6,7 +6,7 @@
 //
 
 #ifndef EntitiesBitMasks_h
-# define EntitiesBitMasks_h
+#define EntitiesBitMasks_h
 
 enum EntitiesBitMasks {
     PLAYER_MASK = 0b1,

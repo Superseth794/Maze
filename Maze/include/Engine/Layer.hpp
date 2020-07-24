@@ -6,11 +6,11 @@
 //
 
 #ifndef Layer_hpp
-# define Layer_hpp
+#define Layer_hpp
 
-# include <vector>
+#include <vector>
 
-# include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 namespace mz {
 

@@ -6,16 +6,16 @@
 //
 
 #ifndef Collisions_h
-# define Collisions_h
+#define Collisions_h
 
-# include <array>
-# include <cmath>
-# include <memory>
-# include <vector>
+#include <array>
+#include <cmath>
+#include <memory>
+#include <vector>
 
-# include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
-# include "../System/MathsExtr.hpp"
+#include "../System/MathsExtr.hpp"
 
 namespace mz {
 

@@ -13,9 +13,8 @@
 
 #if !defined(RUN_UNIT_TESTS)
 
-# include "include/Game/Maze.hpp"
-
-# include "include/Core/Logs.hpp"
+#   include "include/Game/Maze.hpp"
+#   include "include/Core/Logs.hpp"
 
 mz::Logs mz::Logs::Global(std::cerr, true);
 
@@ -35,9 +34,8 @@ int main(int argc, const char * argv[]) {
 
 #elif !defined(VISUAL_TESTS)
 
-# include "tests/UnitTests/UnitTestsSession.hpp"
-
-# include "include/Core/Logs.hpp"
+#   include "tests/UnitTests/UnitTestsSession.hpp"
+#   include "include/Core/Logs.hpp"
 
 mz::Logs mz::Logs::Global(std::cerr, true);
 
@@ -48,9 +46,8 @@ int main(int argc, const char * argv[]) {
 
 #else
 
-# include "tests/VisualTests/VisualTestsSession.hpp"
-
-# include "include/Core/Logs.hpp"
+#   include "tests/VisualTests/VisualTestsSession.hpp"
+#   include "include/Core/Logs.hpp"
 
 mz::Logs mz::Logs::Global(std::cerr, true);
 

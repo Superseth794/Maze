@@ -6,13 +6,13 @@
 //
 
 #ifndef Tile_hpp
-# define Tile_hpp
+#define Tile_hpp
 
-# include <memory>
+#include <memory>
 
-# include "TileModel.hpp"
-# include "../DrawableEntity.hpp"
-# include "../../../../Physics/PhysicsBody.hpp"
+#include "TileModel.hpp"
+#include "../DrawableEntity.hpp"
+#include "../../../../Physics/PhysicsBody.hpp"
 
 namespace mz {
 

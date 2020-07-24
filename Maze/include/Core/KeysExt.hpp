@@ -6,12 +6,12 @@
 //
 
 #ifndef InputsExt_h
-# define InputsExt_h
+#define InputsExt_h
 
-# include <string>
-# include <unordered_map>
+#include <string>
+#include <unordered_map>
 
-# include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 class KeysExt {
 public:

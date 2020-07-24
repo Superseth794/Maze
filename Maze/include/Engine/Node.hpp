@@ -8,12 +8,12 @@
 #ifndef Node_hpp
 #define Node_hpp
 
-# include <memory>
-# include <utility>
+#include <memory>
+#include <utility>
 
-# include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
-# include "Layer.hpp"
+#include "Layer.hpp"
 
 namespace mz {
 

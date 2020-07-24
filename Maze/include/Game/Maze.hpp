@@ -8,26 +8,26 @@
 #pragma once
 
 #ifndef Maze_hpp
-# define Maze_hpp
+#define Maze_hpp
 
-# include <algorithm>
-# include <array>
-# include <cmath>
-# include <iostream>
-# include <memory>
-# include <stack>
-# include <stdlib.h>
-# include <vector>
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <iostream>
+#include <memory>
+#include <stack>
+#include <stdlib.h>
+#include <vector>
 
-# include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
-# include "EntitiesBitMasks.hpp"
-# include "Entity/DrawableEntity/Player.hpp"
-# include "Entity/DrawableEntity/Tile/Tile.hpp"
-# include "../Core/Console.hpp"
-# include "../Engine/GameScene.hpp"
-# include "../Physics/PhysicsWorld.hpp"
-# include "../Physics/RectanglePhysicsBody.hpp"
+#include "EntitiesBitMasks.hpp"
+#include "Entity/DrawableEntity/Player.hpp"
+#include "Entity/DrawableEntity/Tile/Tile.hpp"
+#include "../Core/Console.hpp"
+#include "../Engine/GameScene.hpp"
+#include "../Physics/PhysicsWorld.hpp"
+#include "../Physics/RectanglePhysicsBody.hpp"
 
 namespace mz {
 

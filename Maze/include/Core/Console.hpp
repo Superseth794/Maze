@@ -8,16 +8,16 @@
 #pragma once
 
 #ifndef DebugInfosWindow_hpp
-# define DebugInfosWindow_hpp
+#define DebugInfosWindow_hpp
 
-# include <cmath>
-# include <iostream>
-# include <memory>
-# include <sstream>
+#include <cmath>
+#include <iostream>
+#include <memory>
+#include <sstream>
 
-# include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
-# include "../Game/Maze.hpp"
+#include "../Game/Maze.hpp"
 
 namespace mz {
 

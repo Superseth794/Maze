@@ -6,14 +6,14 @@
 //
 
 #ifndef GameScene_hpp
-# define GameScene_hpp
+#define GameScene_hpp
 
-# include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
-# include "Layer.hpp"
-# include "Node.hpp"
-# include "../Physics/PhysicsWorld.hpp"
-# include "../../Config.hpp"
+#include "Layer.hpp"
+#include "Node.hpp"
+#include "../Physics/PhysicsWorld.hpp"
+#include "../../Config.hpp"
 
 namespace mz {
 

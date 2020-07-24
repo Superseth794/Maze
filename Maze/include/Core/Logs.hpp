@@ -38,7 +38,7 @@
 
 #endif
 
-# define MAZE_LOGS_GET_FILE_LOCATION std::string{__FILE__} + std::string{":"} + std::to_string(__LINE__)
+#define MAZE_LOGS_GET_FILE_LOCATION std::string{__FILE__} + std::string{":"} + std::to_string(__LINE__)
 
 namespace mz {
 

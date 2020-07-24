@@ -8,14 +8,14 @@
 #ifndef Player_hpp
 #define Player_hpp
 
-# include <cmath>
-# include <iostream>
-# include <unordered_set>
+#include <cmath>
+#include <iostream>
+#include <unordered_set>
 
-# include "DrawableEntity.hpp"
-# include "../../../Physics/CirclePhysicsBody.hpp"
-# include "../../../Physics/PhysicsWorld.hpp"
-# include "../../../Core/Orientation.hpp"
+#include "DrawableEntity.hpp"
+#include "../../../Physics/CirclePhysicsBody.hpp"
+#include "../../../Physics/PhysicsWorld.hpp"
+#include "../../../Core/Orientation.hpp"
 
 namespace mz {
 

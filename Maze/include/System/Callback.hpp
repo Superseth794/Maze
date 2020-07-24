@@ -6,15 +6,15 @@
 //
 
 #ifndef Callback_h
-# define Callback_h
+#define Callback_h
 
-# include <functional>
-# include <iostream>
-# include <memory>
-# include <optional>
-# include <tuple>
+#include <functional>
+#include <iostream>
+#include <memory>
+#include <optional>
+#include <tuple>
 
-# include "TraitsExtr.hpp"
+#include "TraitsExtr.hpp"
 
 namespace mz {
 

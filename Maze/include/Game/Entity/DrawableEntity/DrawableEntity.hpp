@@ -6,13 +6,13 @@
 //
 
 #ifndef DrawableEntity_hpp
-# define DrawableEntity_hpp
+#define DrawableEntity_hpp
 
-# include <memory>
+#include <memory>
 
-# include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
-# include "../Entity.hpp"
+#include "../Entity.hpp"
 
 namespace mz {
 

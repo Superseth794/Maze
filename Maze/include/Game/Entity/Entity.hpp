@@ -8,10 +8,10 @@
 #ifndef Entity_hpp
 #define Entity_hpp
 
-# include <cmath>
-# include <iostream>
+#include <cmath>
+#include <iostream>
 
-# include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 namespace mz {
 

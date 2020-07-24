@@ -6,15 +6,15 @@
 //
 
 #ifndef CirclePhysicsBody_hpp
-# define CirclePhysicsBody_hpp
+#define CirclePhysicsBody_hpp
 
-# include <optional>
+#include <optional>
 
-# include "AABB.hpp"
-# include "PhysicsBody.hpp"
-# include "RectanglePhysicsBody.hpp"
-# include "SegmentPhysicsBody.hpp"
-# include "../System/MathsExtr.hpp"
+#include "AABB.hpp"
+#include "PhysicsBody.hpp"
+#include "RectanglePhysicsBody.hpp"
+#include "SegmentPhysicsBody.hpp"
+#include "../System/MathsExtr.hpp"
 
 namespace mz {
 
