@@ -14,31 +14,9 @@
 # include <optional>
 # include <tuple>
 
+# include "TraitsExtr.hpp"
+
 namespace mz {
-
-template <class T>
-struct function_trait : public function_trait<decltype(&std::decay_t<T>::operator())> {};
-
-template <class ReturnType, typename ...Args>
-struct function_trait<ReturnType(Args...)> {
-    using return_type           = ReturnType;
-    using function_type         = std::function<ReturnType(Args...)>;
-    using args_container_type   = std::tuple<Args...>;
-};
-
-template <class Object, class ReturnType, typename ...Args>
-struct function_trait<ReturnType(Object::*)(Args...)> {
-    using return_type           = ReturnType;
-    using function_type         = std::function<ReturnType(Args...)>;
-    using args_container_type   = std::tuple<Args...>;
-};
-
-template <class Object, class ReturnType, typename ...Args>
-struct function_trait<ReturnType(Object::*)(Args...) const> {
-    using return_type           = ReturnType;
-    using function_type         = std::function<ReturnType(Args...)>;
-    using args_container_type   = std::tuple<Args...>;
-};
 
 template <class F>
 class Callback {
