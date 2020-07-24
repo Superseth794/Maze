@@ -16,7 +16,7 @@ void mz::Logs::display(std::string const& text, LogMessageType type, std::string
     display(text, type, true, true, std::forward<std::string>(fileLocation), false, std::forward<std::string>(logColor));
 }
 
-void mz::Logs::display(std::string const& text, LogMessageType type, bool displayLogMessageType, bool displayTime, std::string && fileLocation, bool displayAbsolutePath, std::string && LogColor) {
+void mz::Logs::display(std::string const& text, LogMessageType type, bool displayLogMessageType, bool displayTime, std::string && fileLocation, bool displayAbsolutePath, std::string && logColor) {
     std::lock_guard<std::mutex> lock(m_mutex);
     
     if (displayTime) {
@@ -31,9 +31,9 @@ void mz::Logs::display(std::string const& text, LogMessageType type, bool displa
     
     if (m_allowColorizedOutput) {
 #if defined(MAZE_PLATFORM_WINDOWS)
-        changeOutputColorWindows(type, std::forward<std::string>(LogColor));
+        changeOutputColorWindows(type, std::forward<std::string>(logColor));
 #elif defined(MAZE_PLATFORM_LINUX) || defined(MAZE_PLATFORM_APPLE)
-        changeOutputColorPosix(type, std::forward<std::string>(LogColor));
+        changeOutputColorPosix(type, std::forward<std::string>(logColor));
 #endif
     }
     
@@ -68,13 +68,13 @@ void mz::Logs::display(std::string const& text, LogMessageType type, bool displa
 
 #if defined(MAZE_PLATFORM_WINDOWS)
 
-void mz::Logs::changeOutputColorWindows(LogMessageType type, std::string &&LogColor) {
+void mz::Logs::changeOutputColorWindows(LogMessageType type, std::string && logColor) {
     
 }
 
 #elif defined(MAZE_PLATFORM_LINUX) || defined(MAZE_PLATFORM_APPLE)
 
-void mz::Logs::changeOutputColorPosix(LogMessageType type, std::string && LogColor) {
+void mz::Logs::changeOutputColorPosix(LogMessageType type, std::string && logColor) {
     switch (type) {
         case ERROR:
             m_outputStream << MAZE_LOG_COLOR_RED;
@@ -89,8 +89,8 @@ void mz::Logs::changeOutputColorPosix(LogMessageType type, std::string && LogCol
             m_outputStream << MAZE_LOG_COLOR_DEFAULT;
             break;
         case CUSTOM:
-            if (LogColor != "")
-                m_outputStream << LogColor;
+            if (logColor != "")
+                m_outputStream << logColor;
             else
                 m_outputStream << MAZE_LOG_COLOR_DEFAULT;
             break;
