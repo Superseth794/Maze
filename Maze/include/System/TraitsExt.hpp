@@ -5,8 +5,8 @@
 //  Created by Jaraxus on 24/07/2020.
 //
 
-#ifndef TraitsExtr_hpp
-#define TraitsExtr_hpp
+#ifndef TraitsExt_hpp
+#define TraitsExt_hpp
 
 #include <functional>
 #include <complex>
@@ -78,4 +78,4 @@ inline constexpr bool is_complexe_convertible_v = is_complexe_convertible<T>::va
 
 }
 
-#endif /* TraitsExtr_hpp */
+#endif /* TraitsExt_hpp */

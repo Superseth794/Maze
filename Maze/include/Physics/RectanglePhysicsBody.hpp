@@ -15,7 +15,7 @@
 #include "CirclePhysicsBody.hpp"
 #include "PhysicsBody.hpp"
 #include "SegmentPhysicsBody.hpp"
-#include "../System/MathsExtr.hpp"
+#include "../System/MathsExt.hpp"
 
 namespace mz {
 

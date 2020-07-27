@@ -1,5 +1,5 @@
 //
-//  MathsExtr.inl
+//  MathsExt.inl
 //  Maze
 //
 //  Created by Jaraxus on 27/07/2020.

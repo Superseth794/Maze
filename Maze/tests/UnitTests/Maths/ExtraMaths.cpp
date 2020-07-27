@@ -7,7 +7,7 @@
 
 # include "../../../external/Catch/Catch.hpp"
 
-# include "../../../include/System/MathsExtr.hpp"
+# include "../../../include/System/MathsExt.hpp"
 
 TEST_CASE("nearlyEquals", "[Math, Algorithm]")
 {

@@ -17,8 +17,8 @@
 #include <sstream>
 #include <string>
 
-#include "MathsExtr.hpp"
-#include "TraitsExtr.hpp"
+#include "MathsExt.hpp"
+#include "TraitsExt.hpp"
 
 namespace mz {
 

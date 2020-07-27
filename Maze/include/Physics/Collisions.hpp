@@ -15,7 +15,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "../System/MathsExtr.hpp"
+#include "../System/MathsExt.hpp"
 
 namespace mz {
 

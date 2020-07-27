@@ -1,12 +1,12 @@
 //
-//  MathsExtr.hpp
+//  MathsExt.hpp
 //  Maze
 //
 //  Created by Jaraxus on 13/02/2020.
 //
 
-#ifndef MathsExtr_hpp
-#define MathsExtr_hpp
+#ifndef MathsExt_hpp
+#define MathsExt_hpp
 
 #include <cmath>
 
@@ -106,6 +106,6 @@ template<typename T> constexpr sf::Vector2<T> normalizeVector(sf::Vector2<T> con
 
 }
 
-#include "MathsExtr.inl"
+#include "MathsExt.inl"
 
-#endif /* MathsExtr_hpp */
+#endif /* MathsExt_hpp */
