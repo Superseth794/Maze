@@ -27,84 +27,58 @@ class Callback {
     
 public:
     
-    Callback(F const& callback) noexcept : m_callback(callback) {}
+    Callback(F const& callback) noexcept;
     
-    Callback(F && callback) noexcept : m_callback(std::forward<F>(callback)) {}
+    Callback(F && callback) noexcept;
     
-    Callback(std::function<F> const& callback) : m_callback(static_cast<Function_type>(callback)) {}
+    Callback(std::function<F> const& callback) noexcept;
     
-    Callback(std::function<F> && callback) : m_callback(static_cast<Function_type>(std::forward<std::function<F>>(callback))) {}
-    
-    template <class Object>
-    Callback(F const& callback, Object && object) noexcept : m_callback(std::bind(callback, object)) {}
+    Callback(std::function<F> && callback) noexcept;
     
     template <class Object>
-    Callback(F && callback, Object && object) noexcept : m_callback(std::bind(callback, object)) {}
+    Callback(F const& callback, Object && object) noexcept;
     
     template <class Object>
-    Callback(std::function<F> const& callback, Object && object) : m_callback(std::bind(static_cast<Function_type>(callback), object)) {}
+    Callback(F && callback, Object && object) noexcept;
     
     template <class Object>
-    Callback(std::function<F> && callback, Object && object) : m_callback(std::bind(static_cast<Function_type>(std::forward(callback))), object) {}
+    Callback(std::function<F> const& callback, Object && object) noexcept;
+    
+    template <class Object>
+    Callback(std::function<F> && callback, Object && object) noexcept;
     
     Callback operator=(F && callback) = delete;
     
     Callback operator=(F const& callback) = delete;
     
     template <typename ...Args>
-    Return_type operator()(Args && ...args) const {
-        return m_callback(std::forward<Args...>(args)...);
-    }
+    Return_type operator()(Args && ...args) const;
     
-    Return_type delayedCall() {
-        if (!m_argsSetup)
-            throw std::runtime_error("error: delayed callback called without arguments initialized");
-        if (!m_sustainableArgs)
-            m_argsSetup = false;
-        return std::apply(m_callback, m_callbackArgs);
-    }
+    Return_type delayedCall();
     
-    Return_type delayedCall() const {
-        if (!m_argsSetup)
-            throw std::runtime_error("error: delayed callback called without arguments initialized");
-        if (!m_sustainableArgs)
-            throw std::runtime_error("error: delayed callback called as constant object but arguments are not sustainable");
-        return std::apply(m_callback, m_callbackArgs);
-    }
+    Return_type delayedCall() const;
     
     template <typename ...Args>
-    void initialize(Args && ...args) {
-        m_callbackArgs = std::make_tuple(std::forward<Args>(args)...);
-        m_argsSetup = true;
-        m_sustainableArgs = false;
-    }
+    void initialize(Args && ...args);
     
     template <typename ...Args>
-    void initializeSustainably(Args && ...args) {
-        m_callbackArgs = std::make_tuple(std::forward<Args>(args)...);
-        m_argsSetup = true;
-        m_sustainableArgs = true;
-    }
+    void initializeSustainably(Args && ...args);
     
     template <typename ...Args>
-    void precomputeCallback(Args && ...args) const {
-        m_callbackResult = std::make_optional(m_callback(std::forward<Args>(args)...));
-    }
+    void precomputeCallback(Args && ...args) const; // TODO: handle empty args
     
-    void precomputeCallback() {
-        if (!m_argsSetup)
-            throw std::runtime_error("error: delayed callback called without arguments initialized");
-        m_callbackResult = std::make_optional(std::apply(m_callback, m_callbackArgs));
-    }
+    void precomputeCallback();
     
 private:
-    bool                        m_argsSetup = false;
+    bool                        m_argsSetup         = false;
     Function_type               m_callback;
     Args_container_type         m_callbackArgs;
     std::optional<Return_type>  m_callbackResult;
-    bool                        m_sustainableArgs = false;
+    bool                        m_sustainableArgs   = false;
 };
 
 }
+
+#include "Callback.inl"
 
 #endif /* Callback_h */
