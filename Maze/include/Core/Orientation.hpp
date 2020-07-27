@@ -5,8 +5,8 @@
 //  Created by Jaraxus on 06/02/2020.
 //
 
-#ifndef Orientation_h
-#define Orientation_h
+#ifndef Orientation_hpp
+#define Orientation_hpp
 
 #include <SFML/Graphics.hpp>
 
@@ -14,23 +14,31 @@ namespace mz {
 
 class Orientation {
 public:
-    bool operator==(Orientation const& orientation) const;
-    bool operator!=(Orientation const& orientation) const;
+    inline Orientation();
+    inline Orientation(Orientation const& orientation) = default;
+    inline Orientation(Orientation && orientation) = default;
     
-    std::string const& getName() const;
+    inline Orientation& operator=(Orientation const& orientation) = default;
+    inline Orientation& operator=(Orientation && orientation) = default;
     
-    sf::Vector2f const& toVector() const;
+    inline bool operator==(Orientation const& orientation) const;
+    inline bool operator!=(Orientation const& orientation) const;
     
-    // TODO: turn clockwise / counterclockwise
+    inline std::string const& getName() const;
     
-    static Orientation const& getOrientation(std::string const& name);
+    static inline Orientation const& getOrientation(std::string const& name);
     
-    static Orientation const& getOrientation(sf::Vector2f const& direction); // template
+    template <typename T = float>
+    static inline Orientation const& getOrientation(sf::Vector2<T> const& direction);
     
-    static Orientation const& getOrientation(sf::Vector2i const& direction);
+    inline sf::Vector2f const& toVector() const;
+    
+    inline Orientation const& turnClockwise();
+    
+    inline Orientation const& turnCounterClockwise();
     
 private:
-    Orientation(std::string const& name, sf::Vector2f vector);
+    inline Orientation(std::string const& name, sf::Vector2f vector);
     
 public:
     static const Orientation    UP;
@@ -42,10 +50,10 @@ public:
 private:
     std::string                 m_name;
     sf::Vector2f                m_direction;
-    
 };
-
 
 }
 
-#endif /* Orientation_h */
+#include "Orientation.inl"
+
+#endif /* Orientation_hpp */
