@@ -5,8 +5,8 @@
 //  Created by Jaraxus on 31/07/2020.
 //
 
-#ifndef Drawable_h
-#define Drawable_h
+#ifndef Drawable_hpp
+#define Drawable_hpp
 
 #include <SFML/Graphics.hpp>
 
@@ -14,18 +14,18 @@ namespace mz {
 
 class Drawable {
 public:
-    Drawable() = default;
-    Drawable(Drawable const& drawable) = default;
-    Drawable(Drawable && drawable) = default;
+    Drawable() noexcept = default;
+    Drawable(Drawable const& drawable) noexcept = default;
+    Drawable(Drawable && drawable) noexcept = default;
     
-    virtual ~Drawable() = default;
+    virtual ~Drawable() noexcept = default;
     
-    Drawable& operator=(Drawable const& drawable) = default;
-    Drawable& operator=(Drawable && drawable) = default;
+    Drawable& operator=(Drawable const& drawable) noexcept = default;
+    Drawable& operator=(Drawable && drawable) noexcept = default;
     
     virtual void draw(sf::RenderTarget & target) = 0;
 };
 
 }
 
-#endif /* Drawable_h */
+#endif /* Drawable_hpp */

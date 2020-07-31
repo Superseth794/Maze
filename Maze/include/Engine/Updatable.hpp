@@ -12,14 +12,14 @@ namespace mz {
 
 class Updatable {
 public:
-    Updatable() = default;
-    Updatable(Updatable const& updatable) = default;
-    Updatable(Updatable && updatable) = default;
+    Updatable() noexcept = default;
+    Updatable(Updatable const& updatable) noexcept = default;
+    Updatable(Updatable && updatable) noexcept = default;
     
-    virtual ~Updatable() = default;
+    virtual ~Updatable() noexcept = default;
     
-    Updatable& operator=(Updatable const& updatable) = default;
-    Updatable& operator=(Updatable && updatable) = default;
+    Updatable& operator=(Updatable const& updatable) noexcept = default;
+    Updatable& operator=(Updatable && updatable) noexcept = default;
     
     virtual void update(std::uint64_t timeElapsed) = 0;
 };
