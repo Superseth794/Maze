@@ -14,25 +14,26 @@
 #include <SFML/Graphics.hpp>
 
 #include "Layer.hpp"
+#include "../Physics/PhysicsBody.hpp"
 
 namespace mz {
 
-class Node { //} : public Layer {
-public:
-    Node() noexcept = default;
-//    Node(Node const& node) noexcept = delete;
+class Node : public Layer { // Dynamic
+    Node() = default;
+    Node(Layer const& node) = delete;
     Node(Node && node) noexcept = default;
     
+    Node& operator=(Node const& node) = delete;
     Node& operator=(Node && node) noexcept = default;
     
     virtual ~Node() = default;
     
-//    virtual void display(sf::RenderTexture& texture) override;
+    virtual void draw(sf::RenderTarget& target) override;
+    
+    virtual void update(std::uint64_t timeElapsed) override;
     
 private:
-//    float               m_height;
-    std::unique_ptr<sf::RenderTexture>   m_texture;
-//    float               m_width;
+    std::unique_ptr<PhysicsBody>    m_physicsBody; // TODO: add complete support for physics bodies
 };
 
 }

@@ -7,9 +7,14 @@
 
 #include "../../include/Engine/Node.hpp"
 
-//void mz::Node::display(sf::RenderTexture& texture) {
-//    sf::Sprite sprite;
-//    sprite.setTexture(m_texture.getTexture());
-//    sprite.setPosition(0, 0);
-//    texture.draw(sprite);
-//}
+namespace mz {
+
+void Node::draw(sf::RenderTarget& target) {
+    Layer::draw(target);
+}
+
+void Node::update(std::uint64_t timeElapsed) {
+    Layer::update(timeElapsed);
+}
+
+}
