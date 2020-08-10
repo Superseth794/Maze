@@ -216,14 +216,16 @@ void Maze::lauch() {
             
         }
         
-//        // update
-//        update();
-//        updateCamera();
-        
-        m_fps = 1.f / m_gameClock.getElapsedTime().asMilliseconds() * 1000.f; // TODO show_fps debug var
+        // update
+        std::uint64_t timeElapsed = static_cast<std::uint64_t>(m_gameClock.getElapsedTime().asMicroseconds());
+        m_fps = 1.f / timeElapsed * 1000.f * 1000.f; // TODO show_fps debug var
         m_gameClock.restart();
         
-        // Display
+//        update();
+//        updateCamera();
+        m_scene.update(timeElapsed);
+        
+//         Display
         m_window.clear();
         
 //        display();

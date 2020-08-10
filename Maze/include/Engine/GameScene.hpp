@@ -13,12 +13,13 @@
 #include "Camera.hpp"
 #include "Layer.hpp"
 #include "Node.hpp"
+#include "Updatable.hpp"
 #include "../Physics/PhysicsWorld.hpp"
 #include "../../Config.hpp"
 
 namespace mz {
 
-class GameScene {
+class GameScene : Updatable {
 public:
     GameScene(unsigned int width, unsigned int height);
     GameScene(GameScene const& scene) = delete;
@@ -28,6 +29,8 @@ public:
     GameScene operator=(GameScene && scene) = delete;
     
     void display(sf::RenderTarget& texture);
+    
+    virtual void update(std::uint64_t timeElapsed) override;
     
 private:
     Camera              m_camera;
