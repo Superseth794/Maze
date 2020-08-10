@@ -30,10 +30,12 @@ public:
     
     void display(sf::RenderTarget& texture);
     
+    Layer & getMainLayer();
+    
     virtual void update(std::uint64_t timeElapsed) override;
     
 private:
-    Camera              m_camera;
+    Camera              m_camera; // TODO: return reference to handle it outside
     Layer               m_mainLayer;
     PhysicsWorld        m_physicsWorld;
 };

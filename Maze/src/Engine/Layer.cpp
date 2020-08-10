@@ -9,14 +9,14 @@
 
 namespace mz {
 
-Layer& Layer::addChild(Layer && layer) {
-    m_toAddChilds.emplace_back(std::make_unique<Layer>(std::forward<Layer>(layer)));
+Layer& Layer::addChild(std::unique_ptr<Layer> && layer) {
+    m_toAddChilds.emplace_back(std::forward<std::unique_ptr<Layer>>(layer));
     return *m_toAddChilds.back();
 }
 
 void Layer::draw(Camera const& camera) {
-//    for (auto & child : m_childs)
-//        child->draw(target);
+    for (auto & child : m_childs)
+        child->draw(camera);
 }
 
 std::unique_ptr<Layer> Layer::extractChild(std::size_t childId) {
@@ -42,11 +42,16 @@ void Layer::update(std::uint64_t timeElapsed) {
     clearRemoveBuffer();
     clearAddBuffer();
     
-    m_relativeTransform = Transformable::getTransform();
-    if (m_parent)
-        m_globalTransform = m_parent->m_globalTransform.combine(m_relativeTransform);
-    else
-        m_globalTransform = m_relativeTransform;
+    m_relativeTransform = static_cast<sf::Transformable>(*this);
+    if (m_parent) {
+        m_globalTransform = static_cast<sf::Transformable>(*m_parent);
+        m_globalTransform.setOrigin(getOrigin());
+        m_globalTransform.move(getPosition());
+        m_globalTransform.scale(getScale());
+        m_globalTransform.rotate(getRotation()); // TODO: fix rotation
+    } else {
+        m_globalTransform = static_cast<sf::Transformable>(m_relativeTransform);
+    }
     
     for (auto & child : m_childs)
         child->update(timeElapsed);

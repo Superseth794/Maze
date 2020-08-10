@@ -10,6 +10,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Camera.hpp"
+
 namespace mz {
 
 class Camera;

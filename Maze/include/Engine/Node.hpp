@@ -23,6 +23,7 @@ namespace mz {
 class Layer;
 
 class Node : public Layer { // Dynamic
+public:
     Node() = default;
     Node(Node const& node) = delete;
     Node(Node && node) noexcept = default;

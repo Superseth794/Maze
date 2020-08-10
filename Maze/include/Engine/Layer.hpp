@@ -29,7 +29,7 @@ public:
     
     virtual ~Layer() = default;
     
-    Layer& addChild(Layer && layer);
+    Layer& addChild(std::unique_ptr<Layer> && layer);
     
     virtual void draw(Camera const& camera) override;
     
@@ -43,15 +43,15 @@ public:
     
     inline std::size_t getChildsCount() const;
     
-    inline sf::Transform const& getGlobalTransform() const;
+    inline sf::Transformable const& getGlobalTransform() const;
 
     inline std::size_t const& getIdInParentHierarchy() const;
     
-    inline sf::Transform const& getRelativeTransform() const;
+    inline sf::Transformable const& getRelativeTransform() const;
     
     inline Layer* getParent();
     
-    sf::Transformable const& getTransform() const = delete;
+    sf::Transform const& getTransform() const = delete;
     
     inline void removeAllChildrens();
     
@@ -72,10 +72,10 @@ private:
     
 private:
     std::vector<std::unique_ptr<Layer>>         m_childs;
-    sf::Transform                               m_globalTransform;
+    sf::Transformable                           m_globalTransform; // TODO: fix rotation
     std::size_t                                 m_idInParentHierarchy = 0;
     mutable Layer*                              m_parent;
-    sf::Transform                               m_relativeTransform;
+    sf::Transformable                           m_relativeTransform;
     mutable std::vector<std::unique_ptr<Layer>> m_toAddChilds;
     mutable std::vector<std::size_t>            m_toRemoveChilds;
 };

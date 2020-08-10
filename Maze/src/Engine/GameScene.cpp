@@ -30,6 +30,10 @@ void mz::GameScene::display(sf::RenderTarget& texture) {
     return m_camera.display(texture);
 }
 
+mz::Layer & mz::GameScene::getMainLayer() {
+    return m_mainLayer;
+}
+
 void mz::GameScene::update(std::uint64_t timeElapsed) {
     m_mainLayer.update(timeElapsed);
 }

@@ -15,7 +15,7 @@ std::size_t Layer::getChildsCount() const {
     return m_childs.size();
 }
 
-sf::Transform const& Layer::getGlobalTransform() const {
+sf::Transformable const& Layer::getGlobalTransform() const {
     return m_globalTransform;
 }
 
@@ -24,7 +24,7 @@ std::size_t const& Layer::getIdInParentHierarchy() const {
     return m_idInParentHierarchy;
 }
 
-sf::Transform const& Layer::getRelativeTransform() const {
+sf::Transformable const& Layer::getRelativeTransform() const {
     return m_relativeTransform;
 }
 
