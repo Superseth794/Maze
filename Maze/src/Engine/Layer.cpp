@@ -42,6 +42,12 @@ void Layer::update(std::uint64_t timeElapsed) {
     clearRemoveBuffer();
     clearAddBuffer();
     
+    m_relativeTransform = Transformable::getTransform();
+    if (m_parent)
+        m_globalTransform = m_parent->m_globalTransform.combine(m_relativeTransform);
+    else
+        m_globalTransform = m_relativeTransform;
+    
     for (auto & child : m_childs)
         child->update(timeElapsed);
 }
@@ -75,6 +81,7 @@ void Layer::stableRemoveChild(std::size_t childId) {
         m_childs.back()->m_idInParentHierarchy = childId;
         std::swap(m_childs[childId], m_childs.back());
     }
+    m_childs.back()->m_parent = nullptr;
     m_childs.pop_back();
 }
 

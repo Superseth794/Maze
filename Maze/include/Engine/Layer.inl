@@ -7,8 +7,16 @@
 
 namespace mz {
 
+Layer& Layer::getChild(std::size_t childId) {
+    return *m_childs[childId];
+}
+
 std::size_t Layer::getChildsCount() const {
     return m_childs.size();
+}
+
+sf::Transform const& Layer::getGlobalTransform() const {
+    return m_globalTransform;
 }
 
 std::size_t const& Layer::getIdInParentHierarchy() const {
@@ -16,12 +24,12 @@ std::size_t const& Layer::getIdInParentHierarchy() const {
     return m_idInParentHierarchy;
 }
 
-Layer* Layer::getParent() {
-    return m_parent;
+sf::Transform const& Layer::getRelativeTransform() const {
+    return m_relativeTransform;
 }
 
-Layer& Layer::getChild(std::size_t childId) {
-    return *m_childs[childId];
+Layer* Layer::getParent() {
+    return m_parent;
 }
 
 void Layer::removeAllChildrens() {

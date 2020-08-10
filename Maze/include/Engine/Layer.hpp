@@ -42,10 +42,16 @@ public:
     inline Layer& getChild(std::size_t childId);
     
     inline std::size_t getChildsCount() const;
+    
+    inline sf::Transform const& getGlobalTransform() const;
 
     inline std::size_t const& getIdInParentHierarchy() const;
     
+    inline sf::Transform const& getRelativeTransform() const;
+    
     inline Layer* getParent();
+    
+    sf::Transformable const& getTransform() const = delete;
     
     inline void removeAllChildrens();
     
@@ -65,11 +71,13 @@ private:
     void stableRemoveChild(std::size_t childId);
     
 private:
-    std::size_t                                         m_idInParentHierarchy = 0;
-    mutable Layer*                                      m_parent;
-    std::vector<std::unique_ptr<Layer>>                 m_childs;
-    mutable std::vector<std::unique_ptr<Layer>>         m_toAddChilds;
-    mutable std::vector<std::size_t>                    m_toRemoveChilds;
+    std::vector<std::unique_ptr<Layer>>         m_childs;
+    sf::Transform                               m_globalTransform;
+    std::size_t                                 m_idInParentHierarchy = 0;
+    mutable Layer*                              m_parent;
+    sf::Transform                               m_relativeTransform;
+    mutable std::vector<std::unique_ptr<Layer>> m_toAddChilds;
+    mutable std::vector<std::size_t>            m_toRemoveChilds;
 };
 
 }
