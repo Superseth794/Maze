@@ -8,7 +8,7 @@
 #include <iostream>
 #include <time.h>
 
-#define RUN_UNIT_TESTS
+//#define RUN_UNIT_TESTS
 //#define VISUAL_TESTS
 
 #include "include/Core/Logs.hpp"

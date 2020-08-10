@@ -16,7 +16,8 @@ m_window(sf::VideoMode(m_width, m_height), "Maze"),
 m_physicsWorld(),
 m_gameClock(),
 m_player(width / 50.f, EntitiesBitMasks::PLAYER_MASK, &m_physicsWorld),
-m_cameraPosition(0.f, 0.f)
+m_cameraPosition(0.f, 0.f),
+m_scene(width, height)
 {
 }
 
@@ -215,9 +216,9 @@ void Maze::lauch() {
             
         }
         
-        // update
-        update();
-        updateCamera();
+//        // update
+//        update();
+//        updateCamera();
         
         m_fps = 1.f / m_gameClock.getElapsedTime().asMilliseconds() * 1000.f; // TODO show_fps debug var
         m_gameClock.restart();
@@ -225,7 +226,8 @@ void Maze::lauch() {
         // Display
         m_window.clear();
         
-        display();
+//        display();
+        m_scene.display(m_window);
         
         m_window.display();
     }

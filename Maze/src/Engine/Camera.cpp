@@ -13,6 +13,7 @@ Camera::Camera(unsigned int width, unsigned int height) :
 m_height(height),
 m_width(width)
 {
+    m_texture = std::make_unique<sf::RenderTexture>();
     m_texture->create(width, height);
 }
 
@@ -20,7 +21,7 @@ void Camera::clear(sf::Color const& color) {
     m_texture->clear(color);
 }
 
-void Camera::display(sf::RenderTexture& texture) {
+void Camera::display(sf::RenderTarget& texture) {
     m_texture->display();
     
     sf::Sprite cameraSprite;

@@ -10,6 +10,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Camera.hpp"
 #include "Layer.hpp"
 #include "Node.hpp"
 #include "../Physics/PhysicsWorld.hpp"
@@ -19,21 +20,19 @@ namespace mz {
 
 class GameScene {
 public:
-    GameScene(float width, float height);
+    GameScene(unsigned int width, unsigned int height);
     GameScene(GameScene const& scene) = delete;
     GameScene(GameScene && scene) = delete;
     
     GameScene operator=(GameScene const& scene) = delete;
     GameScene operator=(GameScene && scene) = delete;
     
-    sf::Sprite display();
+    void display(sf::RenderTarget& texture);
     
 private:
-    float               m_height;
+    Camera              m_camera;
     Layer               m_mainLayer;
     PhysicsWorld        m_physicsWorld;
-    sf::RenderTexture   m_texture;
-    float               m_width;
 };
 
 }

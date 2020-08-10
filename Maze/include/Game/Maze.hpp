@@ -73,9 +73,11 @@ private:
     unsigned int                                m_height;
     PhysicsWorld                                m_physicsWorld;
     Player                                      m_player;
+    GameScene                                   m_scene;
     std::vector<std::unique_ptr<Tile>>          m_tiles;
     unsigned int                                m_width;
     sf::RenderWindow                            m_window;
+    
     std::vector<std::unique_ptr<PhysicsBody>>   debug_bodies; // DEBUG
     
     static constexpr int                        s_mazeWidth         = 25;

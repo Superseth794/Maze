@@ -23,7 +23,7 @@ public:
     
     void clear(sf::Color const& color = sf::Color::Transparent);
     
-    void display(sf::RenderTexture& texture);
+    void display(sf::RenderTarget& texture);
     
 private:
     unsigned int                                    m_height;
