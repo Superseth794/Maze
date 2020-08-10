@@ -14,9 +14,9 @@ Layer& Layer::addChild(Layer && layer) {
     return *m_toAddChilds.back();
 }
 
-void Layer::draw(sf::RenderTarget& target) {
-    for (auto & child : m_childs)
-        child->draw(target);
+void Layer::draw(Camera const& camera) {
+//    for (auto & child : m_childs)
+//        child->draw(target);
 }
 
 std::unique_ptr<Layer> Layer::extractChild(std::size_t childId) {

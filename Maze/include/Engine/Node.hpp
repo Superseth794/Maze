@@ -5,6 +5,8 @@
 //  Created by Jaraxus on 13/07/2020.
 //
 
+#pragma once
+
 #ifndef Node_hpp
 #define Node_hpp
 
@@ -18,9 +20,11 @@
 
 namespace mz {
 
+class Layer;
+
 class Node : public Layer { // Dynamic
     Node() = default;
-    Node(Layer const& node) = delete;
+    Node(Node const& node) = delete;
     Node(Node && node) noexcept = default;
     
     Node& operator=(Node const& node) = delete;
@@ -28,7 +32,7 @@ class Node : public Layer { // Dynamic
     
     virtual ~Node() = default;
     
-    virtual void draw(sf::RenderTarget& target) override;
+    virtual void draw(Camera const& camera) override;
     
     virtual void update(std::uint64_t timeElapsed) override;
     

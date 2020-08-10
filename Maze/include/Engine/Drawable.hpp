@@ -12,6 +12,8 @@
 
 namespace mz {
 
+class Camera;
+
 class Drawable {
 public:
     Drawable() noexcept = default;
@@ -23,7 +25,7 @@ public:
     Drawable& operator=(Drawable const& drawable) noexcept = default;
     Drawable& operator=(Drawable && drawable) noexcept = default;
     
-    virtual void draw(sf::RenderTarget & target) = 0;
+    virtual void draw(Camera const& camera) = 0;
 };
 
 }

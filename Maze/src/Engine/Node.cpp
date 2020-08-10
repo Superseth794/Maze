@@ -9,8 +9,9 @@
 
 namespace mz {
 
-void Node::draw(sf::RenderTarget& target) {
-    Layer::draw(target);
+void Node::draw(Camera const& camera) {
+    // TODO: draw physics bodies
+    Layer::draw(camera);
 }
 
 void Node::update(std::uint64_t timeElapsed) {

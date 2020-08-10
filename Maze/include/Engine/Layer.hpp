@@ -31,7 +31,7 @@ public:
     
     Layer& addChild(Layer && layer);
     
-    virtual void draw(sf::RenderTarget& target) override;
+    virtual void draw(Camera const& camera) override;
     
     std::unique_ptr<Layer> extractChild(std::size_t childId);
     
