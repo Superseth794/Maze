@@ -17,10 +17,6 @@ m_width(width)
     m_texture->create(width, height);
 }
 
-void Camera::clear(sf::Color const& color) {
-    m_texture->clear(color);
-}
-
 void Camera::display(sf::RenderTarget& texture) {
     m_texture->display();
     
