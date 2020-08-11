@@ -18,8 +18,8 @@ namespace mz {
 
 class SpriteNode : Node {
 public:
-    SpriteNode(sf::Sprite && sprite, std::shared_ptr<sf::RenderTexture> && texture);
-    SpriteNode(sf::Sprite && sprite, std::shared_ptr<sf::RenderTexture> && texture, sf::IntRect const& rectangle);
+    SpriteNode(sf::Sprite && sprite, std::shared_ptr<sf::Texture> && texture);
+    SpriteNode(sf::Sprite && sprite, std::shared_ptr<sf::Texture> && texture, sf::IntRect const& rectangle);
     SpriteNode(SpriteNode && spriteNode) noexcept = default;
     
     SpriteNode& operator=(SpriteNode && spriteNode) noexcept = default;
@@ -32,19 +32,19 @@ public:
     
     inline sf::FloatRect getLocalBounds() const;
     
-    inline std::shared_ptr<sf::RenderTexture> const& getTexture() const;
+    inline std::shared_ptr<sf::Texture> const& getTexture() const;
     
     inline sf::IntRect const& getTextureRect() const;
     
-    inline void setColor(const sf::Color& color);
+    inline void setColor(sf::Color const& color);
     
-    inline void setTexture(const sf::Texture& texture, bool resetRect = false);
+    inline void setTexture(std::shared_ptr<sf::Texture> const& texture, bool resetRect = false);
     
     inline void setTextureRect(const sf::IntRect& rectangle);
     
 private:
-    sf::Sprite                          m_sprite;
-    std::shared_ptr<sf::RenderTexture>  m_texture;
+    sf::Sprite                    m_sprite;
+    std::shared_ptr<sf::Texture>  m_texture;
 };
 
 };

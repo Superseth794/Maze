@@ -9,9 +9,9 @@
 
 namespace mz {
 
-SpriteNode::SpriteNode(sf::Sprite && sprite, std::shared_ptr<sf::RenderTexture> && texture) :
+SpriteNode::SpriteNode(sf::Sprite && sprite, std::shared_ptr<sf::Texture> && texture) :
 m_sprite(std::forward<sf::Sprite>(sprite)),
-m_texture(std::forward<std::shared_ptr<sf::RenderTexture>>(texture))
+m_texture(std::forward<std::shared_ptr<sf::Texture>>(texture))
 {
 }
 
