@@ -16,8 +16,14 @@
 
 namespace mz {
 
-template <class ShapeT>
-class AbstractShapeNode : Node {
+/**
+ \tparam ShapeNodeT Child class that must provide a ShapeT type that inherits from sf::Shape and represent the type of shape that will be drawn
+ */
+template <class ShapeNodeT, class ShapeT> // TODO: remove ShapeT if possible
+class AbstractShapeNode : public Node {
+    
+//    using ShapeT = typename ShapeNodeT::ShapeT;
+    
 public:
     virtual void draw(Camera const& camera) override; // TODO: optimise with frustrum
     
