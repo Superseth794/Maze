@@ -26,6 +26,7 @@
 #include "Entity/DrawableEntity/Tile/Tile.hpp"
 #include "../Core/Console.hpp"
 #include "../Engine/GameScene.hpp"
+#include "../Engine/SpriteNode.hpp"
 #include "../Physics/PhysicsWorld.hpp"
 #include "../Physics/RectanglePhysicsBody.hpp"
 
