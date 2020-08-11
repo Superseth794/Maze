@@ -32,7 +32,7 @@ public:
     
     inline sf::FloatRect getLocalBounds() const;
     
-    inline std::shared_ptr<sf::Texture> const& getTexture() const;
+    inline std::shared_ptr<const sf::Texture> getTexture() const;
     
     inline sf::IntRect const& getTextureRect() const;
     

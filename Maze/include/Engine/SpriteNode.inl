@@ -12,14 +12,14 @@ inline const sf::Color& SpriteNode::getColor() const {
 }
 
 inline sf::FloatRect SpriteNode::getGlobalBounds() const {
-    return getGlobalTransform().getTransform().transformRect(getLocalBounds());
+    return getGlobalTransform().getTransform().transformRect(m_sprite.getLocalBounds());
 }
 
 inline sf::FloatRect SpriteNode::getLocalBounds() const {
     return m_sprite.getLocalBounds();
 }
 
-inline std::shared_ptr<sf::Texture> const& SpriteNode::getTexture() const {
+inline std::shared_ptr<const sf::Texture> SpriteNode::getTexture() const {
     return m_texture;
 }
 
