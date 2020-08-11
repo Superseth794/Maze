@@ -7,6 +7,12 @@
 
 namespace mz {
 
+template <class LayerT>
+LayerT& Layer::addChild(std::unique_ptr<LayerT> && layer) {
+    m_toAddChilds.emplace_back(std::forward<std::unique_ptr<LayerT>>(layer));
+    return static_cast<LayerT&>(*m_toAddChilds.back());
+}
+
 Layer& Layer::getChild(std::size_t childId) {
     return *m_childs[childId];
 }

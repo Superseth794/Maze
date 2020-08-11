@@ -9,11 +9,6 @@
 
 namespace mz {
 
-Layer& Layer::addChild(std::unique_ptr<Layer> && layer) {
-    m_toAddChilds.emplace_back(std::forward<std::unique_ptr<Layer>>(layer));
-    return *m_toAddChilds.back();
-}
-
 void Layer::draw(Camera const& camera) {
     for (auto & child : m_childs)
         child->draw(camera);

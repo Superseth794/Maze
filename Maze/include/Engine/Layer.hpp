@@ -29,7 +29,8 @@ public:
     
     virtual ~Layer() = default;
     
-    Layer& addChild(std::unique_ptr<Layer> && layer);
+    template <class LayerT>
+    LayerT& addChild(std::unique_ptr<LayerT> && layer);
     
     virtual void draw(Camera const& camera) override;
     
