@@ -23,7 +23,7 @@ struct get_shape_node_drawable_type<CircleShapeNode> {
 
 class CircleShapeNode : public AbstractShapeNode<CircleShapeNode> {
 public:
-    explicit CircleShapeNode(float radius, std::shared_ptr<sf::Texture> && texture = nullptr);
+    explicit CircleShapeNode(float radius = 0, std::shared_ptr<sf::Texture> && texture = nullptr);
     explicit CircleShapeNode(float radius, std::size_t pointCount, std::shared_ptr<sf::Texture> && texture = nullptr);
     
     virtual ~CircleShapeNode() = default;
