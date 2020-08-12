@@ -15,7 +15,7 @@ AbstractShapeNode(std::forward<std::shared_ptr<sf::Texture>>(texture), radius, s
 }
 
 CircleShapeNode::CircleShapeNode(float radius, std::size_t pointCount, std::shared_ptr<sf::Texture> && texture) :
-AbstractShapeNode<CircleShapeNode, sf::CircleShape>(std::forward<std::shared_ptr<sf::Texture>>(texture), radius, pointCount)
+AbstractShapeNode(std::forward<std::shared_ptr<sf::Texture>>(texture), radius, pointCount)
 {
 }
 

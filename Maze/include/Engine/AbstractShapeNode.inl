@@ -7,75 +7,75 @@
 
 namespace mz {
 
-template <class ShapeNodeT, class ShapeT>
-void AbstractShapeNode<ShapeNodeT, ShapeT>::draw(Camera const& camera) {
+template <class ShapeNodeT>
+void AbstractShapeNode<ShapeNodeT>::draw(Camera const& camera) {
     camera.draw(m_shape, getGlobalTransform());
 }
 
-template <class ShapeNodeT, class ShapeT>
-inline sf::Color const& AbstractShapeNode<ShapeNodeT, ShapeT>::getFillColor() const {
+template <class ShapeNodeT>
+inline sf::Color const& AbstractShapeNode<ShapeNodeT>::getFillColor() const {
     return m_shape.getFillColor();
 }
 
-template <class ShapeNodeT, class ShapeT>
-inline sf::FloatRect AbstractShapeNode<ShapeNodeT, ShapeT>::getGlobalBounds() const {
+template <class ShapeNodeT>
+inline sf::FloatRect AbstractShapeNode<ShapeNodeT>::getGlobalBounds() const {
     return getGlobalTransform().getTransform().transformRect(getLocalBounds());
 }
 
-template <class ShapeNodeT, class ShapeT>
-inline sf::FloatRect AbstractShapeNode<ShapeNodeT, ShapeT>::getLocalBounds() const {
+template <class ShapeNodeT>
+inline sf::FloatRect AbstractShapeNode<ShapeNodeT>::getLocalBounds() const {
     return m_shape.getLocalBounds();
 }
 
-template <class ShapeNodeT, class ShapeT>
-inline sf::Color const& AbstractShapeNode<ShapeNodeT, ShapeT>::getOutlineColor() const {
+template <class ShapeNodeT>
+inline sf::Color const& AbstractShapeNode<ShapeNodeT>::getOutlineColor() const {
     return m_shape.getOutlineColor();
 }
 
-template <class ShapeNodeT, class ShapeT>
-inline float AbstractShapeNode<ShapeNodeT, ShapeT>::getOutlineThickness() const {
+template <class ShapeNodeT>
+inline float AbstractShapeNode<ShapeNodeT>::getOutlineThickness() const {
     return m_shape.getOutlineThickness();
 }
 
-template <class ShapeNodeT, class ShapeT>
-inline std::shared_ptr<const sf::Texture> AbstractShapeNode<ShapeNodeT, ShapeT>::getTexture() const {
+template <class ShapeNodeT>
+inline std::shared_ptr<const sf::Texture> AbstractShapeNode<ShapeNodeT>::getTexture() const {
     return *m_texture;
 }
 
-template <class ShapeNodeT, class ShapeT>
-inline sf::IntRect const& AbstractShapeNode<ShapeNodeT, ShapeT>::getTextureRect() const {
+template <class ShapeNodeT>
+inline sf::IntRect const& AbstractShapeNode<ShapeNodeT>::getTextureRect() const {
     return m_shape.getTextureRect();
 }
 
-template <class ShapeNodeT, class ShapeT>
-inline void AbstractShapeNode<ShapeNodeT, ShapeT>::setFillColor(const sf::Color& color) {
+template <class ShapeNodeT>
+inline void AbstractShapeNode<ShapeNodeT>::setFillColor(const sf::Color& color) {
     m_shape.setFillColor(color);
 }
 
-template <class ShapeNodeT, class ShapeT>
-inline void AbstractShapeNode<ShapeNodeT, ShapeT>::setOutlineColor(const sf::Color& color) {
+template <class ShapeNodeT>
+inline void AbstractShapeNode<ShapeNodeT>::setOutlineColor(const sf::Color& color) {
     m_shape.setOutlineColor(color);
 }
 
-template <class ShapeNodeT, class ShapeT>
-inline void AbstractShapeNode<ShapeNodeT, ShapeT>::setOutlineThickness(float thickness) {
+template <class ShapeNodeT>
+inline void AbstractShapeNode<ShapeNodeT>::setOutlineThickness(float thickness) {
     m_shape.setOutlineThickness(thickness);
 }
 
-template <class ShapeNodeT, class ShapeT>
-inline void AbstractShapeNode<ShapeNodeT, ShapeT>::setTexture(std::shared_ptr<sf::Texture> const& texture, bool resetRect) {
+template <class ShapeNodeT>
+inline void AbstractShapeNode<ShapeNodeT>::setTexture(std::shared_ptr<sf::Texture> const& texture, bool resetRect) {
     m_texture = texture;
     m_shape.setTexture(*m_texture, resetRect);
 }
 
-template <class ShapeNodeT, class ShapeT>
-inline void AbstractShapeNode<ShapeNodeT, ShapeT>::setTextureRect(const sf::IntRect& rect) {
+template <class ShapeNodeT>
+inline void AbstractShapeNode<ShapeNodeT>::setTextureRect(const sf::IntRect& rect) {
     m_shape.setTextureRect(rect);
 }
 
-template <class ShapeNodeT, class ShapeT>
+template <class ShapeNodeT>
 template <typename ...Args>
-AbstractShapeNode<ShapeNodeT, ShapeT>::AbstractShapeNode(std::shared_ptr<sf::Texture> && texture, Args && ...args) :
+AbstractShapeNode<ShapeNodeT>::AbstractShapeNode(std::shared_ptr<sf::Texture> && texture, Args && ...args) :
 m_shape(std::forward<Args>(args)...),
 m_texture(std::forward<std::shared_ptr<sf::Texture>>(texture))
 {

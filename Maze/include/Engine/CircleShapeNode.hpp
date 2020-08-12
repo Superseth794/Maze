@@ -14,10 +14,14 @@
 
 namespace mz {
 
-class CircleShapeNode : public AbstractShapeNode<CircleShapeNode, sf::CircleShape> {
-public:
-//    using ShapeT = sf::CircleShape;
-    
+class CircleShapeNode;
+
+template <>
+struct get_shape_node_drawable_type<CircleShapeNode> {
+    using type = sf::CircleShape;
+};
+
+class CircleShapeNode : public AbstractShapeNode<CircleShapeNode> {
 public:
     explicit CircleShapeNode(float radius, std::shared_ptr<sf::Texture> && texture = nullptr);
     explicit CircleShapeNode(float radius, std::size_t pointCount, std::shared_ptr<sf::Texture> && texture = nullptr);

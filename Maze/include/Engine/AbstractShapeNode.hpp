@@ -16,13 +16,16 @@
 
 namespace mz {
 
+template <class ShapeNodeT>
+struct get_shape_node_drawable_type;
+
 /**
- \tparam ShapeNodeT Child class that must provide a ShapeT type that inherits from sf::Shape and represent the type of shape that will be drawn
+ \tparam ShapeNodeT Child class that must provide a specialisation for trait get_shape_node_drawable_type
  */
-template <class ShapeNodeT, class ShapeT> // TODO: remove ShapeT if possible
+template <class ShapeNodeT>
 class AbstractShapeNode : public Node {
     
-//    using ShapeT = typename ShapeNodeT::ShapeT;
+    using ShapeT = typename get_shape_node_drawable_type<ShapeNodeT>::type;
     
 public:
     virtual void draw(Camera const& camera) override; // TODO: optimise with frustrum
