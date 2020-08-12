@@ -203,10 +203,38 @@ void Maze::lauch() {
     
     init();
     
-    auto circle = std::make_unique<CircleShapeNode>(10);
-    auto& circleRef = m_scene.getMainLayer().addChild(std::move(circle));
+    auto shapesLayer = std::make_unique<RectangleShapeNode>(1900, 1200);
+    shapesLayer->setFillColor(sf::Color(50, 50, 50, 150));
+    shapesLayer->setPosition(400, 250);
+    shapesLayer->setOrigin(100, 100);
+    auto& shapesLayerRef = m_scene.getMainLayer().addChild(std::move(shapesLayer));
+    
+    auto originCircle = std::make_unique<CircleShapeNode>(10);
+    auto& originCircleRef = shapesLayerRef.addChild(std::move(originCircle));
+    originCircleRef.setFillColor(sf::Color::White);
+    
+    auto circle = std::make_unique<CircleShapeNode>(40);
+    auto& circleRef = shapesLayerRef.addChild(std::move(circle));
     circleRef.setFillColor(sf::Color::Red);
-    circleRef.setPosition(sf::Vector2f{150, 150});
+    circleRef.setPosition(sf::Vector2f{150, 100});
+    
+    auto triangle = std::make_unique<TriangleShapeNode>(80);
+    triangle->setFillColor(sf::Color::Cyan);
+    triangle->setPosition(150, 300);
+    shapesLayerRef.addChild(std::move(triangle));
+    
+    auto rectangle = std::make_unique<RectangleShapeNode>(sf::Vector2f{225, 75});
+    auto& rectangleRef = shapesLayerRef.addChild(std::move(rectangle));
+    rectangleRef.setFillColor(sf::Color::Blue);
+    rectangleRef.setOutlineColor(sf::Color::Yellow);
+    rectangleRef.setOutlineThickness(-5.f);
+    rectangleRef.setPosition(150, 500);
+    rectangleRef.setOrigin(rectangleRef.getSize().x / 2.f, rectangleRef.getSize().y / 2.f);
+    
+    auto pentagon = std::make_unique<PentagonShapeNode>(80);
+    auto& pentagonRef = shapesLayerRef.addChild(std::move(pentagon));
+    pentagonRef.setFillColor(sf::Color::Cyan);
+    pentagonRef.setPosition(150, 700);
     
     while (m_window.isOpen()) {
         
@@ -226,7 +254,7 @@ void Maze::lauch() {
         m_fps = 1.f / timeElapsed * 1000.f * 1000.f; // TODO show_fps debug var
         m_gameClock.restart();
         
-        circleRef.move(1.f, 0.f);
+        shapesLayerRef.move(1.f, 0.f);
         
 //        update();
 //        updateCamera();
