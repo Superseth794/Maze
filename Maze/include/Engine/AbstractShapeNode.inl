@@ -10,6 +10,7 @@ namespace mz {
 template <class ShapeNodeT>
 void AbstractShapeNode<ShapeNodeT>::draw(Camera const& camera) {
     camera.draw(m_shape, getGlobalTransform());
+    Node::draw(camera);
 }
 
 template <class ShapeNodeT>
