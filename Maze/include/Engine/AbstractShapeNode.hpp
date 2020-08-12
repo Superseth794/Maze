@@ -52,12 +52,15 @@ public:
     inline void setTextureRect(sf::IntRect const& rect);
     
 protected:
-    AbstractShapeNode(ShapeT && shape, std::shared_ptr<sf::Texture> && texture = nullptr);
+    template <typename ...Args>
+    AbstractShapeNode(std::shared_ptr<sf::Texture> && texture, Args && ...args);
     
-    // TODO: add static polymorphic function to check accurately if thse undelining ShapeNode is inside camera frustrum
+    // TODO: add static polymorphic function to check accurately if the undelining ShapeNode is inside camera frustrum
+
+protected:
+    ShapeT                          m_shape;
     
 private:
-    ShapeT                          m_shape;
     std::shared_ptr<sf::Texture>    m_texture;
 };
 

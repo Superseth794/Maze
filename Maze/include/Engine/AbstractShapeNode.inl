@@ -74,8 +74,9 @@ inline void AbstractShapeNode<ShapeNodeT, ShapeT>::setTextureRect(const sf::IntR
 }
 
 template <class ShapeNodeT, class ShapeT>
-AbstractShapeNode<ShapeNodeT, ShapeT>::AbstractShapeNode(ShapeT && shape, std::shared_ptr<sf::Texture> && texture) :
-m_shape(std::forward<ShapeT>(shape)),
+template <typename ...Args>
+AbstractShapeNode<ShapeNodeT, ShapeT>::AbstractShapeNode(std::shared_ptr<sf::Texture> && texture, Args && ...args) :
+m_shape(std::forward<Args>(args)...),
 m_texture(std::forward<std::shared_ptr<sf::Texture>>(texture))
 {
 }

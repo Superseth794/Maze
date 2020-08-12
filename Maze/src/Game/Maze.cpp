@@ -203,6 +203,11 @@ void Maze::lauch() {
     
     init();
     
+    auto circle = std::make_unique<CircleShapeNode>(10);
+    auto& circleRef = m_scene.getMainLayer().addChild(std::move(circle));
+    circleRef.setFillColor(sf::Color::Red);
+    circleRef.setPosition(sf::Vector2f{150, 150});
+    
     while (m_window.isOpen()) {
         
         sf::Event event;
@@ -220,6 +225,8 @@ void Maze::lauch() {
         std::uint64_t timeElapsed = static_cast<std::uint64_t>(m_gameClock.getElapsedTime().asMicroseconds());
         m_fps = 1.f / timeElapsed * 1000.f * 1000.f; // TODO show_fps debug var
         m_gameClock.restart();
+        
+        circleRef.move(1.f, 0.f);
         
 //        update();
 //        updateCamera();

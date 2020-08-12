@@ -27,6 +27,7 @@
 #include "../Core/Console.hpp"
 #include "../Engine/GameScene.hpp"
 #include "../Engine/SpriteNode.hpp"
+#include "../Engine/CircleShapeNode.hpp"
 #include "../Physics/PhysicsWorld.hpp"
 #include "../Physics/RectanglePhysicsBody.hpp"
 
