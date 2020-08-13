@@ -27,14 +27,24 @@
 
 #elif defined(MAZE_PLATFORM_LINUX) || defined(MAZE_PLATFORM_APPLE)
 
-#   define MAZE_LOG_COLOR_RED       "\x1B[31m"
-#   define MAZE_LOG_COLOR_GREEN     "\x1B[32m"
-#   define MAZE_LOG_COLOR_YELLOW    "\x1B[33m"
-#   define MAZE_LOG_COLOR_BLUE      "\x1B[34m"
-#   define MAZE_LOG_COLOR_MAGENTA   "\x1B[35m"
-#   define MAZE_LOG_COLOR_CYAN      "\x1B[36m"
-#   define MAZE_LOG_COLOR_WHITE     "\x1B[37m"
-#   define MAZE_LOG_COLOR_DEFAULT   "\x1B[0m"
+#   define MAZE_LOG_COLOR_RED           "\x1B[31m"
+#   define MAZE_LOG_COLOR_GREEN         "\x1B[32m"
+#   define MAZE_LOG_COLOR_BLUE          "\x1B[34m"
+#   define MAZE_LOG_COLOR_CYAN          "\x1B[36m"
+#   define MAZE_LOG_COLOR_YELLOW        "\x1B[33m"
+#   define MAZE_LOG_COLOR_MAGENTA       "\x1B[35m"
+#   define MAZE_LOG_COLOR_GREY          "\x1B[30m"
+
+#   define MAZE_LOG_COLOR_LIGHT_RED     "\x1B[31m"
+#   define MAZE_LOG_COLOR_LIGHT_GREEN   "\x1B[32m"
+#   define MAZE_LOG_COLOR_LIGHT_BLUE    "\x1B[34m"
+#   define MAZE_LOG_COLOR_LIGHT_CYAN    "\x1B[36m"
+#   define MAZE_LOG_COLOR_LIGHT_YELLOW  "\x1B[33m"
+#   define MAZE_LOG_COLOR_LIGHT_MAGENTA "\x1B[35m"
+#   define MAZE_LOG_COLOR_LIGHT_GREY    "\x1B[30m"
+
+#   define MAZE_LOG_COLOR_WHITE         "\x1B[37m"
+#   define MAZE_LOG_COLOR_DEFAULT       "\x1B[0m"
 
 #endif
 

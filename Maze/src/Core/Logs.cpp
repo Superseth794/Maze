@@ -75,6 +75,9 @@ void mz::Logs::changeOutputColorWindows(LogMessageType type, std::string && logC
 #elif defined(MAZE_PLATFORM_LINUX) || defined(MAZE_PLATFORM_APPLE)
 
 void mz::Logs::changeOutputColorPosix(LogMessageType type, std::string && logColor) {
+    if (isBeingDebugged()) // if an AppleCLang debugger is being used (Xcode) colorized output is disable because XCode console doesn't support colors
+        return;
+    
     switch (type) {
         case ERROR:
             m_outputStream << MAZE_LOG_COLOR_RED;
