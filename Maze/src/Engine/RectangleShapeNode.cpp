@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 12/08/2020.
 //
 
-#include "RectangleShapeNode.hpp"
+#include "../../include/Engine/RectangleShapeNode.hpp"
 
 namespace mz {
 

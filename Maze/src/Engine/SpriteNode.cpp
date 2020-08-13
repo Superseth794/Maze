@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 11/08/2020.
 //
 
-#include "SpriteNode.hpp"
+#include "../../include/Engine/SpriteNode.hpp"
 
 namespace mz {
 

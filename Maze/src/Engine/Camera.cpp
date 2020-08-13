@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 10/08/2020.
 //
 
-#include "Camera.hpp"
+#include "../../include/Engine/Camera.hpp"
 
 namespace mz {
 
