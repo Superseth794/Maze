@@ -29,6 +29,7 @@
 #include "../Engine/SpriteNode.hpp"
 #include "../Engine/CircleShapeNode.hpp"
 #include "../Engine/RectangleShapeNode.hpp"
+#include "../Engine/ConvexShapeNode.hpp"
 #include "../Engine/ConvexRegularPolygonShapeNode.hpp"
 #include "../Physics/PhysicsWorld.hpp"
 #include "../Physics/RectanglePhysicsBody.hpp"

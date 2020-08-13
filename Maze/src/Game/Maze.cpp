@@ -203,9 +203,9 @@ void Maze::lauch() {
     
     init();
     
-    auto shapesLayer = std::make_unique<RectangleShapeNode>(1900, 1200);
+    auto shapesLayer = std::make_unique<RectangleShapeNode>(1900, 1400);
     shapesLayer->setFillColor(sf::Color(50, 50, 50, 150));
-    shapesLayer->setPosition(400, 250);
+    shapesLayer->setPosition(400, 200);
     shapesLayer->setOrigin(100, 100);
     auto& shapesLayerRef = m_scene.getMainLayer().addChild(std::move(shapesLayer));
     
@@ -235,6 +235,15 @@ void Maze::lauch() {
     auto& pentagonRef = shapesLayerRef.addChild(std::move(pentagon));
     pentagonRef.setFillColor(sf::Color::Cyan);
     pentagonRef.setPosition(150, 700);
+    
+    auto convex = std::make_unique<ConvexShapeNode>(sf::Vector2f{0, 0},
+                                                    sf::Vector2f{100, 0},
+                                                    sf::Vector2f{100, 100},
+                                                    sf::Vector2f{50, 200},
+                                                    sf::Vector2f{0, 100});
+    auto& convexRef = shapesLayerRef.addChild(std::move(convex));
+    convexRef.setPosition(150, 900);
+    convexRef.setFillColor(sf::Color::Yellow);
     
     while (m_window.isOpen()) {
         
