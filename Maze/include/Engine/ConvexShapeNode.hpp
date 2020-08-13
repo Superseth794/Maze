@@ -27,8 +27,8 @@ class ConvexShapeNode : public AbstractShapeNode<ConvexShapeNode> {
 public:
     explicit ConvexShapeNode(std::size_t pointCount = 0, std::shared_ptr<sf::Texture> && texture = nullptr);
     explicit ConvexShapeNode(std::initializer_list<sf::Vector2f> && vertexes, std::shared_ptr<sf::Texture> && texture = nullptr);
-    template <typename ...Args, typename _ = typename std::enable_if<std::conjunction<std::is_same<sf::Vector2f, Args>...>::value>>
-    explicit ConvexShapeNode(Args && ...args);
+    template <typename ...Vertexes, typename _ = typename std::enable_if<std::conjunction<std::is_same<sf::Vector2f, Vertexes>...>::value>>
+    explicit ConvexShapeNode(Vertexes && ...vertexes);
     
     inline void setPoint(std::size_t index, sf::Vector2f const& point);
     
