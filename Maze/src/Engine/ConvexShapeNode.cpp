@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 13/08/2020.
 //
 
-#include "ConvexShapeNode.hpp"
+#include "../../include/Engine/ConvexShapeNode.hpp"
 
 namespace mz {
 
