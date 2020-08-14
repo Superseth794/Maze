@@ -37,9 +37,9 @@ void Layer::update(std::uint64_t timeElapsed) {
     clearRemoveBuffer();
     clearAddBuffer();
     
-    m_relativeTransform = static_cast<sf::Transformable>(*this);
+    m_relativeTransform = getRelativeTransform();
     if (m_parent) {
-        m_globalTransform = static_cast<sf::Transformable>(*m_parent);
+        m_globalTransform = m_parent->getGlobalTransform();
         m_globalTransform.setOrigin(getOrigin());
         m_globalTransform.move(getPosition());
         m_globalTransform.scale(getScale());
