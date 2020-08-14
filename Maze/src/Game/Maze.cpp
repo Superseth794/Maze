@@ -245,6 +245,18 @@ void Maze::lauch() {
     convexRef.setPosition(150, 900);
     convexRef.setFillColor(sf::Color::Yellow);
     
+    using namespace std::literals;
+    sf::Font font;
+    if (!font.loadFromFile("../../Resources/Fonts/Cousine/Cousine-Regular.ttf"))
+        throw std::runtime_error("Could not load font");
+    auto label = std::make_unique<LabelNode>("rectangle"s, font, 35);
+    auto& labelRef = circleRef.addChild(std::move(label));
+    labelRef.setFillColor(sf::Color::Red);
+    labelRef.setOrigin(labelRef.getLocalBounds().width / 2.f, labelRef.getLocalBounds().height / 2.f);
+    labelRef.setPosition(circleRef.getLocalBounds().width / 2.f, -labelRef.getLocalBounds().height * 1.2f);
+    
+    mz::Logs::Global.display(std::to_string(labelRef.getLocalBounds().height), mz::LogMessageType::WARNING);
+    
     while (m_window.isOpen()) {
         
         sf::Event event;
