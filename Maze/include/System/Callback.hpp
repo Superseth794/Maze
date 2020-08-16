@@ -13,6 +13,7 @@
 #include <memory>
 #include <optional>
 #include <tuple>
+#include <type_traits>
 
 #include "TraitsExt.hpp"
 
@@ -24,6 +25,7 @@ class Callback {
     using Return_type           = typename function_trait<F>::return_type;
     using Function_type         = typename function_trait<F>::function_type;
     using Args_container_type   = typename function_trait<F>::args_container_type;
+    using Return_container_type = std::optional<typename std::conditional<std::is_same_v<Return_type, void>, void*, Return_type>::type>;
     
 public:
     
@@ -47,11 +49,11 @@ public:
     template <class Object>
     Callback(std::function<F> && callback, Object && object) noexcept;
     
-    Callback operator=(F && callback) = delete;
-    
     Callback operator=(F const& callback) = delete;
     
-    template <typename ...Args>
+    Callback operator=(F && callback) = delete;
+    
+    template <typename ...Args, typename _ = std::enable_if_t<std::is_invocable<Function_type, Args...>::value>>
     Return_type operator()(Args && ...args) const;
     
     Return_type delayedCall();
@@ -64,16 +66,14 @@ public:
     template <typename ...Args>
     void initializeSustainably(Args && ...args);
     
-    template <typename ...Args>
-    void precomputeCallback(Args && ...args) const; // TODO: handle empty args
-    
-    void precomputeCallback();
+    template <typename ...Args, typename _ = std::enable_if_t<std::is_invocable<Function_type, Args...>::value>>
+    void precomputeCallback(Args && ...args);
     
 private:
     bool                        m_argsSetup         = false;
     Function_type               m_callback;
     Args_container_type         m_callbackArgs;
-    std::optional<Return_type>  m_callbackResult;
+    Return_container_type  m_callbackResult;
     bool                        m_sustainableArgs   = false;
 };
 
