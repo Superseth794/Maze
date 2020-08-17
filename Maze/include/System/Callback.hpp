@@ -53,7 +53,7 @@ public:
     
     Callback operator=(F && callback) = delete;
     
-    template <typename ...Args, typename _ = std::enable_if_t<std::is_invocable<Function_type, Args...>::value>>
+    template <typename ...Args>
     Return_type operator()(Args && ...args) const;
     
     Return_type delayedCall();
@@ -66,7 +66,7 @@ public:
     template <typename ...Args>
     void initializeSustainably(Args && ...args);
     
-    template <typename ...Args, typename _ = std::enable_if_t<std::is_invocable<Function_type, Args...>::value>>
+    template <typename ...Args>
     void precomputeCallback(Args && ...args);
     
 private:

@@ -55,8 +55,9 @@ m_callback(std::bind(static_cast<Function_type>(std::forward(callback))), object
 {
 }
 
-template<typename F> template <typename ...Args, typename _>
+template<typename F> template <typename ...Args>
 typename Callback<F>::Return_type Callback<F>::operator()(Args && ...args) const {
+    static_assert(std::is_invocable_v<Function_type, Args...>, "error: Callback must be invokable with given arguments");
     return m_callback(std::forward<Args>(args)...);
 }
 
@@ -92,28 +93,24 @@ void Callback<F>::initializeSustainably(Args && ...args) {
     m_sustainableArgs = true;
 }
 
-template<typename F> template <typename ...Args, typename _>
+template<typename F> template <typename ...Args>
 void Callback<F>::precomputeCallback(Args && ...args) {
-    if constexpr (std::is_same_v<Return_type, void>) {
-        if constexpr (sizeof...(args) != 0 || std::tuple_size<Args_container_type>::value == 0) {
+    constexpr bool isReturnType = std::is_same_v<Return_type, void>;
+    if constexpr (sizeof...(args) != 0 || std::tuple_size<Args_container_type>::value == 0) {
+        static_assert(std::is_invocable_v<Function_type, Args...>, "error: Callback must be invokable with given arguments");
+        if constexpr (isReturnType)
             m_callback(std::forward<Args>(args)...);
-        } else {
-            if (!m_argsSetup)
-                throw std::runtime_error("error: delayed callback called without arguments initialized");
-            m_callback(std::forward<Args>(args)...);
-            if (!m_sustainableArgs)
-                m_argsSetup = false;
-        }
-    } else {
-        if constexpr (sizeof...(args) != 0 || std::tuple_size<Args_container_type>::value == 0) {
+        else
             m_callbackResult = std::make_optional(m_callback(std::forward<Args>(args)...));
-        } else {
-            if (!m_argsSetup)
-                throw std::runtime_error("error: delayed callback called without arguments initialized");
+    } else { // use initialised args
+        if (!m_argsSetup)
+            throw std::runtime_error("error: delayed callback called without arguments initialized");
+        if constexpr (isReturnType)
+            m_callback(std::forward<Args>(args)...);
+        else
             m_callbackResult = std::make_optional(std::apply(m_callback, m_callbackArgs));
-            if (!m_sustainableArgs)
-                m_argsSetup = false;
-        }
+        if (!m_sustainableArgs)
+            m_argsSetup = false;
     }
 }
 
