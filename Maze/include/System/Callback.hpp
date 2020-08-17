@@ -28,7 +28,6 @@ class Callback {
     using Return_container_type = std::optional<typename std::conditional<std::is_same_v<Return_type, void>, void*, Return_type>::type>;
     
 public:
-    
     Callback(F const& callback) noexcept;
     
     Callback(F && callback) noexcept;
@@ -73,7 +72,7 @@ private:
     bool                        m_argsSetup         = false;
     Function_type               m_callback;
     Args_container_type         m_callbackArgs;
-    Return_container_type  m_callbackResult;
+    Return_container_type       m_callbackResult;
     bool                        m_sustainableArgs   = false;
 };
 
