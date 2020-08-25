@@ -73,6 +73,7 @@ class Action { // TODO: maybe use a poolObject
         
         struct {
             std::vector<Action> actions;
+            std::size_t         playedActionId;
         } sequenceData;
         
         struct {
@@ -221,6 +222,8 @@ private:
     Action getRelativeReversed(Node* node) const;
     
     Action getReversedData(Node* node) const;
+    
+    std::uint64_t getTimeUsed(std::uint64_t timeElapsed);
     
     void inline setCallback(CompletionCallback && callback);
     

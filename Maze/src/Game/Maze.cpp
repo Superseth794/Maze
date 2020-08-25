@@ -227,10 +227,10 @@ void Maze::lauch() {
         sf::Vector2f(100.f, 0.f),
         sf::Vector2f(100.f, 100.f),
         sf::Vector2f(0.f, 100.f),
-        sf::Vector2f(0.f, 0.f),
+        sf::Vector2f(0.f, 0.f)
     })};
     followAction.setRelativeToParent(true);
-    followAction.setDuration(1000000);
+    followAction.setDuration(4000000);
     
     auto reversed {followAction.getReversed(&shapesLayerRef)};
     

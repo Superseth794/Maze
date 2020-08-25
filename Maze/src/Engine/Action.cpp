@@ -425,6 +425,7 @@ void Action::completeInitScale() {
 
 void Action::completeInitSequence() {
     completeInitOfActions(m_data.sequenceData.actions);
+    m_data.sequenceData.playedActionId = 0;
     m_duration = 0.f;
     for (auto const& action : m_data.sequenceData.actions)
         m_duration += action.m_duration;
@@ -494,22 +495,6 @@ float Action::getProgress(std::uint64_t timeElapsed, std::uint64_t duration) {
     }
 }
 
-Action Action::getReversedData(Node* node) const {
-    if (m_type == ActionType::SEQUENCE) {
-        return Action::Sequence(getActionsReversed(m_data.sequenceData.actions, node));
-    } else if (m_type == ActionType::GROUP) {
-        return  Action::Group(getActionsReversed(m_data.groupData.actions, node));
-    } else if (m_isRelativeToInitialState && node) {
-        if (m_type == FOLLOW_PATH)
-            return Action::FollowPath(getPathReversed(m_data.pathData.positions, node));
-        else
-            return getRelativeReversed(node);
-    } else {
-        return getAbsoluteReversed();
-    }
-    return Action::Empty();
-}
-
 Action Action::getRelativeReversed(Node* node) const {
     auto& nodeTransform = (m_isRelativeToParent ? node->getRelativeTransform() : node->getGlobalTransform());
     switch (m_type) {
@@ -531,9 +516,44 @@ Action Action::getRelativeReversed(Node* node) const {
     return Action::Empty();
 }
 
+Action Action::getReversedData(Node* node) const {
+    if (m_type == ActionType::SEQUENCE) {
+        return Action::Sequence(getActionsReversed(m_data.sequenceData.actions, node));
+    } else if (m_type == ActionType::GROUP) {
+        return  Action::Group(getActionsReversed(m_data.groupData.actions, node));
+    } else if (m_isRelativeToInitialState && node) {
+        if (m_type == FOLLOW_PATH)
+            return Action::FollowPath(getPathReversed(m_data.pathData.positions, node));
+        else
+            return getRelativeReversed(node);
+    } else {
+        return getAbsoluteReversed();
+    }
+    return Action::Empty();
+}
+
+std::uint64_t Action::getTimeUsed(std::uint64_t timeElapsed) {
+    switch (m_type) {
+        case MOVE :
+        case ROTATE :
+        case SCALE :
+        case FOLLOW_PATH :
+        case SEQUENCE :
+        case GROUP :
+        case SPEED :
+        case PAUSE :
+            return (m_timeElapsed + timeElapsed < m_duration ? timeElapsed : m_duration - m_timeElapsed);
+        case REMOVE_FROM_PARENT :
+        case EMPTY :
+            return 0;
+    }
+}
+
 std::uint64_t Action::update(std::uint64_t timeElapsed) {
-    const std::uint64_t newTimeElapsed = std::min(m_timeElapsed + timeElapsed, m_duration);
-    const float progress = getProgress(newTimeElapsed, m_duration) - getCurrentProgress();
+    const std::uint64_t timeUsed = getTimeUsed(timeElapsed);
+    const float progress = getProgress(m_timeElapsed + timeUsed, m_duration) - getCurrentProgress();
+    
+    std::cout << m_timeElapsed << " " << m_duration << " " << timeUsed << " " << timeElapsed << "\n";
     
     switch (m_type) {
         case ActionType::MOVE :
@@ -564,19 +584,19 @@ std::uint64_t Action::update(std::uint64_t timeElapsed) {
         case ActionType::EMPTY : break;
     }
     
-    const std::uint64_t timeLeft = (m_timeElapsed + timeElapsed) - newTimeElapsed;
-    m_timeElapsed = newTimeElapsed;
+    m_timeElapsed += timeUsed;
     
-    if (timeLeft > 0.f && m_completionCallback)
-        m_completionCallback.value();
+    if (isCompleted()) {
+        if (m_completionCallback)
+            m_completionCallback.value()();
+        return timeElapsed - timeUsed;
+    }
     
-    return timeLeft;
+    return 0;
 }
 
 void Action::updateFollowPath(float progress) {
     float movingDistanceLeft = progress * m_data.pathData.distance;
-    
-    Logs::Global.display(std::to_string(movingDistanceLeft), CUSTOM);
     
     while (m_data.pathData.targetPositionId < m_data.pathData.positions.size()) {
         auto const& currentPosition = getOwnerCurrentPosition();
@@ -622,10 +642,12 @@ void Action::updateScale(float progress) {
 
 void Action::updateSequence(float progress) {
     std::uint64_t timeLeft = static_cast<std::uint64_t>(progress * m_duration);
-    for (auto& action : m_data.groupData.actions) {
-        if (!action.isCompleted())
-            timeLeft = action.update(timeLeft);
-        if (timeLeft == 0.f)
+    while (m_data.sequenceData.playedActionId < m_data.sequenceData.actions.size()) {
+        auto& action = m_data.sequenceData.actions[m_data.sequenceData.playedActionId];
+        timeLeft = action.update(timeLeft);
+        if (action.isCompleted())
+            ++m_data.sequenceData.playedActionId;
+        else
             break;
     }
 }
