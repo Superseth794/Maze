@@ -10,19 +10,27 @@
 #ifndef Node_hpp
 #define Node_hpp
 
+#include <algorithm>
 #include <memory>
+#include <optional>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include <SFML/Graphics.hpp>
 
+#include "Action.hpp"
 #include "Layer.hpp"
-#include "../Physics/PhysicsBody.hpp"
+#include "../System/Callback.hpp"
 
 namespace mz {
 
-class Layer;
+class Action;
 
-class Node : public Layer { // Dynamic
+class Node : public Layer {
+public:
+    using ActionCompletionCallback = Callback<void()>;
+    
 public:
     Node() = default;
     Node(Node const& node) = delete;
@@ -35,10 +43,19 @@ public:
     
     virtual void draw(Camera const& camera) override;
     
+    void run(Action && action);
+    
+    void run(Action && action, std::string && name);
+    
+    void run(Action && action, ActionCompletionCallback && callback);
+    
+    void run(Action && action, std::string && name, ActionCompletionCallback && callback);
+    
     virtual void update(std::uint64_t timeElapsed) override;
     
 private:
-    std::unique_ptr<PhysicsBody>    m_physicsBody; // TODO: add complete support for physics bodies
+    std::vector<Action>                     m_actions;
+    std::unordered_map<std::string, Action> m_namedActions;
 };
 
 }

@@ -213,6 +213,35 @@ void Maze::lauch() {
     auto& originCircleRef = shapesLayerRef.addChild(std::move(originCircle));
     originCircleRef.setFillColor(sf::Color::White);
     
+    auto moveAction {mz::Action::MoveByY(200)};
+    moveAction.setDuration(2000000);
+    moveAction.setTimingMode(Action::TimingMode::LINEAR);
+    
+    auto scaleAction {mz::Action::ScaleBy(0.8f, 0.8f)};
+    scaleAction.setDuration(2000000);
+    scaleAction.setTimingMode(Action::TimingMode::LINEAR);
+    
+    auto pauseAction {mz::Action::Pause(5000000)};
+    
+    auto followAction {Action::FollowPath({
+        sf::Vector2f(100.f, 0.f),
+        sf::Vector2f(100.f, 100.f),
+        sf::Vector2f(0.f, 100.f),
+        sf::Vector2f(0.f, 0.f),
+    })};
+    followAction.setRelativeToParent(true);
+    followAction.setDuration(4000000);
+    
+    auto reversed {followAction.getReversed(&shapesLayerRef)};
+    
+//    auto sequenceAction {mz::Action::Sequence({std::move(moveAction), std::move(scaleAction), std::move(pauseAction), std::move(followAction), std::move(reversed)})};
+    auto sequenceAction {mz::Action::Sequence({std::move(followAction), std::move(reversed)})};
+    sequenceAction.setTimingMode(Action::TimingMode::LINEAR);
+    
+    originCircleRef.run(std::move(sequenceAction), mz::Action::CompletionCallback{[]() {
+        mz::Logs::Global.display("Move action ended !", SUCCESS);
+    }});
+    
     auto circle = std::make_unique<CircleShapeNode>(40);
     auto& circleRef = shapesLayerRef.addChild(std::move(circle));
     circleRef.setFillColor(sf::Color::Red);
@@ -255,8 +284,6 @@ void Maze::lauch() {
     labelRef.setOrigin(labelRef.getLocalBounds().width / 2.f, labelRef.getLocalBounds().height / 2.f);
     labelRef.setPosition(circleRef.getLocalBounds().width / 2.f, -labelRef.getLocalBounds().height * 1.2f);
     
-    mz::Logs::Global.display(std::to_string(labelRef.getLocalBounds().height), mz::LogMessageType::WARNING);
-    
     while (m_window.isOpen()) {
         
         sf::Event event;
@@ -275,7 +302,7 @@ void Maze::lauch() {
         m_fps = 1.f / timeElapsed * 1000.f * 1000.f; // TODO show_fps debug var
         m_gameClock.restart();
         
-        shapesLayerRef.move(1.f, 0.f);
+//        shapesLayerRef.move(1.f, 0.f);
         
 //        update();
 //        updateCamera();
