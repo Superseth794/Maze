@@ -230,7 +230,7 @@ void Maze::lauch() {
         sf::Vector2f(0.f, 0.f),
     })};
     followAction.setRelativeToParent(true);
-    followAction.setDuration(4000000);
+    followAction.setDuration(1000000);
     
     auto reversed {followAction.getReversed(&shapesLayerRef)};
     
@@ -239,7 +239,7 @@ void Maze::lauch() {
     sequenceAction.setTimingMode(Action::TimingMode::LINEAR);
     
     originCircleRef.run(std::move(sequenceAction), mz::Action::CompletionCallback{[]() {
-        mz::Logs::Global.display("Move action ended !", SUCCESS);
+        mz::Logs::Global.display("Follow action ended !", SUCCESS);
     }});
     
     auto circle = std::make_unique<CircleShapeNode>(40);

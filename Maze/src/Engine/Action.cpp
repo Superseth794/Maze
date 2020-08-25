@@ -576,19 +576,21 @@ std::uint64_t Action::update(std::uint64_t timeElapsed) {
 void Action::updateFollowPath(float progress) {
     float movingDistanceLeft = progress * m_data.pathData.distance;
     
+    Logs::Global.display(std::to_string(movingDistanceLeft), CUSTOM);
+    
     while (m_data.pathData.targetPositionId < m_data.pathData.positions.size()) {
         auto const& currentPosition = getOwnerCurrentPosition();
         const sf::Vector2f deltaPos = m_data.pathData.positions[m_data.pathData.targetPositionId] - currentPosition;
         const float distanceToTarget = getVectorLength(deltaPos);
         
-        const float ratioUsed = std::min(movingDistanceLeft / distanceToTarget, 1.f);
-        m_owner->move(deltaPos * ratioUsed);
-        movingDistanceLeft -= distanceToTarget * ratioUsed;
-        
-        if (movingDistanceLeft > std::numeric_limits<float>::epsilon())
+        if (movingDistanceLeft > distanceToTarget) {
+            m_owner->move(deltaPos);
+            movingDistanceLeft -= distanceToTarget;
             ++m_data.pathData.targetPositionId;
-        else
+        } else {
+            m_owner->move(deltaPos * (movingDistanceLeft / distanceToTarget));
             break;
+        }
     }
 }
 
