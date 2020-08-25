@@ -7,6 +7,29 @@
 
 #include "../../include/Engine/Action.hpp"
 
+namespace std {
+
+void swap(mz::Action& lhs, mz::Action& rhs) noexcept {
+    mz::Action::DataType tmpData {};
+    mz::Action::ActionType tmpDataType = lhs.m_type;
+    
+    mz::Action::DataType::exchange(lhs.m_type,  lhs.m_data, tmpData);
+    mz::Action::DataType::exchange(rhs.m_type,  rhs.m_data, lhs.m_data);
+    mz::Action::DataType::exchange(tmpDataType, tmpData,    rhs.m_data);
+    
+    std::swap(lhs.m_completionCallback,         rhs.m_completionCallback);
+    std::swap(lhs.m_duration,                   rhs.m_duration);
+    std::swap(lhs.m_isRelativeToInitialState,   rhs.m_isRelativeToInitialState);
+    std::swap(lhs.m_isRelativeToParent,         rhs.m_isRelativeToParent);
+    std::swap(lhs.m_owner,                      rhs.m_owner);
+    std::swap(lhs.m_speed,                      rhs.m_speed);
+    std::swap(lhs.m_timeElapsed,                rhs.m_timeElapsed);
+    std::swap(lhs.m_timingMode,                 rhs.m_timingMode);
+    std::swap(lhs.m_type,                       rhs.m_type);
+}
+
+} // namespace std
+
 namespace mz {
 
 Action::DataType::DataType() {
@@ -15,14 +38,44 @@ Action::DataType::DataType() {
 
 Action::DataType::~DataType() {}
 
+void Action::DataType::exchange(mz::Action::ActionType type, mz::Action::DataType& inputData, mz::Action::DataType& outputData) {
+    switch (type) {
+        case mz::Action::ActionType::MOVE :
+            outputData.moveData = std::move(inputData.moveData);
+            break;
+        case mz::Action::ActionType::ROTATE :
+            outputData.rotateData.rotation = inputData.rotateData.rotation;
+            break;
+        case mz::Action::ActionType::SCALE :
+            outputData.scaleData = std::move(inputData.scaleData);
+            break;
+        case mz::Action::ActionType::FOLLOW_PATH :
+            outputData.pathData = std::move(inputData.pathData);
+            break;
+        case mz::Action::ActionType::REMOVE_FROM_PARENT : break;
+        case mz::Action::ActionType::SEQUENCE :
+            outputData.sequenceData = std::move(inputData.sequenceData);
+            break;
+        case mz::Action::ActionType::GROUP :
+            outputData.groupData = std::move(inputData.groupData);
+            break;
+        case mz::Action::ActionType::SPEED :
+            outputData.speedData.speed = inputData.speedData.speed;
+            break;
+        case mz::Action::ActionType::PAUSE : break;
+        case mz::Action::ActionType::EMPTY : break;
+    }
+}
+
 Action::Action(Action const& action) noexcept :
 m_completionCallback(std::nullopt),
 m_data(),
 m_duration(action.m_duration),
 m_isRelativeToInitialState(action.m_isRelativeToInitialState),
 m_isRelativeToParent(action.m_isRelativeToParent),
-m_owner(nullptr),
+m_owner(action.m_owner),
 m_speed(action.m_speed),
+m_timeElapsed(action.m_timeElapsed),
 m_timingMode(action.m_timingMode),
 m_type(action.m_type)
 {
@@ -41,10 +94,12 @@ m_type(action.m_type)
             break;
         case ActionType::REMOVE_FROM_PARENT : break;
         case ActionType::SEQUENCE :
-            m_data.sequenceData.actions = action.m_data.sequenceData.actions;
+            for (auto const& action : action.m_data.sequenceData.actions)
+                m_data.sequenceData.actions.emplace_back(action);
             break;
         case ActionType::GROUP :
-            m_data.groupData.actions = action.m_data.groupData.actions;
+            for (auto const& action : action.m_data.sequenceData.actions)
+                m_data.sequenceData.actions.emplace_back(action);
             break;
         case ActionType::SPEED :
             m_data.speedData.speed = action.m_data.speedData.speed;
@@ -57,48 +112,16 @@ m_type(action.m_type)
 Action::Action(Action && action) noexcept :
 m_completionCallback(std::move(action.m_completionCallback)),
 m_data(),
-m_duration(std::move(action.m_duration)),
-m_isRelativeToInitialState(std::move(action.m_isRelativeToInitialState)),
-m_isRelativeToParent(std::move(action.m_isRelativeToParent)),
-m_owner(std::move(action.m_owner)),
-m_speed(std::move(action.m_speed)),
-m_timingMode(std::move(action.m_timingMode)),
-m_type(std::move(action.m_type))
+m_duration(action.m_duration),
+m_isRelativeToInitialState(action.m_isRelativeToInitialState),
+m_isRelativeToParent(action.m_isRelativeToParent),
+m_owner(action.m_owner),
+m_speed(action.m_speed),
+m_timeElapsed(action.m_timeElapsed),
+m_timingMode(action.m_timingMode),
+m_type(action.m_type)
 {
-    switch (m_type) {
-        case ActionType::MOVE :
-            m_data.moveData.position = std::move(action.m_data.moveData.position);
-            break;
-        case ActionType::ROTATE :
-            m_data.rotateData.rotation = std::move(action.m_data.rotateData.rotation);
-            break;
-        case ActionType::SCALE :
-            m_data.scaleData.scaleFactor = std::move(action.m_data.scaleData.scaleFactor);
-            break;
-        case ActionType::FOLLOW_PATH :
-            m_data.pathData.positions = std::move(action.m_data.pathData.positions);
-            break;
-        case ActionType::REMOVE_FROM_PARENT : break;
-        case ActionType::SEQUENCE :
-            m_data.sequenceData.actions = std::move(action.m_data.sequenceData.actions);
-            break;
-        case ActionType::GROUP :
-            m_data.groupData.actions = std::move(action.m_data.groupData.actions);
-            break;
-        case ActionType::SPEED :
-            m_data.speedData.speed = std::move(action.m_data.speedData.speed);
-            break;
-        case ActionType::PAUSE : break;
-        case ActionType::EMPTY : break;
-    }
-}
-
-Action Action::operator=(Action const& action) noexcept {
-    return Action(action);
-}
-
-Action Action::operator=(Action && action) noexcept {
-    return Action(std::forward<Action>(action));
+    DataType::exchange(m_type, action.m_data, m_data);
 }
 
 Action::~Action() {
@@ -128,21 +151,8 @@ Action::~Action() {
     }
 }
 
-Action Action::Action::getReversed(Node* node) const {
-    Action reversedAction = Action::Empty();
-    
-    if (m_type == ActionType::SEQUENCE) {
-        reversedAction = Action::Sequence(getActionsReversed(m_data.sequenceData.actions, node));
-    } else if (m_type == ActionType::GROUP) {
-        reversedAction = Action::Group(getActionsReversed(m_data.groupData.actions, node));
-    } else if (m_isRelativeToInitialState && node) {
-        if (m_type == FOLLOW_PATH)
-            reversedAction = Action::FollowPath(getPathReversed(m_data.pathData.positions, node));
-        else
-            reversedAction = getRelativeReversed(node);
-    } else {
-        reversedAction = getAbsoluteReversed();
-    }
+Action Action::getReversed(Node* node) const {
+    Action reversedAction = getReversedData(node);
     
     if (reversedAction.m_type == ActionType::EMPTY)
         mz::Logs::Global.display("Could not generate reversed action", LogMessageType::ERROR);
@@ -159,22 +169,21 @@ Action Action::Empty() {
 }
 
 Action Action::FollowPath(std::vector<sf::Vector2f> const& path) {
-    Action followAction {ActionType::FOLLOW_PATH, false};
+    Action followAction {ActionType::FOLLOW_PATH, true};
     followAction.m_data.pathData.positions = path;
-    followAction.m_data.pathData.currentPosition = 0;
     return followAction;
 }
 
 Action Action::FollowPath(std::vector<sf::Vector2f> && path) {
-    Action followAction {ActionType::FOLLOW_PATH, false};
+    Action followAction {ActionType::FOLLOW_PATH, true};
     followAction.m_data.pathData.positions = std::forward<std::vector<sf::Vector2f>>(path);
-    followAction.m_data.pathData.currentPosition = 0;
     return followAction;
 }
 
 Action Action::Group(std::vector<Action> const& actions) {
     Action groupAction {ActionType::GROUP, false};
-    groupAction.m_data.groupData.actions = actions;
+    for (auto const& action : actions)
+        groupAction.m_data.sequenceData.actions.emplace_back(action);
     return groupAction;
 }
 
@@ -304,7 +313,8 @@ Action Action::ScaleToY(float y) {
 
 Action Action::Sequence(std::vector<Action> const& actions) {
     Action sequenceAction {ActionType::SEQUENCE, false};
-    sequenceAction.m_data.sequenceData.actions = actions;
+    for (auto const& action : actions)
+        sequenceAction.m_data.sequenceData.actions.emplace_back(action);
     return sequenceAction;
 }
 
@@ -334,6 +344,7 @@ m_isRelativeToInitialState(isRelativeToInitialState),
 m_isRelativeToParent(true),
 m_owner(nullptr),
 m_speed(1.f),
+m_timeElapsed(0),
 m_timingMode(TimingMode::LINEAR),
 m_type(type)
 {
@@ -379,7 +390,7 @@ void Action::completeInitFollowPath() {
         previousPosition = nextPosition;
     }
     m_data.pathData.distance = distance;
-    m_data.pathData.currentPosition = std::size_t(0);
+    m_data.pathData.targetPositionId = std::size_t(0);
 }
 
 void Action::completeInitGroup() {
@@ -393,7 +404,6 @@ void Action::completeInitMove() {
     assert(m_duration != 0.f);
     if (m_isRelativeToInitialState)
         m_data.moveData.position = getOwnerCurrentPosition() - m_data.moveData.position;
-    m_data.moveData.position /= static_cast<float>(m_duration);
 }
 
 void Action::completeInitOfActions(std::vector<Action>& actions) {
@@ -405,14 +415,12 @@ void Action::completeInitRotate() {
     assert(m_duration != 0.f);
     if (m_isRelativeToParent)
         m_data.rotateData.rotation = getOwnerCurrentTransform().getRotation() - m_data.rotateData.rotation;
-    m_data.rotateData.rotation /= static_cast<float>(m_duration);
 }
 
 void Action::completeInitScale() {
     assert(m_duration != 0.f);
     if (m_isRelativeToParent)
         m_data.scaleData.scaleFactor = getOwnerCurrentTransform().getScale() - m_data.scaleData.scaleFactor;
-    m_data.scaleData.scaleFactor /= static_cast<float>(m_duration);
 }
 
 void Action::completeInitSequence() {
@@ -486,8 +494,24 @@ float Action::getProgress(std::uint64_t timeElapsed, std::uint64_t duration) {
     }
 }
 
+Action Action::getReversedData(Node* node) const {
+    if (m_type == ActionType::SEQUENCE) {
+        return Action::Sequence(getActionsReversed(m_data.sequenceData.actions, node));
+    } else if (m_type == ActionType::GROUP) {
+        return  Action::Group(getActionsReversed(m_data.groupData.actions, node));
+    } else if (m_isRelativeToInitialState && node) {
+        if (m_type == FOLLOW_PATH)
+            return Action::FollowPath(getPathReversed(m_data.pathData.positions, node));
+        else
+            return getRelativeReversed(node);
+    } else {
+        return getAbsoluteReversed();
+    }
+    return Action::Empty();
+}
+
 Action Action::getRelativeReversed(Node* node) const {
-    auto& nodeTransform = getOwnerCurrentTransform();
+    auto& nodeTransform = (m_isRelativeToParent ? node->getRelativeTransform() : node->getGlobalTransform());
     switch (m_type) {
         case ActionType::MOVE :
             return Action::MoveTo(nodeTransform.getPosition());
@@ -542,22 +566,29 @@ std::uint64_t Action::update(std::uint64_t timeElapsed) {
     
     const std::uint64_t timeLeft = (m_timeElapsed + timeElapsed) - newTimeElapsed;
     m_timeElapsed = newTimeElapsed;
+    
+    if (timeLeft > 0.f && m_completionCallback)
+        m_completionCallback.value();
+    
     return timeLeft;
 }
 
 void Action::updateFollowPath(float progress) {
-    float distanceLeft = progress * m_data.pathData.distance;
-    while (m_data.pathData.currentPosition < m_data.pathData.positions.size()) {
-        auto const currentPosition = getOwnerCurrentPosition();
-        const sf::Vector2f deltaPos = m_data.pathData.positions[m_data.pathData.currentPosition] - currentPosition;
-        const float distance = getVectorLength(deltaPos);
+    float movingDistanceLeft = progress * m_data.pathData.distance;
+    
+    while (m_data.pathData.targetPositionId < m_data.pathData.positions.size()) {
+        auto const& currentPosition = getOwnerCurrentPosition();
+        const sf::Vector2f deltaPos = m_data.pathData.positions[m_data.pathData.targetPositionId] - currentPosition;
+        const float distanceToTarget = getVectorLength(deltaPos);
         
-        const float ratioUsed = std::min(distanceLeft / distance, 1.f);
+        const float ratioUsed = std::min(movingDistanceLeft / distanceToTarget, 1.f);
         m_owner->move(deltaPos * ratioUsed);
-        distanceLeft -= distance * ratioUsed;
+        movingDistanceLeft -= distanceToTarget * ratioUsed;
         
-        if (distanceLeft > 0.f)
-            ++m_data.pathData.currentPosition;
+        if (movingDistanceLeft > std::numeric_limits<float>::epsilon())
+            ++m_data.pathData.targetPositionId;
+        else
+            break;
     }
 }
 
@@ -578,11 +609,13 @@ void Action::updateRemove() {
 }
 
 void Action::updateRotate(float progress) {
-    m_owner->rotate(progress * m_data.rotateData.rotation);
+    float rotation = progress * m_data.rotateData.rotation;
+    m_owner->rotate(rotation);
 }
 
 void Action::updateScale(float progress) {
-    m_owner->scale(progress * m_data.scaleData.scaleFactor);
+    auto scale =  sf::Vector2f(1.f, 1.f) - progress * m_data.scaleData.scaleFactor;
+    m_owner->scale(scale);
 }
 
 void Action::updateSequence(float progress) {

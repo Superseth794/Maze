@@ -8,7 +8,9 @@
 #ifndef Action_hpp
 #define Action_hpp
 
+#include <algorithm>
 #include <cstring>
+#include <utility>
 #include <vector>
 
 #include <SFML/Graphics.hpp>
@@ -19,11 +21,21 @@
 #include "../System/MathsExt.hpp"
 
 namespace mz {
+class Action;
+} // namespace mz
+
+namespace std {
+void swap(mz::Action& lhs, mz::Action& rhs) noexcept;
+} // namespace std
+
+namespace mz {
 
 class Node;
 
 class Action { // TODO: maybe use a poolObject
     friend class Node;
+    
+    friend void std::swap(Action& lhs, Action& rhs) noexcept; // TODO: update for C++20
     
     enum ActionType : std::uint16_t { // TODO: Add repeat
         MOVE,
@@ -52,7 +64,7 @@ class Action { // TODO: maybe use a poolObject
         } scaleData;
 
         struct {
-            std::size_t                 currentPosition;
+            std::size_t                 targetPositionId;
             float                       distance;
             std::vector<sf::Vector2f>   positions;
         } pathData;
@@ -78,6 +90,8 @@ class Action { // TODO: maybe use a poolObject
         DataType();
         
         ~DataType();
+        
+        static void exchange(mz::Action::ActionType inputType, mz::Action::DataType& inputData, mz::Action::DataType& outputData);
     };
     
 public:
@@ -94,8 +108,8 @@ public:
     Action(Action const& action) noexcept;
     Action(Action && action) noexcept;
     
-    Action operator=(Action const& action) noexcept;
-    Action operator=(Action && action) noexcept;
+    Action& operator=(Action const& action) = delete;
+    Action& operator=(Action && action) = delete;
     
     ~Action();
     
@@ -206,6 +220,8 @@ private:
     
     Action getRelativeReversed(Node* node) const;
     
+    Action getReversedData(Node* node) const;
+    
     void inline setCallback(CompletionCallback && callback);
     
     std::uint64_t update(std::uint64_t timeElapsed);
@@ -236,10 +252,10 @@ private:
     float                               m_speed;
     std::uint64_t                       m_timeElapsed;
     TimingMode                          m_timingMode;
-    const ActionType                    m_type;
+    ActionType                          m_type;
 };
 
-}
+} // namespace mz
 
 #include "Action.inl"
 
