@@ -124,7 +124,7 @@ public:
     
     inline void setRelativeToParent(bool isRelativeToParent = true);
     
-    inline void setSpeed(float speed = 1.f);
+    inline void setSpeed(float speed);
     
     inline void setTimingMode(TimingMode timingMode);
     

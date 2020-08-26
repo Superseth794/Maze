@@ -43,6 +43,8 @@ public:
     
     virtual void draw(Camera const& camera) override;
     
+    inline float getSpeed() const;
+    
     void run(Action && action);
     
     void run(Action && action, std::string && name);
@@ -51,13 +53,18 @@ public:
     
     void run(Action && action, std::string && name, ActionCompletionCallback && callback);
     
+    inline void setSpeed(float speed);
+    
     virtual void update(std::uint64_t timeElapsed) override;
     
 private:
     std::vector<Action>                     m_actions;
     std::unordered_map<std::string, Action> m_namedActions;
+    float                                   m_speed         = 1.f;
 };
 
 }
+
+#include "Node.inl"
 
 #endif /* Node_hpp */

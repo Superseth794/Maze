@@ -401,7 +401,6 @@ void Action::completeInitGroup() {
 }
 
 void Action::completeInitMove() {
-    assert(m_duration != 0.f);
     if (m_isRelativeToInitialState)
         m_data.moveData.position = getOwnerCurrentPosition() - m_data.moveData.position;
 }
@@ -412,13 +411,11 @@ void Action::completeInitOfActions(std::vector<Action>& actions) {
 }
 
 void Action::completeInitRotate() {
-    assert(m_duration != 0.f);
     if (m_isRelativeToParent)
         m_data.rotateData.rotation = getOwnerCurrentTransform().getRotation() - m_data.rotateData.rotation;
 }
 
 void Action::completeInitScale() {
-    assert(m_duration != 0.f);
     if (m_isRelativeToParent)
         m_data.scaleData.scaleFactor = getOwnerCurrentTransform().getScale() - m_data.scaleData.scaleFactor;
 }
@@ -432,7 +429,8 @@ void Action::completeInitSequence() {
 }
 
 void Action::completeInitSpeed() {
-    // TODO: implement speed
+    if (m_isRelativeToInitialState)
+        m_data.speedData.speed = m_owner->getSpeed() - m_data.speedData.speed;
 }
 
 Action Action::getAbsoluteReversed() const {
@@ -550,6 +548,8 @@ std::uint64_t Action::getTimeUsed(std::uint64_t timeElapsed) {
 }
 
 std::uint64_t Action::update(std::uint64_t timeElapsed) {
+    timeElapsed *= m_owner->getSpeed() * m_speed;
+    
     const std::uint64_t timeUsed = getTimeUsed(timeElapsed);
     const float progress = getProgress(m_timeElapsed + timeUsed, m_duration) - getCurrentProgress();
     
@@ -653,7 +653,7 @@ void Action::updateSequence(float progress) {
 }
 
 void Action::updateSpeed(float progress) {
-    
+    m_owner->setSpeed(m_owner->getSpeed() + m_data.speedData.speed * progress);
 }
 
 }
