@@ -9,6 +9,7 @@
 #define Action_hpp
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <utility>
 #include <vector>

@@ -16,7 +16,7 @@ inline bool Action::isCompleted() const {
 }
 
 inline void Action::setDuration(std::uint64_t duration) {
-    m_duration = duration;
+    m_duration = std::max(duration, static_cast<std::uint64_t>(1));
 }
 
 inline void Action::setRelativeToParent(bool isRelativeToParent) {

@@ -395,7 +395,7 @@ void Action::completeInitFollowPath() {
 
 void Action::completeInitGroup() {
     completeInitOfActions(m_data.groupData.actions);
-    m_duration = 0.f;
+    m_duration = 0;
     for (auto& action : m_data.groupData.actions)
         m_duration = std::max(action.m_duration, m_duration);
 }
@@ -430,7 +430,7 @@ void Action::completeInitSequence() {
 
 void Action::completeInitSpeed() {
     if (m_isRelativeToInitialState)
-        m_data.speedData.speed = m_owner->getSpeed() - m_data.speedData.speed;
+        m_data.speedData.speed -= m_owner->getSpeed();
 }
 
 Action Action::getAbsoluteReversed() const {
@@ -448,7 +448,7 @@ Action Action::getAbsoluteReversed() const {
         case ActionType::GROUP : break;
         case ActionType::SPEED :
             assert(m_data.speedData.speed > 0.f);
-            return Action::SpeedBy(1.f / m_data.speedData.speed);
+            return Action::SpeedBy(-m_data.speedData.speed);
         case ActionType::PAUSE : break;
         case ActionType::EMPTY : break;
     }
@@ -519,8 +519,10 @@ Action Action::getReversedData(Node* node) const {
         return Action::Sequence(getActionsReversed(m_data.sequenceData.actions, node));
     } else if (m_type == ActionType::GROUP) {
         return  Action::Group(getActionsReversed(m_data.groupData.actions, node));
-    } else if (m_isRelativeToInitialState && node) {
-        if (m_type == FOLLOW_PATH)
+    } else if (m_isRelativeToInitialState) {
+        if (!node)
+            return Action::Empty();
+        else if (m_type == FOLLOW_PATH)
             return Action::FollowPath(getPathReversed(m_data.pathData.positions, node));
         else
             return getRelativeReversed(node);
@@ -552,8 +554,6 @@ std::uint64_t Action::update(std::uint64_t timeElapsed) {
     
     const std::uint64_t timeUsed = getTimeUsed(timeElapsed);
     const float progress = getProgress(m_timeElapsed + timeUsed, m_duration) - getCurrentProgress();
-    
-    std::cout << m_timeElapsed << " " << m_duration << " " << timeUsed << " " << timeElapsed << "\n";
     
     switch (m_type) {
         case ActionType::MOVE :
