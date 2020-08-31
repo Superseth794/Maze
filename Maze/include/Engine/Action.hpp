@@ -121,7 +121,11 @@ public:
     
     inline bool isCompleted() const;
     
+    inline bool isPaused() const;
+    
     inline void setDuration(std::uint64_t duration);
+    
+    inline void setPaused(bool isPaused);
     
     inline void setRelativeToParent(bool isRelativeToParent = true);
     
@@ -249,13 +253,14 @@ private:
 private:
     std::optional<CompletionCallback>   m_completionCallback;
     DataType                            m_data;
-    std::uint64_t                       m_duration;
+    std::uint64_t                       m_duration                  = 0;
+    bool                                m_isPaused                  = false;
     bool                                m_isRelativeToInitialState;
     bool                                m_isRelativeToParent;
     Node*                               m_owner;
-    float                               m_speed;
+    float                               m_speed                     = 1.f;
     std::uint64_t                       m_timeElapsed;
-    TimingMode                          m_timingMode;
+    TimingMode                          m_timingMode                = TimingMode::LINEAR;
     ActionType                          m_type;
 };
 

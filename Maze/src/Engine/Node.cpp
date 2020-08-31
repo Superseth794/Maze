@@ -35,8 +35,21 @@ void Node::run(Action && action, std::string && name, Action::CompletionCallback
     actionRef.setCallback(std::forward<Action::CompletionCallback>(callback));
 }
 
+bool Node::setActionPaused(std::string const& actionIdentifier, bool isPaused) {
+    auto actionIt = m_namedActions.find(actionIdentifier);
+    if (actionIt != m_namedActions.end()) {
+        actionIt->second.setPaused(isPaused);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void Node::update(std::uint64_t timeElapsed) {
     Layer::update(timeElapsed);
+    
+    if (m_isPaused)
+        return;
     
     for (auto& action : m_actions)
         action.update(timeElapsed);

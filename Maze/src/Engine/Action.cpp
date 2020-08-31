@@ -71,6 +71,7 @@ Action::Action(Action const& action) noexcept :
 m_completionCallback(std::nullopt),
 m_data(),
 m_duration(action.m_duration),
+m_isPaused(action.isPaused()),
 m_isRelativeToInitialState(action.m_isRelativeToInitialState),
 m_isRelativeToParent(action.m_isRelativeToParent),
 m_owner(action.m_owner),
@@ -113,6 +114,7 @@ Action::Action(Action && action) noexcept :
 m_completionCallback(std::move(action.m_completionCallback)),
 m_data(),
 m_duration(action.m_duration),
+m_isPaused(action.isPaused()),
 m_isRelativeToInitialState(action.m_isRelativeToInitialState),
 m_isRelativeToParent(action.m_isRelativeToParent),
 m_owner(action.m_owner),
@@ -339,13 +341,10 @@ Action Action::SpeedTo(float speedFactor) {
 Action::Action(ActionType type, bool isRelativeToInitialState) :
 m_completionCallback(std::nullopt),
 m_data(),
-m_duration(0.f),
 m_isRelativeToInitialState(isRelativeToInitialState),
 m_isRelativeToParent(true),
 m_owner(nullptr),
-m_speed(1.f),
 m_timeElapsed(0),
-m_timingMode(TimingMode::LINEAR),
 m_type(type)
 {
 }
@@ -550,6 +549,9 @@ std::uint64_t Action::getTimeUsed(std::uint64_t timeElapsed) {
 }
 
 std::uint64_t Action::update(std::uint64_t timeElapsed) {
+    if (m_isPaused)
+        return timeElapsed;
+    
     timeElapsed *= m_owner->getSpeed() * m_speed;
     
     const std::uint64_t timeUsed = getTimeUsed(timeElapsed);

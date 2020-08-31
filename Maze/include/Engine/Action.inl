@@ -15,8 +15,16 @@ inline bool Action::isCompleted() const {
     return (m_timeElapsed == m_duration);
 }
 
+inline bool Action::isPaused() const {
+    return m_isPaused;
+}
+
 inline void Action::setDuration(std::uint64_t duration) {
     m_duration = std::max(duration, static_cast<std::uint64_t>(1));
+}
+
+inline void Action::setPaused(bool isPaused) {
+    m_isPaused = isPaused;
 }
 
 inline void Action::setRelativeToParent(bool isRelativeToParent) {

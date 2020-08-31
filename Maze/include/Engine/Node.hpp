@@ -45,6 +45,8 @@ public:
     
     inline float getSpeed() const;
     
+    inline bool isPaused() const;
+    
     void run(Action && action);
     
     void run(Action && action, std::string && name);
@@ -53,12 +55,17 @@ public:
     
     void run(Action && action, std::string && name, ActionCompletionCallback && callback);
     
+    bool setActionPaused(std::string const& actionIdentifier, bool isPaused);
+    
+    inline void setPaused(bool isPaused);
+    
     inline void setSpeed(float speed);
     
     virtual void update(std::uint64_t timeElapsed) override;
     
 private:
     std::vector<Action>                     m_actions;
+    bool                                    m_isPaused      = false;
     std::unordered_map<std::string, Action> m_namedActions;
     float                                   m_speed         = 1.f;
 };
