@@ -208,7 +208,7 @@ private:
     
     void completeInitSpeed();
     
-    Action getAbsoluteReversed() const;
+    Action getDataReversed() const;
     
     std::vector<Action> getActionsReversed(std::vector<Action> const& actions, Node* node) const;
     
@@ -220,7 +220,7 @@ private:
     
     float getProgress(std::uint64_t timeElapsed, std::uint64_t duration);
     
-    Action getRelativeReversed(Node* node) const;
+    Action getDataRelativeToNodeReversed(Node* node) const;
     
     Action getReversedData(Node* node) const;
     

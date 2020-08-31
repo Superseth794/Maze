@@ -213,33 +213,19 @@ void Maze::lauch() {
     auto& originCircleRef = shapesLayerRef.addChild(std::move(originCircle));
     originCircleRef.setFillColor(sf::Color::White);
     
-    auto moveAction {mz::Action::MoveByY(200)};
-    moveAction.setDuration(2000000);
-    moveAction.setTimingMode(Action::TimingMode::LINEAR);
     
-    auto scaleAction {mz::Action::ScaleBy(0.8f, 0.8f)};
-    scaleAction.setDuration(2000000);
-    scaleAction.setTimingMode(Action::TimingMode::LINEAR);
+    auto moveAction = Action::MoveByX(1000);
+    moveAction.setDuration(20000000);
     
-    auto pauseAction {mz::Action::Pause(5000000)};
+    auto speedAction = Action::SpeedTo(5.f);
+    speedAction.setDuration(0);
+    auto reversedSpeed = speedAction.getReversed(&originCircleRef);
+    auto speedSequence = Action::Sequence({speedAction, Action::Pause(10000000), reversedSpeed});
     
-    auto followAction {Action::FollowPath({
-        sf::Vector2f(100.f, 0.f),
-        sf::Vector2f(100.f, 100.f),
-        sf::Vector2f(0.f, 100.f),
-        sf::Vector2f(0.f, 0.f)
-    })};
-    followAction.setRelativeToParent(true);
-    followAction.setDuration(4000000);
+    auto group {Action::Group({moveAction, speedSequence})};
     
-    auto reversed {followAction.getReversed(&shapesLayerRef)};
-    
-//    auto sequenceAction {mz::Action::Sequence({std::move(moveAction), std::move(scaleAction), std::move(pauseAction), std::move(followAction), std::move(reversed)})};
-    auto sequenceAction {mz::Action::Sequence({std::move(followAction), std::move(reversed)})};
-    sequenceAction.setTimingMode(Action::TimingMode::LINEAR);
-    
-    originCircleRef.run(std::move(sequenceAction), mz::Action::CompletionCallback{[]() {
-        mz::Logs::Global.display("Follow action ended !", SUCCESS);
+    originCircleRef.run(std::move(group), mz::Action::CompletionCallback{[]() {
+        mz::Logs::Global.display("Action ended !", SUCCESS);
     }});
     
     auto circle = std::make_unique<CircleShapeNode>(40);

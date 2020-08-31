@@ -5,7 +5,7 @@
 //  Created by Jaraxus on 14/08/2020.
 //
 
-#include "LabelNode.hpp"
+#include "../../include/Engine/LabelNode.hpp"
 
 namespace mz {
 

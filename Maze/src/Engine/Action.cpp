@@ -433,7 +433,7 @@ void Action::completeInitSpeed() {
         m_data.speedData.speed -= m_owner->getSpeed();
 }
 
-Action Action::getAbsoluteReversed() const {
+Action Action::getDataReversed() const {
     switch (m_type) {
         case ActionType::MOVE :
             return Action::MoveBy(-m_data.moveData.position);
@@ -493,21 +493,21 @@ float Action::getProgress(std::uint64_t timeElapsed, std::uint64_t duration) {
     }
 }
 
-Action Action::getRelativeReversed(Node* node) const {
+Action Action::getDataRelativeToNodeReversed(Node* node) const {
     auto& nodeTransform = (m_isRelativeToParent ? node->getRelativeTransform() : node->getGlobalTransform());
     switch (m_type) {
         case ActionType::MOVE :
-            return Action::MoveTo(nodeTransform.getPosition());
+            return Action::MoveBy(nodeTransform.getPosition() - m_data.moveData.position);
         case ActionType::ROTATE :
-            return Action::RotateTo(nodeTransform.getRotation());
+            return Action::RotateBy(nodeTransform.getRotation() - m_data.rotateData.rotation);
         case ActionType::SCALE :
-            return Action::ScaleTo(nodeTransform.getScale());
+            return Action::ScaleBy(nodeTransform.getScale() - m_data.scaleData.scaleFactor);
         case ActionType::FOLLOW_PATH : break;
         case ActionType::REMOVE_FROM_PARENT : break;
         case ActionType::SEQUENCE : break;
         case ActionType::GROUP : break;
         case ActionType::SPEED :
-            return Action::SpeedTo(m_data.speedData.speed);
+            return Action::SpeedBy(node->getSpeed() - m_data.speedData.speed);
         case ActionType::PAUSE : break;
         case ActionType::EMPTY : break;
     }
@@ -525,9 +525,9 @@ Action Action::getReversedData(Node* node) const {
         else if (m_type == FOLLOW_PATH)
             return Action::FollowPath(getPathReversed(m_data.pathData.positions, node));
         else
-            return getRelativeReversed(node);
+            return getDataRelativeToNodeReversed(node);
     } else {
-        return getAbsoluteReversed();
+        return getDataReversed();
     }
     return Action::Empty();
 }
