@@ -13,6 +13,16 @@ void Node::draw(Camera const& camera) {
     Layer::draw(camera);
 }
 
+bool Node::removeAction(std::string const& actionIdentifier) {
+    auto actionIt = m_namedActions.find(actionIdentifier);
+    if (actionIt != m_namedActions.end()) {
+        m_namedActions.erase(actionIt);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void Node::run(Action && action) {
     auto& actionRef = m_actions.emplace_back(std::forward<Action>(action));
     actionRef.completeInit(this);

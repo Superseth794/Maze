@@ -43,9 +43,15 @@ public:
     
     virtual void draw(Camera const& camera) override;
     
+    inline std::size_t getActionsCount() const;
+    
     inline float getSpeed() const;
     
     inline bool isPaused() const;
+    
+    bool removeAction(std::string const& actionIdentifier);
+    
+    inline std::size_t removeAllActions();
     
     void run(Action && action);
     
