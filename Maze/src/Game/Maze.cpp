@@ -213,19 +213,18 @@ void Maze::lauch() {
     auto& originCircleRef = shapesLayerRef.addChild(std::move(originCircle));
     originCircleRef.setFillColor(sf::Color::White);
     
-    
-    auto moveAction = Action::MoveByX(1000);
-    moveAction.setDuration(20000000);
-    
-    auto speedAction = Action::SpeedTo(5.f);
-    speedAction.setDuration(0);
-    auto reversedSpeed = speedAction.getReversed(&originCircleRef);
-    auto speedSequence = Action::Sequence({speedAction, Action::Pause(10000000), reversedSpeed});
-    
-    auto group {Action::Group({moveAction, speedSequence})};
-    
-    originCircleRef.run(std::move(group), mz::Action::CompletionCallback{[]() {
+    auto moveAction = Action::MoveByX(100);
+    moveAction.setDuration(2000000);
+    auto pauseAction = Action::Pause(2000000);
+    auto sequenceAction = Action::Sequence({std::move(moveAction), std::move(pauseAction)});
+    sequenceAction.setCallback(mz::Action::CompletionCallback{[]() {
         mz::Logs::Global.display("Action ended !", SUCCESS);
+    }});
+    
+    auto repeatAction = Action::Repeat(std::move(sequenceAction), 4, false);
+    
+    originCircleRef.run(std::move(repeatAction), mz::Action::CompletionCallback{[]() {
+        mz::Logs::Global.display("Repeat action ended !", SUCCESS);
     }});
     
     auto circle = std::make_unique<CircleShapeNode>(40);

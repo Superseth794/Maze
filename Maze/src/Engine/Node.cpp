@@ -35,14 +35,14 @@ void Node::run(Action && action, std::string && name) {
 
 void Node::run(Action && action, Action::CompletionCallback && callback) {
     auto& actionRef = m_actions.emplace_back(std::forward<Action>(action));
-    actionRef.completeInit(this);
     actionRef.setCallback(std::forward<Action::CompletionCallback>(callback));
+    actionRef.completeInit(this);
 }
 
 void Node::run(Action && action, std::string && name, Action::CompletionCallback && callback) {
     auto& actionRef = m_namedActions.emplace(std::make_pair(std::forward<std::string>(name), std::forward<Action>(action))).first->second;
-    actionRef.completeInit(this);
     actionRef.setCallback(std::forward<Action::CompletionCallback>(callback));
+    actionRef.completeInit(this);
 }
 
 bool Node::setActionPaused(std::string const& actionIdentifier, bool isPaused) {

@@ -59,6 +59,9 @@ void Action::DataType::exchange(mz::Action::ActionType type, mz::Action::DataTyp
         case mz::Action::ActionType::GROUP :
             outputData.groupData = std::move(inputData.groupData);
             break;
+        case mz::Action::ActionType::REPEAT :
+            outputData.repeatData = std::move(inputData.repeatData);
+            break;
         case mz::Action::ActionType::SPEED :
             outputData.speedData.speed = inputData.speedData.speed;
             break;
@@ -101,6 +104,12 @@ m_type(action.m_type)
         case ActionType::GROUP :
             for (auto const& action : action.m_data.sequenceData.actions)
                 m_data.sequenceData.actions.emplace_back(action);
+            break;
+        case ActionType::REPEAT :
+            m_data.repeatData.callCompletionCallbackEveryRestart = action.m_data.repeatData.callCompletionCallbackEveryRestart;
+            m_data.repeatData.initialAction = std::make_unique<Action>(*action.m_data.repeatData.initialAction);
+            m_data.repeatData.repeatCount = action.m_data.repeatData.repeatCount;
+            m_data.repeatData.repeatForever = action.m_data.repeatData.repeatForever;
             break;
         case ActionType::SPEED :
             m_data.speedData.speed = action.m_data.speedData.speed;
@@ -145,6 +154,10 @@ Action::~Action() {
             break;
         case ActionType::GROUP :
             m_data.groupData.actions.~vector();
+            break;
+        case ActionType::REPEAT :
+            m_data.repeatData.currentAction.~unique_ptr();
+            m_data.repeatData.initialAction.~unique_ptr();
             break;
         case ActionType::SPEED :
             break;
@@ -251,6 +264,48 @@ Action Action::Pause(std::uint64_t duration) {
 
 Action Action::RemoveFromParent() {
     return Action{ActionType::REMOVE_FROM_PARENT, false};
+}
+
+Action Action::Repeat(Action && action, std::size_t count, bool callCompletionCallbackEveryRestart) {
+    Action repeatAction {ActionType::REPEAT, false};
+    repeatAction.m_data.repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
+    repeatAction.m_data.repeatData.repeatCount = count;
+    repeatAction.m_data.repeatData.repeatForever = false;
+    
+    repeatAction.m_data.repeatData.initialAction = std::make_unique<Action>(action);
+    if (action.m_completionCallback.has_value())
+        repeatAction.m_data.repeatData.initialAction->m_completionCallback = std::move(action.m_completionCallback);
+    
+    return repeatAction;
+}
+
+Action Action::Repeat(std::unique_ptr<Action> && action, std::size_t count, bool callCompletionCallbackEveryRestart) {
+    Action repeatAction {ActionType::REPEAT, false};
+    repeatAction.m_data.repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
+    repeatAction.m_data.repeatData.repeatCount = count;
+    repeatAction.m_data.repeatData.repeatForever = false;
+    repeatAction.m_data.repeatData.initialAction = std::move(action);
+    return repeatAction;
+}
+
+Action Action::RepeatForever(Action && action, bool callCompletionCallbackEveryRestart) {
+    Action repeatAction {ActionType::REPEAT, false};
+    repeatAction.m_data.repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
+    repeatAction.m_data.repeatData.repeatForever = true;
+    
+    repeatAction.m_data.repeatData.initialAction = std::make_unique<Action>(action);
+    if (action.m_completionCallback.has_value())
+        repeatAction.m_data.repeatData.initialAction->m_completionCallback = std::move(action.m_completionCallback);
+    
+    return repeatAction;
+}
+
+Action Action::RepeatForever(std::unique_ptr<Action> && action, bool callCompletionCallbackEveryRestart) {
+    Action repeatAction {ActionType::REPEAT, false};
+    repeatAction.m_data.repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
+    repeatAction.m_data.repeatData.repeatForever = true;
+    repeatAction.m_data.repeatData.initialAction = std::move(action);
+    return repeatAction;
 }
 
 Action Action::RotateBy(float rotation) {
@@ -373,6 +428,9 @@ void Action::completeInit(Node* owner) {
         case ActionType::GROUP :
             completeInitGroup();
             break;
+        case ActionType::REPEAT :
+            completeInitRepeat();
+            break;
         case ActionType::SPEED :
             completeInitSpeed();
             break;
@@ -407,6 +465,21 @@ void Action::completeInitMove() {
 void Action::completeInitOfActions(std::vector<Action>& actions) {
     for (auto& action : actions)
         action.completeInit(m_owner);
+}
+
+void Action::completeInitRepeat() {
+    m_data.repeatData.currentAction = std::make_unique<Action>(*m_data.repeatData.initialAction);
+    m_data.repeatData.currentAction->completeInit(m_owner);
+    
+    if (m_data.repeatData.repeatForever) {
+        m_timingMode = TimingMode::LINEAR;
+        m_duration = std::numeric_limits<decltype(m_duration)>::max();
+        m_data.repeatData.repeatCount = 0;
+    } else {
+        m_duration = m_data.repeatData.currentAction->m_duration * m_data.repeatData.repeatCount;
+    }
+    
+    assert(!(m_data.repeatData.callCompletionCallbackEveryRestart && !m_completionCallback));
 }
 
 void Action::completeInitRotate() {
@@ -445,6 +518,8 @@ Action Action::getDataReversed() const {
         case ActionType::REMOVE_FROM_PARENT : break;
         case ActionType::SEQUENCE : break;
         case ActionType::GROUP : break;
+        case ActionType::REPEAT :
+            return (m_data.repeatData.repeatForever ? Action::RepeatForever(m_data.repeatData.initialAction->getReversed()) : Action::Repeat(m_data.repeatData.initialAction->getReversed(), m_data.repeatData.repeatCount));
         case ActionType::SPEED :
             assert(m_data.speedData.speed > 0.f);
             return Action::SpeedBy(-m_data.speedData.speed);
@@ -505,6 +580,7 @@ Action Action::getDataRelativeToNodeReversed(Node* node) const {
         case ActionType::REMOVE_FROM_PARENT : break;
         case ActionType::SEQUENCE : break;
         case ActionType::GROUP : break;
+        case ActionType::REPEAT : break;
         case ActionType::SPEED :
             return Action::SpeedBy(node->getSpeed() - m_data.speedData.speed);
         case ActionType::PAUSE : break;
@@ -539,6 +615,7 @@ std::uint64_t Action::getTimeUsed(std::uint64_t timeElapsed) {
         case FOLLOW_PATH :
         case SEQUENCE :
         case GROUP :
+        case REPEAT :
         case SPEED :
         case PAUSE :
             return (m_timeElapsed + timeElapsed < m_duration ? timeElapsed : m_duration - m_timeElapsed);
@@ -579,6 +656,8 @@ std::uint64_t Action::update(std::uint64_t timeElapsed) {
         case ActionType::GROUP :
             updateGroup(progress);
             break;
+        case ActionType::REPEAT :
+            updateRepeat(timeUsed, progress);
         case ActionType::SPEED :
             updateSpeed(progress);
             break;
@@ -630,6 +709,25 @@ void Action::updateMove(float progress) {
 
 void Action::updateRemove() {
     m_owner->removeFromParent();
+}
+
+void Action::updateRepeat(std::uint64_t timeElapsed, float progress) {
+    std::uint64_t timeUsed = (m_data.repeatData.repeatForever ? timeElapsed : progress * m_duration); // distinction is made because if action repeats forever the duration is (2^64 - 1) which leads to floating-point errors as (timeElapsed << duration)
+    std::uint64_t timeLeft = m_data.repeatData.currentAction->update(timeUsed);
+    
+    if (timeLeft == 0)
+        return;
+    
+    if (!m_data.repeatData.repeatForever && --m_data.repeatData.repeatCount == 0)
+        return;
+    
+    if (m_data.repeatData.callCompletionCallbackEveryRestart)
+        m_completionCallback.value()();
+    
+    m_data.repeatData.currentAction = std::make_unique<Action>(*m_data.repeatData.initialAction);
+    m_data.repeatData.currentAction->completeInit(m_owner);
+    
+    update(timeElapsed - timeUsed);
 }
 
 void Action::updateRotate(float progress) {

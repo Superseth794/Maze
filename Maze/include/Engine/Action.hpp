@@ -46,6 +46,7 @@ class Action { // TODO: maybe use a poolObject
         REMOVE_FROM_PARENT,
         SEQUENCE,
         GROUP,
+        REPEAT,
         SPEED,
         PAUSE,
         EMPTY
@@ -65,9 +66,9 @@ class Action { // TODO: maybe use a poolObject
         } scaleData;
 
         struct {
-            std::size_t                 targetPositionId;
             float                       distance;
             std::vector<sf::Vector2f>   positions;
+            std::size_t                 targetPositionId;
         } pathData;
         
         struct {} removeData;
@@ -80,6 +81,14 @@ class Action { // TODO: maybe use a poolObject
         struct {
             std::vector<Action> actions;
         } groupData;
+        
+        struct {
+            bool                    callCompletionCallbackEveryRestart;
+            std::unique_ptr<Action> currentAction;
+            std::unique_ptr<Action> initialAction;
+            std::size_t             repeatCount;
+            bool                    repeatForever;
+        } repeatData;
         
         struct {
             float speed;
@@ -123,6 +132,8 @@ public:
     
     inline bool isPaused() const;
     
+    void inline setCallback(CompletionCallback && callback);
+    
     inline void setDuration(std::uint64_t duration);
     
     inline void setPaused(bool isPaused);
@@ -162,6 +173,14 @@ public:
     static Action Pause(std::uint64_t duration);
     
     static Action RemoveFromParent();
+    
+    static Action Repeat(Action && action, std::size_t count, bool callCompletionCallbackEveryRestart = false);
+    
+    static Action Repeat(std::unique_ptr<Action> && action, std::size_t count, bool callCompletionCallbackEveryRestart = false);
+    
+    static Action RepeatForever(Action && action, bool callCompletionCallbackEveryRestart = false);
+    
+    static Action RepeatForever(std::unique_ptr<Action> && action, bool callCompletionCallbackEveryRestart = false);
     
     static Action RotateBy(float rotation);
     
@@ -204,6 +223,8 @@ private:
     
     void completeInitOfActions(std::vector<Action>& actions);
     
+    void completeInitRepeat();
+    
     void completeInitRotate();
     
     void completeInitScale();
@@ -230,8 +251,6 @@ private:
     
     std::uint64_t getTimeUsed(std::uint64_t timeElapsed);
     
-    void inline setCallback(CompletionCallback && callback);
-    
     std::uint64_t update(std::uint64_t timeElapsed);
     
     void updateFollowPath(float progress);
@@ -241,6 +260,8 @@ private:
     void updateMove(float progress);
     
     void updateRemove();
+    
+    void updateRepeat(std::uint64_t timeElapsed, float progress);
     
     void updateRotate(float progress);
     

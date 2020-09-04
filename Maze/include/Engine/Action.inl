@@ -19,6 +19,10 @@ inline bool Action::isPaused() const {
     return m_isPaused;
 }
 
+inline void Action::setCallback(CompletionCallback && callback) {
+    m_completionCallback = std::make_optional(std::forward<CompletionCallback>(callback));
+}
+
 inline void Action::setDuration(std::uint64_t duration) {
     m_duration = std::max(duration, static_cast<std::uint64_t>(1));
 }
@@ -42,10 +46,6 @@ inline void Action::setTimingMode(TimingMode timingMode) {
 
 inline sf::Vector2f const& Action::getOwnerCurrentPosition() const {
     return getOwnerCurrentTransform().getPosition();
-}
-
-inline void Action::setCallback(CompletionCallback && callback) {
-    m_completionCallback = std::make_optional(std::forward<CompletionCallback>(callback));
 }
 
 }
