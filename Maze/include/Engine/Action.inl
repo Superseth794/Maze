@@ -48,4 +48,10 @@ inline sf::Vector2f const& Action::getOwnerCurrentPosition() const {
     return getOwnerCurrentTransform().getPosition();
 }
 
+inline void Action::callCompletionCallbacks() {
+    callSubActionsCallbacks();
+    if (m_completionCallback)
+        m_completionCallback.value()();
+}
+
 }

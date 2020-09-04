@@ -122,15 +122,15 @@ m_type(action.m_type)
 Action::Action(Action && action) noexcept :
 m_completionCallback(std::move(action.m_completionCallback)),
 m_data(),
-m_duration(action.m_duration),
-m_isPaused(action.isPaused()),
-m_isRelativeToInitialState(action.m_isRelativeToInitialState),
-m_isRelativeToParent(action.m_isRelativeToParent),
-m_owner(action.m_owner),
-m_speed(action.m_speed),
-m_timeElapsed(action.m_timeElapsed),
-m_timingMode(action.m_timingMode),
-m_type(action.m_type)
+m_duration(std::move(action.m_duration)),
+m_isPaused(std::move(action.isPaused())),
+m_isRelativeToInitialState(std::move(action.m_isRelativeToInitialState)),
+m_isRelativeToParent(std::move(action.m_isRelativeToParent)),
+m_owner(std::move(action.m_owner)),
+m_speed(std::move(action.m_speed)),
+m_timeElapsed(std::move(action.m_timeElapsed)),
+m_timingMode(std::move(action.m_timingMode)),
+m_type(std::move(action.m_type))
 {
     DataType::exchange(m_type, action.m_data, m_data);
 }
@@ -271,11 +271,7 @@ Action Action::Repeat(Action && action, std::size_t count, bool callCompletionCa
     repeatAction.m_data.repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
     repeatAction.m_data.repeatData.repeatCount = count;
     repeatAction.m_data.repeatData.repeatForever = false;
-    
-    repeatAction.m_data.repeatData.initialAction = std::make_unique<Action>(action);
-    if (action.m_completionCallback.has_value())
-        repeatAction.m_data.repeatData.initialAction->m_completionCallback = std::move(action.m_completionCallback);
-    
+    repeatAction.m_data.repeatData.initialAction = std::make_unique<Action>(std::forward<Action>(action));
     return repeatAction;
 }
 
@@ -284,7 +280,7 @@ Action Action::Repeat(std::unique_ptr<Action> && action, std::size_t count, bool
     repeatAction.m_data.repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
     repeatAction.m_data.repeatData.repeatCount = count;
     repeatAction.m_data.repeatData.repeatForever = false;
-    repeatAction.m_data.repeatData.initialAction = std::move(action);
+    repeatAction.m_data.repeatData.initialAction = std::forward<std::unique_ptr<Action>>(action);
     return repeatAction;
 }
 
@@ -292,11 +288,7 @@ Action Action::RepeatForever(Action && action, bool callCompletionCallbackEveryR
     Action repeatAction {ActionType::REPEAT, false};
     repeatAction.m_data.repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
     repeatAction.m_data.repeatData.repeatForever = true;
-    
-    repeatAction.m_data.repeatData.initialAction = std::make_unique<Action>(action);
-    if (action.m_completionCallback.has_value())
-        repeatAction.m_data.repeatData.initialAction->m_completionCallback = std::move(action.m_completionCallback);
-    
+    repeatAction.m_data.repeatData.initialAction = std::make_unique<Action>(std::forward<Action>(action));
     return repeatAction;
 }
 
@@ -304,7 +296,7 @@ Action Action::RepeatForever(std::unique_ptr<Action> && action, bool callComplet
     Action repeatAction {ActionType::REPEAT, false};
     repeatAction.m_data.repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
     repeatAction.m_data.repeatData.repeatForever = true;
-    repeatAction.m_data.repeatData.initialAction = std::move(action);
+    repeatAction.m_data.repeatData.initialAction = std::forward<std::unique_ptr<Action>>(action);
     return repeatAction;
 }
 
@@ -404,6 +396,21 @@ m_type(type)
 {
 }
 
+void Action::callSubActionsCallbacks() {
+    if (m_type == ActionType::SEQUENCE) {
+        for (std::size_t actionId = m_data.sequenceData.playedActionId; actionId < m_data.sequenceData.actions.size(); ++actionId)
+            m_data.sequenceData.actions[actionId].callCompletionCallbacks();
+    } else if (m_type == ActionType::GROUP) {
+        for (auto& action : m_data.groupData.actions) {
+            if (!action.isCompleted())
+                action.callCompletionCallbacks();
+        }
+    } else if (m_type == ActionType::REPEAT) {
+        if (!m_data.repeatData.currentAction->isCompleted())
+            m_data.repeatData.currentAction->callCompletionCallbacks();
+    }
+}
+
 void Action::completeInit(Node* owner) {
     assert(owner);
     m_owner = owner;
@@ -469,6 +476,7 @@ void Action::completeInitOfActions(std::vector<Action>& actions) {
 
 void Action::completeInitRepeat() {
     m_data.repeatData.currentAction = std::make_unique<Action>(*m_data.repeatData.initialAction);
+    m_data.repeatData.currentAction->m_completionCallback = std::move(m_data.repeatData.initialAction->m_completionCallback);
     m_data.repeatData.currentAction->completeInit(m_owner);
     
     if (m_data.repeatData.repeatForever) {
@@ -668,8 +676,7 @@ std::uint64_t Action::update(std::uint64_t timeElapsed) {
     m_timeElapsed += timeUsed;
     
     if (isCompleted()) {
-        if (m_completionCallback)
-            m_completionCallback.value()();
+        callCompletionCallbacks();
         return timeElapsed - timeUsed;
     }
     
@@ -724,7 +731,9 @@ void Action::updateRepeat(std::uint64_t timeElapsed, float progress) {
     if (m_data.repeatData.callCompletionCallbackEveryRestart)
         m_completionCallback.value()();
     
+    auto callback = std::move(m_data.repeatData.currentAction->m_completionCallback);
     m_data.repeatData.currentAction = std::make_unique<Action>(*m_data.repeatData.initialAction);
+    m_data.repeatData.currentAction->m_completionCallback = std::move(callback);
     m_data.repeatData.currentAction->completeInit(m_owner);
     
     update(timeElapsed - timeUsed);

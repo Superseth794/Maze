@@ -213,6 +213,10 @@ public:
 private:
     Action(ActionType type, bool m_isRelativeToInitialState);
     
+    inline void callCompletionCallbacks();
+    
+    void callSubActionsCallbacks();
+    
     void completeInit(Node* owner);
     
     void completeInitFollowPath();
