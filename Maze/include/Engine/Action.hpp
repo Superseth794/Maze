@@ -155,14 +155,14 @@ public:
     
     static Action FollowPath(std::vector<sf::Vector2f> && path);
     
-    template <typename ...Vertexes>
+    template <typename ...Vertexes> // TODO: use C++20 concepts
     static Action FollowPath(Vertexes && ...vertexes);
     
     static Action Group(std::vector<Action> const& actions);
     
     static Action Group(std::vector<Action> && actions);
     
-    template <typename... Actions>
+    template <typename... Actions> // TODO: use C++20 concepts
     static Action Group(Actions && ...actions);
     
     static Action Hide();
@@ -219,7 +219,7 @@ public:
     
     static Action Sequence(std::vector<Action> && actions);
     
-    template <typename ...Actions>
+    template <typename ...Actions> // TODO: use C++20 concepts
     static Action Sequence(Actions && ...actions);
     
     static Action SpeedBy(float speedFactor);

@@ -50,6 +50,8 @@ inline sf::Vector2f const& Action::getOwnerCurrentPosition() const {
 
 template <typename ...Vertexes>
 Action Action::FollowPath(Vertexes && ...vertexes) {
+    static_assert(((std::is_same_v<Vertexes, sf::Vector2f> || std::is_convertible_v<Vertexes, sf::Vector2f>), ...), "Vertexes must be (convertible to) sf::Vector2f");
+    
     Action followAction {ActionType::FOLLOW_PATH, true};
     (followAction.m_data.pathData.positions.emplace_back(std::forward<Vertexes>(vertexes)), ...);
     return followAction;
@@ -57,6 +59,8 @@ Action Action::FollowPath(Vertexes && ...vertexes) {
 
 template <typename ...Actions>
 Action Action::Group(Actions && ...actions) {
+    static_assert((std::is_same_v<Actions, Action>, ...), "Actions must all be of type Action");
+    
     Action groupAction {ActionType::GROUP, true};
     groupAction.m_data.groupData.actions.emplace_back(std::forward<Actions...>(actions)...);
     return groupAction;
@@ -64,6 +68,8 @@ Action Action::Group(Actions && ...actions) {
 
 template <typename ...Actions>
 Action Action::Sequence(Actions && ...actions) {
+    static_assert((std::is_same_v<Actions, Action>, ...), "Actions must all be of type Action");
+    
     Action sequenceAction {ActionType::SEQUENCE, true};
     (sequenceAction.m_data.sequenceData.actions.emplace_back(std::forward<Actions>(actions)), ...);
     return sequenceAction;
