@@ -230,19 +230,22 @@ void Maze::lauch() {
         mz::Logs::Global.display("Reversed repeat action ended !", SUCCESS);
     }});
     
-    std::vector<Action> vect;
-    vect.emplace_back(std::move(repeatAction));
-    vect.emplace_back(std::move(reversedRepeatAction));
-    auto finalSequenceAction = Action::Sequence(std::move(vect));
-    
-    originCircleRef.run(std::move(finalSequenceAction), mz::Action::CompletionCallback{[]() {
-        mz::Logs::Global.display("All actions ended !", SUCCESS);
-    }});
+    auto finalSequenceAction = Action::Sequence(std::move(repeatAction), std::move(reversedRepeatAction));
     
     auto circle = std::make_unique<CircleShapeNode>(40);
     auto& circleRef = shapesLayerRef.addChild(std::move(circle));
     circleRef.setFillColor(sf::Color::Red);
     circleRef.setPosition(sf::Vector2f{150, 100});
+    
+    originCircleRef.run(std::move(finalSequenceAction), mz::Action::CompletionCallback{[&circleRef]() {
+        mz::Logs::Global.display("All actions ended !", SUCCESS);
+        auto pathAction = Action::FollowPath(sf::Vector2f(100, 0), sf::Vector2f(100, 100), sf::Vector2f(0, 100), sf::Vector2f(0, 0));
+        pathAction.setDuration(4000000);
+        pathAction.setRelativeToParent(true);
+        circleRef.run(std::move(pathAction), mz::Action::CompletionCallback{[]() {
+            mz::Logs::Global.display("All actions ended !", SUCCESS);
+        }});
+    }});
     
     auto triangle = std::make_unique<TriangleShapeNode>(80);
     triangle->setFillColor(sf::Color::Cyan);

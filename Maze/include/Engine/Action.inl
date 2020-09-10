@@ -48,6 +48,27 @@ inline sf::Vector2f const& Action::getOwnerCurrentPosition() const {
     return getOwnerCurrentTransform().getPosition();
 }
 
+template <typename ...Vertexes>
+Action Action::FollowPath(Vertexes && ...vertexes) {
+    Action followAction {ActionType::FOLLOW_PATH, true};
+    (followAction.m_data.pathData.positions.emplace_back(std::forward<Vertexes>(vertexes)), ...);
+    return followAction;
+}
+
+template <typename ...Actions>
+Action Action::Group(Actions && ...actions) {
+    Action groupAction {ActionType::GROUP, true};
+    groupAction.m_data.groupData.actions.emplace_back(std::forward<Actions...>(actions)...);
+    return groupAction;
+}
+
+template <typename ...Actions>
+Action Action::Sequence(Actions && ...actions) {
+    Action sequenceAction {ActionType::SEQUENCE, true};
+    (sequenceAction.m_data.sequenceData.actions.emplace_back(std::forward<Actions>(actions)), ...);
+    return sequenceAction;
+}
+
 inline void Action::callCompletionCallbacks() {
     callSubActionsCallbacks();
     if (m_completionCallback)
