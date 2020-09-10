@@ -487,7 +487,7 @@ void Action::completeInitGroup() {
     completeInitOfActions(m_data.groupData.actions);
     m_duration = 0;
     for (auto& action : m_data.groupData.actions)
-        m_duration = std::max(action.m_duration, m_duration);
+        m_duration = std::max(static_cast<std::uint64_t>(std::ceil(action.m_duration / action.m_speed)), m_duration);
 }
 
 void Action::completeInitHide() {
@@ -536,7 +536,7 @@ void Action::completeInitSequence() {
     m_data.sequenceData.playedActionId = 0;
     m_duration = 0.f;
     for (auto const& action : m_data.sequenceData.actions)
-        m_duration += action.m_duration;
+        m_duration += static_cast<std::uint64_t>(std::ceil(action.m_duration / action.m_speed));
 }
 
 void Action::completeInitSpeed() {
