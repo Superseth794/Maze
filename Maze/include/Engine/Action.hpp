@@ -43,6 +43,7 @@ class Action { // TODO: maybe use a poolObject
         ROTATE,
         SCALE,
         FOLLOW_PATH,
+        HIDE,
         REMOVE_FROM_PARENT,
         SEQUENCE,
         GROUP,
@@ -70,6 +71,10 @@ class Action { // TODO: maybe use a poolObject
             std::vector<sf::Vector2f>   positions;
             std::size_t                 targetPositionId;
         } pathData;
+        
+        struct {
+            bool hidden;
+        } hideData;
         
         struct {} removeData;
         
@@ -154,6 +159,8 @@ public:
     
     static Action Group(std::vector<Action> && actions);
     
+    static Action Hide();
+    
     static Action MoveBy(sf::Vector2f const& deltaPos);
     
     static Action MoveBy(float x, float y);
@@ -210,6 +217,10 @@ public:
     
     static Action SpeedTo(float speedFactor);
     
+    static Action SwitchHidden();
+    
+    static Action Unhide();
+    
 private:
     Action(ActionType type, bool m_isRelativeToInitialState);
     
@@ -222,6 +233,8 @@ private:
     void completeInitFollowPath();
     
     void completeInitGroup();
+    
+    void completeInitHide();
     
     void completeInitMove();
     
@@ -260,6 +273,8 @@ private:
     void updateFollowPath(float progress);
     
     void updateGroup(float progress);
+    
+    void updateHide();
     
     void updateMove(float progress);
     

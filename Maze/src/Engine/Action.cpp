@@ -52,6 +52,9 @@ void Action::DataType::exchange(mz::Action::ActionType type, mz::Action::DataTyp
         case mz::Action::ActionType::FOLLOW_PATH :
             outputData.pathData = std::move(inputData.pathData);
             break;
+        case mz::Action::ActionType::HIDE :
+            outputData.hideData = std::move(inputData.hideData);
+            break;
         case mz::Action::ActionType::REMOVE_FROM_PARENT : break;
         case mz::Action::ActionType::SEQUENCE :
             outputData.sequenceData = std::move(inputData.sequenceData);
@@ -95,6 +98,9 @@ m_type(action.m_type)
             break;
         case ActionType::FOLLOW_PATH :
             m_data.pathData.positions = action.m_data.pathData.positions;
+            break;
+        case ActionType::HIDE :
+            m_data.hideData.hidden = action.m_data.hideData.hidden;
             break;
         case ActionType::REMOVE_FROM_PARENT : break;
         case ActionType::SEQUENCE :
@@ -140,14 +146,14 @@ Action::~Action() {
         case ActionType::MOVE :
             m_data.moveData.position.~Vector2();
             break;
-        case ActionType::ROTATE :
-            break;
+        case ActionType::ROTATE : break;
         case ActionType::SCALE :
             m_data.scaleData.scaleFactor.~Vector2();
             break;
         case ActionType::FOLLOW_PATH :
             m_data.pathData.positions.~vector();
             break;
+        case ActionType::HIDE : break;
         case ActionType::REMOVE_FROM_PARENT : break;
         case ActionType::SEQUENCE :
             m_data.sequenceData.actions.~vector();
@@ -159,8 +165,7 @@ Action::~Action() {
             m_data.repeatData.currentAction.~unique_ptr();
             m_data.repeatData.initialAction.~unique_ptr();
             break;
-        case ActionType::SPEED :
-            break;
+        case ActionType::SPEED : break;
         case ActionType::PAUSE : break;
         case ActionType::EMPTY : break;
     }
@@ -206,6 +211,12 @@ Action Action::Group(std::vector<Action> && actions) {
     Action groupAction {ActionType::GROUP, false};
     groupAction.m_data.groupData.actions = std::forward<std::vector<Action>>(actions);
     return groupAction;
+}
+
+Action Action::Hide() {
+    Action hideAction {ActionType::HIDE, false};
+    hideAction.m_data.hideData.hidden = true;
+    return hideAction;
 }
 
 Action Action::Action::MoveBy(sf::Vector2f const& deltaPos) {
@@ -384,12 +395,22 @@ Action Action::SpeedTo(float speedFactor) {
     speedAction.m_data.speedData.speed = speedFactor;
     return speedAction;
 }
+
+Action Action::SwitchHidden() {
+    return Action {ActionType::HIDE, true};
+}
+
+Action Action::Unhide() {
+    Action unhideAction {ActionType::HIDE, false};
+    unhideAction.m_data.hideData.hidden = false;
+    return unhideAction;
+}
     
 Action::Action(ActionType type, bool isRelativeToInitialState) :
 m_completionCallback(std::nullopt),
 m_data(),
 m_isRelativeToInitialState(isRelativeToInitialState),
-m_isRelativeToParent(true),
+m_isRelativeToParent(false),
 m_owner(nullptr),
 m_timeElapsed(0),
 m_type(type)
@@ -428,6 +449,9 @@ void Action::completeInit(Node* owner) {
         case ActionType::FOLLOW_PATH :
             completeInitFollowPath();
             break;
+        case ActionType::HIDE :
+            completeInitHide();
+            break;
         case ActionType::REMOVE_FROM_PARENT : break;
         case ActionType::SEQUENCE :
             completeInitSequence();
@@ -462,6 +486,11 @@ void Action::completeInitGroup() {
     m_duration = 0;
     for (auto& action : m_data.groupData.actions)
         m_duration = std::max(action.m_duration, m_duration);
+}
+
+void Action::completeInitHide() {
+    if (m_isRelativeToInitialState)
+        m_data.hideData.hidden = !m_owner->isHidden();
 }
 
 void Action::completeInitMove() {
@@ -523,6 +552,8 @@ Action Action::getDataReversed() const {
             assert(m_data.scaleData.scaleFactor.x > 0.f && m_data.scaleData.scaleFactor.y > 0.f);
             return Action::ScaleBy(1.f / m_data.scaleData.scaleFactor.x, 1.f / m_data.scaleData.scaleFactor.y);
         case ActionType::FOLLOW_PATH : break;
+        case ActionType::HIDE :
+            return (m_data.hideData.hidden ? Action::Unhide() : Action::Hide());
         case ActionType::REMOVE_FROM_PARENT : break;
         case ActionType::SEQUENCE : break;
         case ActionType::GROUP : break;
@@ -585,6 +616,8 @@ Action Action::getDataRelativeToNodeReversed(Node* node) const {
         case ActionType::SCALE :
             return Action::ScaleBy(nodeTransform.getScale() - m_data.scaleData.scaleFactor);
         case ActionType::FOLLOW_PATH : break;
+        case ActionType::HIDE :
+            return (node->isHidden() ? Action::Unhide() : Action::Hide());
         case ActionType::REMOVE_FROM_PARENT : break;
         case ActionType::SEQUENCE : break;
         case ActionType::GROUP : break;
@@ -627,6 +660,7 @@ std::uint64_t Action::getTimeUsed(std::uint64_t timeElapsed) {
         case SPEED :
         case PAUSE :
             return (m_timeElapsed + timeElapsed < m_duration ? timeElapsed : m_duration - m_timeElapsed);
+        case HIDE :
         case REMOVE_FROM_PARENT :
         case EMPTY :
             return 0;
@@ -655,6 +689,9 @@ std::uint64_t Action::update(std::uint64_t timeElapsed) {
         case ActionType::FOLLOW_PATH :
             updateFollowPath(progress);
             break;
+        case ActionType::HIDE :
+            updateHide();
+            break;
         case ActionType::REMOVE_FROM_PARENT :
             updateRemove();
             break;
@@ -666,6 +703,7 @@ std::uint64_t Action::update(std::uint64_t timeElapsed) {
             break;
         case ActionType::REPEAT :
             updateRepeat(timeUsed, progress);
+            break;
         case ActionType::SPEED :
             updateSpeed(progress);
             break;
@@ -710,6 +748,10 @@ void Action::updateGroup(float progress) {
     }
 }
 
+void Action::updateHide() {
+    m_owner->setHidden(m_data.hideData.hidden);
+}
+
 void Action::updateMove(float progress) {
     m_owner->move(progress * m_data.moveData.position);
 }
@@ -719,7 +761,7 @@ void Action::updateRemove() {
 }
 
 void Action::updateRepeat(std::uint64_t timeElapsed, float progress) {
-    std::uint64_t timeUsed = (m_data.repeatData.repeatForever ? timeElapsed : progress * m_duration); // distinction is made because if action repeats forever the duration is (2^64 - 1) which leads to floating-point errors as (timeElapsed << duration)
+    std::uint64_t timeUsed = (m_data.repeatData.repeatForever ? timeElapsed : static_cast<std::uint64_t>(std::round(progress * m_duration))); // distinction is made because if action repeats forever the duration is (2^64 - 1) which leads to floating-point errors as (timeElapsed << duration -> progress << 1)
     std::uint64_t timeLeft = m_data.repeatData.currentAction->update(timeUsed);
     
     if (timeLeft == 0)
