@@ -74,7 +74,7 @@ private:
 private:
     std::vector<std::unique_ptr<Layer>>         m_childs;
     sf::Transformable                           m_globalTransform; // TODO: fix rotation
-    std::size_t                                 m_idInParentHierarchy = 0;
+    std::size_t                                 m_idInParentHierarchy   = 0;
     mutable Layer*                              m_parent;
     sf::Transformable                           m_relativeTransform;
     mutable std::vector<std::unique_ptr<Layer>> m_toAddChilds;

@@ -22,7 +22,7 @@ m_text(static_cast<sf::String>(string), font, characterSize)
 }
 
 void LabelNode::draw(Camera const& camera) {
-    camera.draw(m_text, getGlobalTransform());
+    camera.draw(this, m_text, getGlobalTransform());
     Layer::draw(camera);
 }
 

@@ -16,7 +16,7 @@ m_texture(std::forward<std::shared_ptr<sf::Texture>>(texture))
 }
 
 void SpriteNode::draw(Camera const& camera) {
-    camera.draw(m_sprite, getGlobalTransform());
+    camera.draw(this, m_sprite, getGlobalTransform());
 }
 
 }

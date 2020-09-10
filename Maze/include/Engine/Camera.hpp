@@ -10,7 +10,11 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Drawable.hpp"
+
 namespace mz {
+
+class Drawable;
 
 class Camera {
 public:
@@ -27,11 +31,14 @@ public:
     
     virtual void display(sf::RenderTarget& texture);
     
-    inline void draw(sf::Drawable const& drawable, sf::RenderStates const& states = sf::RenderStates::Default) const;
+    template <class DrawableT, typename _ = typename std::enable_if<std::is_base_of<Drawable, DrawableT>::value>::type>
+    inline void draw(DrawableT* drawingObject, sf::Drawable const& drawable, sf::RenderStates const& states = sf::RenderStates::Default) const;
     
-    inline void draw(sf::Drawable const& drawable, sf::Transform const& transform, sf::RenderStates const& states = sf::RenderStates::Default) const;
+    template <class DrawableT, typename _ = typename std::enable_if<std::is_base_of<Drawable, DrawableT>::value>::type>
+    inline void draw(DrawableT* drawingObject, sf::Drawable const& drawable, sf::Transform const& transform, sf::RenderStates const& states = sf::RenderStates::Default) const;
     
-    inline void draw(sf::Drawable const& drawable, sf::Transformable const& transform, sf::RenderStates const& states = sf::RenderStates::Default) const;
+    template <class DrawableT, typename _ = typename std::enable_if<std::is_base_of<Drawable, DrawableT>::value>::type>
+    inline void draw(DrawableT* drawingObject, sf::Drawable const& drawable, sf::Transformable const& transform, sf::RenderStates const& states = sf::RenderStates::Default) const;
     
 private:
     unsigned int                                    m_height;

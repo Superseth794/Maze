@@ -10,6 +10,9 @@
 namespace mz {
 
 void Layer::draw(Camera const& camera) {
+    if (isHidden())
+        return;
+    
     for (auto & child : m_childs)
         child->draw(camera);
 }

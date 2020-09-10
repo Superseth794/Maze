@@ -16,7 +16,7 @@
 
 namespace mz {
 
-class SpriteNode : Node {
+class SpriteNode : public Node {
 public:
     SpriteNode(sf::Sprite && sprite, std::shared_ptr<sf::Texture> && texture);
     SpriteNode(sf::Sprite && sprite, std::shared_ptr<sf::Texture> && texture, sf::IntRect const& rectangle);

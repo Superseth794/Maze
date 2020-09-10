@@ -10,8 +10,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Camera.hpp"
-
 namespace mz {
 
 class Camera;
@@ -28,8 +26,19 @@ public:
     Drawable& operator=(Drawable && drawable) noexcept = default;
     
     virtual void draw(Camera const& camera) = 0;
+    
+    inline bool isHidden() const;
+    
+    inline void setHidden(bool isHidden);
+    
+private:
+    bool m_isHidden = false;
 };
 
 }
+
+#include "Drawable.inl"
+
+#include "Camera.hpp"
 
 #endif /* Drawable_hpp */
