@@ -54,4 +54,9 @@ inline void Action::callCompletionCallbacks() {
         m_completionCallback.value()();
 }
 
+inline void Action::resetProperties() {
+    m_duration = 0;
+    m_isPaused = false;
+}
+
 }

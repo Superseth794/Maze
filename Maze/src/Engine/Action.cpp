@@ -201,14 +201,14 @@ Action Action::FollowPath(std::vector<sf::Vector2f> && path) {
 }
 
 Action Action::Group(std::vector<Action> const& actions) {
-    Action groupAction {ActionType::GROUP, false};
+    Action groupAction {ActionType::GROUP, true};
     for (auto const& action : actions)
         groupAction.m_data.sequenceData.actions.emplace_back(action);
     return groupAction;
 }
 
 Action Action::Group(std::vector<Action> && actions) {
-    Action groupAction {ActionType::GROUP, false};
+    Action groupAction {ActionType::GROUP, true};
     groupAction.m_data.groupData.actions = std::forward<std::vector<Action>>(actions);
     return groupAction;
 }
@@ -372,14 +372,14 @@ Action Action::ScaleToY(float y) {
 }
 
 Action Action::Sequence(std::vector<Action> const& actions) {
-    Action sequenceAction {ActionType::SEQUENCE, false};
+    Action sequenceAction {ActionType::SEQUENCE, true};
     for (auto const& action : actions)
         sequenceAction.m_data.sequenceData.actions.emplace_back(action);
     return sequenceAction;
 }
 
 Action Action::Sequence(std::vector<Action> && actions) {
-    Action sequenceAction {ActionType::SEQUENCE, false};
+    Action sequenceAction {ActionType::SEQUENCE, true};
     sequenceAction.m_data.sequenceData.actions = std::forward<std::vector<Action>>(actions);
     return sequenceAction;
 }
@@ -452,7 +452,6 @@ void Action::completeInit(Node* owner) {
         case ActionType::HIDE :
             completeInitHide();
             break;
-        case ActionType::REMOVE_FROM_PARENT : break;
         case ActionType::SEQUENCE :
             completeInitSequence();
             break;
@@ -466,7 +465,10 @@ void Action::completeInit(Node* owner) {
             completeInitSpeed();
             break;
         case ActionType::PAUSE : break;
-        case ActionType::EMPTY : break;
+        case ActionType::REMOVE_FROM_PARENT :
+        case ActionType::EMPTY :
+            resetProperties();
+            break;
     }
 }
 
@@ -542,7 +544,7 @@ void Action::completeInitSpeed() {
         m_data.speedData.speed -= m_owner->getSpeed();
 }
 
-Action Action::getDataReversed() const {
+Action Action::getDataUnrelativeToNodeReversed() const {
     switch (m_type) {
         case ActionType::MOVE :
             return Action::MoveBy(-m_data.moveData.position);
@@ -615,12 +617,15 @@ Action Action::getDataRelativeToNodeReversed(Node* node) const {
             return Action::RotateBy(nodeTransform.getRotation() - m_data.rotateData.rotation);
         case ActionType::SCALE :
             return Action::ScaleBy(nodeTransform.getScale() - m_data.scaleData.scaleFactor);
-        case ActionType::FOLLOW_PATH : break;
+        case ActionType::FOLLOW_PATH :
+            return Action::FollowPath(getPathReversed(m_data.pathData.positions, node));
         case ActionType::HIDE :
             return (node->isHidden() ? Action::Unhide() : Action::Hide());
         case ActionType::REMOVE_FROM_PARENT : break;
-        case ActionType::SEQUENCE : break;
-        case ActionType::GROUP : break;
+        case ActionType::SEQUENCE :
+            return Action::Sequence(getActionsReversed(m_data.sequenceData.actions, node));
+        case ActionType::GROUP :
+            return  Action::Group(getActionsReversed(m_data.groupData.actions, node));
         case ActionType::REPEAT : break;
         case ActionType::SPEED :
             return Action::SpeedBy(node->getSpeed() - m_data.speedData.speed);
@@ -631,19 +636,12 @@ Action Action::getDataRelativeToNodeReversed(Node* node) const {
 }
 
 Action Action::getReversedData(Node* node) const {
-    if (m_type == ActionType::SEQUENCE) {
-        return Action::Sequence(getActionsReversed(m_data.sequenceData.actions, node));
-    } else if (m_type == ActionType::GROUP) {
-        return  Action::Group(getActionsReversed(m_data.groupData.actions, node));
-    } else if (m_isRelativeToInitialState) {
-        if (!node)
+    if (m_isRelativeToInitialState) {
+        if (!node && !(m_type == SEQUENCE || m_type == GROUP))
             return Action::Empty();
-        else if (m_type == FOLLOW_PATH)
-            return Action::FollowPath(getPathReversed(m_data.pathData.positions, node));
-        else
-            return getDataRelativeToNodeReversed(node);
+        return getDataRelativeToNodeReversed(node);
     } else {
-        return getDataReversed();
+        return getDataUnrelativeToNodeReversed();
     }
     return Action::Empty();
 }

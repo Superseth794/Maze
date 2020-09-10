@@ -214,17 +214,29 @@ void Maze::lauch() {
     originCircleRef.setFillColor(sf::Color::White);
     
     auto moveAction = Action::MoveByX(100);
-    moveAction.setDuration(2000000);
-    auto pauseAction = Action::Pause(2000000);
+    moveAction.setDuration(400000);
+    auto pauseAction = Action::Pause(400000);
     auto sequenceAction = Action::Sequence({std::move(moveAction), std::move(pauseAction)});
     sequenceAction.setCallback(mz::Action::CompletionCallback{[]() {
         mz::Logs::Global.display("Action ended !", SUCCESS);
     }});
     
     auto repeatAction = Action::Repeat(std::move(sequenceAction), 4, false);
-    
-    originCircleRef.run(std::move(repeatAction), mz::Action::CompletionCallback{[]() {
+    repeatAction.setCallback(mz::Action::CompletionCallback{[]() {
         mz::Logs::Global.display("Repeat action ended !", SUCCESS);
+    }});
+    auto reversedRepeatAction = repeatAction.getReversed();
+    reversedRepeatAction.setCallback(mz::Action::CompletionCallback{[]() {
+        mz::Logs::Global.display("Reversed repeat action ended !", SUCCESS);
+    }});
+    
+    std::vector<Action> vect;
+    vect.emplace_back(std::move(repeatAction));
+    vect.emplace_back(std::move(reversedRepeatAction));
+    auto finalSequenceAction = Action::Sequence(std::move(vect));
+    
+    originCircleRef.run(std::move(finalSequenceAction), mz::Action::CompletionCallback{[]() {
+        mz::Logs::Global.display("All actions ended !", SUCCESS);
     }});
     
     auto circle = std::make_unique<CircleShapeNode>(40);

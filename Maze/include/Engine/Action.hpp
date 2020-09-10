@@ -250,7 +250,7 @@ private:
     
     void completeInitSpeed();
     
-    Action getDataReversed() const;
+    Action getDataUnrelativeToNodeReversed() const;
     
     std::vector<Action> getActionsReversed(std::vector<Action> const& actions, Node* node) const;
     
@@ -267,6 +267,8 @@ private:
     Action getReversedData(Node* node) const;
     
     std::uint64_t getTimeUsed(std::uint64_t timeElapsed);
+    
+    inline void resetProperties();
     
     std::uint64_t update(std::uint64_t timeElapsed);
     
