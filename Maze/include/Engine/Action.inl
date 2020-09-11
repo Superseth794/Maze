@@ -27,6 +27,15 @@ inline void Action::setDuration(std::uint64_t duration) {
     m_duration = std::max(duration, static_cast<std::uint64_t>(1));
 }
 
+inline void Action::setDuration(sf::Time duration) {
+    m_duration = std::max(static_cast<std::uint64_t>(duration.asMicroseconds()), static_cast<std::uint64_t>(1));
+}
+
+template <typename DurationT, typename _>
+inline void Action::setDuration(DurationT duration) {
+    m_duration = std::max(static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(duration).count()), static_cast<std::uint64_t>(1));
+}
+
 inline void Action::setPaused(bool isPaused) {
     m_isPaused = isPaused;
 }

@@ -9,6 +9,7 @@
 #define Action_hpp
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstring>
 #include <utility>
@@ -140,6 +141,11 @@ public:
     void inline setCallback(CompletionCallback && callback);
     
     inline void setDuration(std::uint64_t duration);
+    
+    inline void setDuration(sf::Time duration);
+    
+    template <typename DurationT, typename _ = typename std::enable_if<mz::is_duration<DurationT>::value>::type>
+    inline void setDuration(DurationT duration);
     
     inline void setPaused(bool isPaused);
     

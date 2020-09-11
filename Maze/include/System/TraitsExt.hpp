@@ -8,8 +8,9 @@
 #ifndef TraitsExt_hpp
 #define TraitsExt_hpp
 
-#include <functional>
+#include <chrono>
 #include <complex>
+#include <functional>
 
 namespace mz {
 
@@ -75,6 +76,12 @@ struct is_complexe_convertible : std::conditional_t<
 
 template <typename T>
 inline constexpr bool is_complexe_convertible_v = is_complexe_convertible<T>::value;
+
+template <typename T>
+struct is_duration : std::false_type {};
+
+template <typename Rep, class Period>
+struct is_duration<std::chrono::duration<Rep, Period>> : std::true_type {};
 
 }
 
