@@ -241,8 +241,9 @@ void Maze::lauch() {
         mz::Logs::Global.display("All actions ended !", SUCCESS);
         auto pathAction = Action::FollowPath(sf::Vector2f(100, 0), sf::Vector2f(100, 100), sf::Vector2f(0, 100), sf::Vector2f(0, 0));
         pathAction.setDuration(4000000);
+        auto reversedPath = pathAction.getReversed(&circleRef);
         pathAction.setRelativeToParent(true);
-        circleRef.run(std::move(pathAction), mz::Action::CompletionCallback{[]() {
+        circleRef.run(Action::RepeatForever(Action::Sequence(std::move(pathAction), std::move(reversedPath))), mz::Action::CompletionCallback{[]() {
             mz::Logs::Global.display("All actions ended !", SUCCESS);
         }});
     }});

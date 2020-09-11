@@ -259,9 +259,11 @@ private:
     
     void completeInitSpeed();
     
+    std::vector<Action> getActionsReversed(std::vector<Action> const& actions, Node* node) const;
+    
     Action getDataUnrelativeToNodeReversed() const;
     
-    std::vector<Action> getActionsReversed(std::vector<Action> const& actions, Node* node) const;
+    Action getDataRelativeToNodeReversed(Node* node) const;
     
     inline sf::Vector2f const& getOwnerCurrentPosition() const;
     
@@ -270,8 +272,6 @@ private:
     std::vector<sf::Vector2f> getPathReversed(std::vector<sf::Vector2f> const& path, Node* node) const;
     
     float getProgress(std::uint64_t timeElapsed, std::uint64_t duration);
-    
-    Action getDataRelativeToNodeReversed(Node* node) const;
     
     Action getReversedData(Node* node) const;
     

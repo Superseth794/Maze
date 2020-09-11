@@ -544,6 +544,13 @@ void Action::completeInitSpeed() {
         m_data.speedData.speed -= m_owner->getSpeed();
 }
 
+std::vector<Action> Action::getActionsReversed(std::vector<Action> const& actions, Node* node) const {
+    std::vector<Action> reversedActions;
+    for (std::size_t i = 0; i < actions.size(); ++i)
+        reversedActions.emplace_back(actions[actions.size() - i - 1].getReversed(node));
+    return reversedActions;
+}
+
 Action Action::getDataUnrelativeToNodeReversed() const {
     switch (m_type) {
         case ActionType::MOVE :
@@ -564,17 +571,38 @@ Action Action::getDataUnrelativeToNodeReversed() const {
         case ActionType::SPEED :
             assert(m_data.speedData.speed > 0.f);
             return Action::SpeedBy(-m_data.speedData.speed);
-        case ActionType::PAUSE : break;
+        case ActionType::PAUSE :
+            return Action::Pause(m_duration);
         case ActionType::EMPTY : break;
     }
     return Action::Empty();
 }
 
-std::vector<Action> Action::getActionsReversed(std::vector<Action> const& actions, Node* node) const {
-    std::vector<Action> reversedActions;
-    for (std::size_t i = 0; i < actions.size(); ++i)
-        reversedActions.emplace_back(actions[actions.size() - i - 1].getReversed(node));
-    return reversedActions;
+Action Action::getDataRelativeToNodeReversed(Node* node) const {
+    auto& nodeTransform = (m_isRelativeToParent ? node->getRelativeTransform() : node->getGlobalTransform());
+    switch (m_type) {
+        case ActionType::MOVE :
+            return Action::MoveBy(nodeTransform.getPosition() - m_data.moveData.position);
+        case ActionType::ROTATE :
+            return Action::RotateBy(nodeTransform.getRotation() - m_data.rotateData.rotation);
+        case ActionType::SCALE :
+            return Action::ScaleBy(nodeTransform.getScale() - m_data.scaleData.scaleFactor);
+        case ActionType::FOLLOW_PATH :
+            return Action::FollowPath(getPathReversed(m_data.pathData.positions, node));
+        case ActionType::HIDE :
+            return (node->isHidden() ? Action::Unhide() : Action::Hide());
+        case ActionType::REMOVE_FROM_PARENT : break;
+        case ActionType::SEQUENCE :
+            return Action::Sequence(getActionsReversed(m_data.sequenceData.actions, node));
+        case ActionType::GROUP :
+            return  Action::Group(getActionsReversed(m_data.groupData.actions, node));
+        case ActionType::REPEAT : break;
+        case ActionType::SPEED :
+            return Action::SpeedBy(node->getSpeed() - m_data.speedData.speed);
+        case ActionType::PAUSE : break;
+        case ActionType::EMPTY : break;
+    }
+    return Action::Empty();
 }
 
 sf::Transformable const& Action::getOwnerCurrentTransform() const {
@@ -606,33 +634,6 @@ float Action::getProgress(std::uint64_t timeElapsed, std::uint64_t duration) {
         case TimingMode::EASE_IN_OUT : // TODO: use bezier curves
             return ratio;
     }
-}
-
-Action Action::getDataRelativeToNodeReversed(Node* node) const {
-    auto& nodeTransform = (m_isRelativeToParent ? node->getRelativeTransform() : node->getGlobalTransform());
-    switch (m_type) {
-        case ActionType::MOVE :
-            return Action::MoveBy(nodeTransform.getPosition() - m_data.moveData.position);
-        case ActionType::ROTATE :
-            return Action::RotateBy(nodeTransform.getRotation() - m_data.rotateData.rotation);
-        case ActionType::SCALE :
-            return Action::ScaleBy(nodeTransform.getScale() - m_data.scaleData.scaleFactor);
-        case ActionType::FOLLOW_PATH :
-            return Action::FollowPath(getPathReversed(m_data.pathData.positions, node));
-        case ActionType::HIDE :
-            return (node->isHidden() ? Action::Unhide() : Action::Hide());
-        case ActionType::REMOVE_FROM_PARENT : break;
-        case ActionType::SEQUENCE :
-            return Action::Sequence(getActionsReversed(m_data.sequenceData.actions, node));
-        case ActionType::GROUP :
-            return  Action::Group(getActionsReversed(m_data.groupData.actions, node));
-        case ActionType::REPEAT : break;
-        case ActionType::SPEED :
-            return Action::SpeedBy(node->getSpeed() - m_data.speedData.speed);
-        case ActionType::PAUSE : break;
-        case ActionType::EMPTY : break;
-    }
-    return Action::Empty();
 }
 
 Action Action::getReversedData(Node* node) const {
