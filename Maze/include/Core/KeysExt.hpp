@@ -19,9 +19,9 @@ class KeysExt {
 public:
     KeysExt() = delete;
     
-    static inline sf::Keyboard::Key getKeyFromName(std::string const& name);
+    static constexpr sf::Keyboard::Key getKeyFromName(std::string const& name);
     
-    static inline std::string getNameFromKey(sf::Keyboard::Key const& key);
+    static constexpr std::string getNameFromKey(sf::Keyboard::Key const& key);
     
 private:
     static std::unordered_map<sf::Keyboard::Key, std::string>   s_keysMap;

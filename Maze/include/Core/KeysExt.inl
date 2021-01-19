@@ -7,7 +7,7 @@
 
 namespace mz {
 
-inline sf::Keyboard::Key KeysExt::getKeyFromName(std::string const& name) {
+constexpr sf::Keyboard::Key KeysExt::getKeyFromName(std::string const& name) {
     for (auto [_key, _keyName] : s_keysMap) {
         if (_keyName == name)
             return _key;
@@ -15,7 +15,7 @@ inline sf::Keyboard::Key KeysExt::getKeyFromName(std::string const& name) {
     return sf::Keyboard::Key::Unknown;
 }
 
-inline std::string KeysExt::getNameFromKey(sf::Keyboard::Key const& key) {
+constexpr std::string KeysExt::getNameFromKey(sf::Keyboard::Key const& key) {
     for (auto [_key, _keyName] : s_keysMap) {
         if (_key == key)
             return _keyName;
