@@ -627,12 +627,12 @@ float Action::getProgress(std::uint64_t timeElapsed, std::uint64_t duration) {
     switch (m_timingMode) {
         case TimingMode::LINEAR :
             return ratio;
-        case TimingMode::EASE_IN : // TODO: use bezier curves
-            return ratio;
-        case TimingMode::EASE_OUT : // TODO: use bezier curves
-            return ratio;
-        case TimingMode::EASE_IN_OUT : // TODO: use bezier curves
-            return ratio;
+        case TimingMode::EASE_IN :
+            return bezierCurveDegree1At(ratio, s_easeInControlValues);
+        case TimingMode::EASE_OUT:
+            return bezierCurveDegree1At(ratio, s_easeOutControlValues);
+        case TimingMode::EASE_IN_OUT :
+            return bezierCurveDegree1At(ratio, s_easeInEaseOutControlValues);
     }
 }
 

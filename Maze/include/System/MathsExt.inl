@@ -7,6 +7,44 @@
 
 namespace mz {
 
+template<typename T> constexpr T bernsteinPolynomial(T k, T n, T x) {
+    return nChooseK(n, k) * std::pow(x, k) * std::pow(1 - x, n - k);
+}
+
+// use c++20 concepts
+template <typename T, typename array_T> constexpr T bezierCurveDegree1At(T value, array_T const& controlValues) {
+    std::size_t nbControlValues = std::size(controlValues);
+    T resultValue {0};
+    for (std::size_t i = 0; i < nbControlValues; ++i)
+        resultValue += bernsteinPolynomial<float>(i, nbControlValues - 1, value) * controlValues[i];
+    return resultValue;
+}
+
+// use C++20 concepts
+template <typename T, typename array_T> constexpr sf::Vector2<T> bezierCurveDegree2At(T value, array_T const& controlPoints) {
+    std::size_t nbControlPoints = std::size(controlPoints);
+    sf::Vector2<T> resultPoint {0, 0};
+    for (std::size_t i = 0; i < nbControlPoints; ++i) {
+        float coef = bernsteinPolynomial<float>(i, nbControlPoints - 1, value);
+        resultPoint.x += static_cast<T>(coef * controlPoints[i].x);
+        resultPoint.y += static_cast<T>(coef * controlPoints[i].y);
+    }
+    return resultPoint;
+}
+
+// use C++20 concepts
+template <typename T, template <typename> class array_T> constexpr sf::Vector2<T> bezierCurveDegree2DerivativeAt(T value, array_T<sf::Vector2<T>> const& controlPoints) {
+    std::size_t nbControlPoints = std::size(controlPoints);
+    sf::Vector2<T> resultPoint = {0, 0};
+    for (std::size_t i = 0; i < nbControlPoints - 1; ++i) {
+        T coef = bernsteinPolynomial<float>(i, nbControlPoints - 2, value);
+        resultPoint.x += static_cast<T>(coef * (controlPoints[i+1].x - controlPoints[i].x));
+        resultPoint.y += static_cast<T>(coef * (controlPoints[i+1].y - controlPoints[i].y));
+    }
+    resultPoint *= static_cast<T>(nbControlPoints);
+    return resultPoint;
+}
+
 template<typename T> constexpr T fromDegreesToRadian(T angle) {
     return (angle * M_PI / 180.0);
 }
@@ -27,13 +65,26 @@ template<typename T> constexpr T getVectorLength2(sf::Vector2<T> const& vect) {
     return (vect.x * vect.x + vect.y * vect.y);
 }
 
+/**
+ \see https://stackoverflow.com/questions/15301885/calculate-value-of-n-choose-k
+ */
+template<typename T> constexpr T nChooseK(T n, T k) {
+    float result = 1.f;
+    if (k > n - k)
+        k = n - k;
+    for (T i = 1; i <= k; i += 1) {
+        result *= (n + 1 - i) / static_cast<float>(i);
+    }
+    return static_cast<T>(result);
+}
+
 template<typename T> constexpr bool nearlyEquals(T a, T b, T maxDiff) {
     T diff = std::abs(b - a);
     return (diff <= maxDiff);
 }
 
 template<typename T> constexpr sf::Vector2<T> normalizeVector(sf::Vector2<T> const& vect) {
-    if (vect.x == 0. && vect.y == 0.)
+    if (vect.x == 0 && vect.y == 0)
         return vect;
     T norme = std::sqrt(vect.x * vect.x + vect.y * vect.y);
     return sf::Vector2<T>{vect.x / norme, vect.y / norme};

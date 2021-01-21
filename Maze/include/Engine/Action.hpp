@@ -9,6 +9,7 @@
 #define Action_hpp
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <cstring>
@@ -319,6 +320,10 @@ private:
     std::uint64_t                       m_timeElapsed;
     TimingMode                          m_timingMode                = TimingMode::LINEAR;
     ActionType                          m_type;
+    
+    static constexpr std::array<float, 4> s_easeInControlValues {0.f, 0.42f, 1.f, 1.f};
+    static constexpr std::array<float, 4> s_easeInEaseOutControlValues {0.f, 0.f, 1.f, 1.f};
+    static constexpr std::array<float, 4> s_easeOutControlValues {0.f, 0.f, 0.58f, 1.f};
 };
 
 } // namespace mz

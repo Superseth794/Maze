@@ -12,6 +12,7 @@ inline float Action::getCurrentProgress() {
 }
 
 inline bool Action::isCompleted() const {
+	assert(m_timeElapsed <= m_duration);
     return (m_timeElapsed == m_duration);
 }
 
@@ -71,7 +72,7 @@ Action Action::Group(Actions && ...actions) {
     static_assert((std::is_same_v<Actions, Action>, ...), "Actions must all be of type Action");
     
     Action groupAction {ActionType::GROUP, true};
-    groupAction.m_data.groupData.actions.emplace_back(std::forward<Actions...>(actions)...);
+    (groupAction.m_data.groupData.actions.emplace_back(std::forward<Actions>(actions)), ...);
     return groupAction;
 }
 

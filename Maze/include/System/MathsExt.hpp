@@ -90,6 +90,14 @@
 
 namespace mz {
 
+template<typename T> constexpr T bernsteinPolynomial(T n, T v, T x);
+
+template <typename T, typename array_T> constexpr T bezierCurveDegree1At(T value, array_T const& controlValues);
+
+template <typename T, typename array_T> constexpr sf::Vector2<T> bezierCurveDegree2At(T value, array_T const& controlPoints);
+
+template <typename T, typename array_T> constexpr sf::Vector2<T> bezierCurveDegree2DerivativeAt(T value, array_T const& controlPoints);
+
 template<typename T> constexpr T fromDegreesToRadian(T angle);
 
 template<typename T> constexpr T fromRadianToDegrees(T angle);
@@ -99,6 +107,8 @@ template<typename T> constexpr T getScalarProduct(sf::Vector2<T> const& vect1, s
 template<typename T> constexpr T getVectorLength(sf::Vector2<T> const& vect);
 
 template<typename T> constexpr T getVectorLength2(sf::Vector2<T> const& vect);
+
+template<typename T> constexpr T nChooseK(T n, T k);
 
 template<typename T> constexpr bool nearlyEquals(T a, T b, T maxDiff = std::numeric_limits<T>::epsilon());
 
