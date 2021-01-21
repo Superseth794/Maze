@@ -11,6 +11,7 @@ build/Makefile
 Build/*.make
 build/bin/*
 build/Obj/*
+build/Products/*
 
 # ignores doc files
 doc/*
