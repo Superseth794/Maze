@@ -36,11 +36,11 @@ public:
     
     inline sf::IntRect const& getTextureRect() const;
     
-    inline void setColor(sf::Color const& color);
+    inline SpriteNode& setColor(sf::Color const& color);
     
-    inline void setTexture(std::shared_ptr<sf::Texture> const& texture, bool resetRect = false);
+    inline SpriteNode& setTexture(std::shared_ptr<sf::Texture> const& texture, bool resetRect = false);
     
-    inline void setTextureRect(const sf::IntRect& rectangle);
+    inline SpriteNode& setTextureRect(const sf::IntRect& rectangle);
     
 private:
     sf::Sprite                    m_sprite;

@@ -32,8 +32,9 @@ inline void Node::setPaused(bool isPaused) {
     m_isPaused = isPaused;
 }
 
-inline void Node::setSpeed(float speed) {
+inline Node& Node::setSpeed(float speed) {
     m_speed = speed;
+    return *this;
 }
 
 }

@@ -29,7 +29,7 @@ public:
     
     inline bool isHidden() const;
     
-    inline void setHidden(bool isHidden);
+    inline Drawable& setHidden(bool isHidden);
     
 private:
     bool m_isHidden = false;

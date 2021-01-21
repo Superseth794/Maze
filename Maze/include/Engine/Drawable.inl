@@ -11,8 +11,9 @@ inline bool Drawable::isHidden() const {
     return m_isHidden;
 }
 
-inline void Drawable::setHidden(bool isHidden) {
+inline Drawable& Drawable::setHidden(bool isHidden) {
     m_isHidden = isHidden;
+    return *this;
 }
 
 }

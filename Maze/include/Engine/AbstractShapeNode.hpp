@@ -44,15 +44,15 @@ public:
     
     inline sf::IntRect const& getTextureRect() const;
     
-    inline void setFillColor(sf::Color const& color);
+    inline ShapeNodeT& setFillColor(sf::Color const& color);
     
-    inline void setOutlineColor(sf::Color const& color);
+    inline ShapeNodeT& setOutlineColor(sf::Color const& color);
     
-    inline void setOutlineThickness(float thickness);
+    inline ShapeNodeT& setOutlineThickness(float thickness);
     
-    inline void setTexture(std::shared_ptr<sf::Texture> const& texture, bool resetRect = false);
+    inline ShapeNodeT& setTexture(std::shared_ptr<sf::Texture> const& texture, bool resetRect = false);
     
-    inline void setTextureRect(sf::IntRect const& rect);
+    inline ShapeNodeT& setTextureRect(sf::IntRect const& rect);
     
 protected:
     template <typename ...Args>

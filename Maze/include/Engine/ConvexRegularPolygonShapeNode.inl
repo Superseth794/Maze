@@ -19,9 +19,10 @@ inline float ConvexRegularPolygonShapeNode<EdgesCount>::getSize() const {
 }
 
 template <std::size_t EdgesCount>
-inline void ConvexRegularPolygonShapeNode<EdgesCount>::setSize(float size) {
+inline ConvexRegularPolygonShapeNode<EdgesCount>& ConvexRegularPolygonShapeNode<EdgesCount>::setSize(float size) {
     m_size = size;
 //    m_shape.setRadius(getRadiusFromSize(m_size));
+    return *this;
 }
 
 template <std::size_t EdgesCount>

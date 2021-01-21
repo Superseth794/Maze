@@ -47,23 +47,23 @@ public:
     
     inline float getOutlineThickness() const;
     
-    inline void setCharacterSize(unsigned int size);
+    inline LabelNode& setCharacterSize(unsigned int size);
     
-    inline void setFillColor(sf::Color const& color);
+    inline LabelNode& setFillColor(sf::Color const& color);
     
-    inline void setFont(sf::Font const& font);
+    inline LabelNode& setFont(sf::Font const& font);
     
-    inline void setLetterSpacing(float spacingFactor);
+    inline LabelNode& setLetterSpacing(float spacingFactor);
     
-    inline void setLineSpacing(float spacingFactor);
+    inline LabelNode& setLineSpacing(float spacingFactor);
     
-    inline void setOutlineColor(sf::Color const& color);
+    inline LabelNode& setOutlineColor(sf::Color const& color);
     
-    inline void setOutlineThickness(float thickness);
+    inline LabelNode& setOutlineThickness(float thickness);
     
-    inline void setString(std::string const& string);
+    inline LabelNode& setString(std::string const& string);
     
-    inline void setStyle(std::uint32_t style);
+    inline LabelNode& setStyle(std::uint32_t style);
     
 private:
     sf::Text m_text;

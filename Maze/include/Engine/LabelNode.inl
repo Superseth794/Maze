@@ -55,40 +55,49 @@ inline float LabelNode::getOutlineThickness() const {
     return m_text.getOutlineThickness();
 }
 
-inline void LabelNode::setCharacterSize(unsigned int size) {
+inline LabelNode& LabelNode::setCharacterSize(unsigned int size) {
     m_text.setCharacterSize(size);
+    return *this;
 }
 
-inline void LabelNode::setFillColor(sf::Color const& color) {
+inline LabelNode& LabelNode::setFillColor(sf::Color const& color) {
     m_text.setFillColor(color);
+    return *this;
 }
 
-inline void LabelNode::setFont(sf::Font const& font) {
+inline LabelNode& LabelNode::setFont(sf::Font const& font) {
     m_text.setFont(font);
+    return *this;
 }
 
-inline void LabelNode::setLetterSpacing(float spacingFactor) {
+inline LabelNode& LabelNode::setLetterSpacing(float spacingFactor) {
     m_text.setLetterSpacing(spacingFactor);
+    return *this;
 }
 
-inline void LabelNode::setLineSpacing(float spacingFactor) {
+inline LabelNode& LabelNode::setLineSpacing(float spacingFactor) {
     m_text.setLineSpacing(spacingFactor);
+    return *this;
 }
 
-inline void LabelNode::setOutlineColor(sf::Color const& color) {
+inline LabelNode& LabelNode::setOutlineColor(sf::Color const& color) {
     m_text.setOutlineColor(color);
+    return *this;
 }
 
-inline void LabelNode::setOutlineThickness(float thickness) {
+inline LabelNode& LabelNode::setOutlineThickness(float thickness) {
     m_text.setOutlineThickness(thickness);
+    return *this;
 }
 
-inline void LabelNode::setString(std::string const& string) {
+inline LabelNode& LabelNode::setString(std::string const& string) {
     m_text.setString(static_cast<sf::String>(string));
+    return *this;
 }
 
-inline void LabelNode::setStyle(std::uint32_t style) {
+inline LabelNode& LabelNode::setStyle(std::uint32_t style) {
     m_text.setStyle(static_cast<sf::Uint32>(style));
+    return *this;
 }
 
 } // namespace mz

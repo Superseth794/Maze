@@ -49,29 +49,34 @@ inline sf::IntRect const& AbstractShapeNode<ShapeNodeT>::getTextureRect() const 
 }
 
 template <class ShapeNodeT>
-inline void AbstractShapeNode<ShapeNodeT>::setFillColor(const sf::Color& color) {
+inline ShapeNodeT& AbstractShapeNode<ShapeNodeT>::setFillColor(const sf::Color& color) {
     m_shape.setFillColor(color);
+    return *static_cast<ShapeNodeT*>(this);
 }
 
 template <class ShapeNodeT>
-inline void AbstractShapeNode<ShapeNodeT>::setOutlineColor(const sf::Color& color) {
+inline ShapeNodeT& AbstractShapeNode<ShapeNodeT>::setOutlineColor(const sf::Color& color) {
     m_shape.setOutlineColor(color);
+    return *static_cast<ShapeNodeT*>(this);
 }
 
 template <class ShapeNodeT>
-inline void AbstractShapeNode<ShapeNodeT>::setOutlineThickness(float thickness) {
+inline ShapeNodeT& AbstractShapeNode<ShapeNodeT>::setOutlineThickness(float thickness) {
     m_shape.setOutlineThickness(thickness);
+    return *static_cast<ShapeNodeT*>(this);
 }
 
 template <class ShapeNodeT>
-inline void AbstractShapeNode<ShapeNodeT>::setTexture(std::shared_ptr<sf::Texture> const& texture, bool resetRect) {
+inline ShapeNodeT& AbstractShapeNode<ShapeNodeT>::setTexture(std::shared_ptr<sf::Texture> const& texture, bool resetRect) {
     m_texture = texture;
     m_shape.setTexture(*m_texture, resetRect);
+    return *static_cast<ShapeNodeT*>(this);
 }
 
 template <class ShapeNodeT>
-inline void AbstractShapeNode<ShapeNodeT>::setTextureRect(const sf::IntRect& rect) {
+inline ShapeNodeT& AbstractShapeNode<ShapeNodeT>::setTextureRect(const sf::IntRect& rect) {
     m_shape.setTextureRect(rect);
+    return *static_cast<ShapeNodeT*>(this);
 }
 
 template <class ShapeNodeT>

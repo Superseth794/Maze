@@ -30,7 +30,7 @@ public:
     
     inline sf::Vector2f const& getSize() const;
     
-    inline void setSize(sf::Vector2f const& size);
+    inline RectangleShapeNode& setSize(sf::Vector2f const& size);
 };
 
 }

@@ -28,7 +28,7 @@ public:
     
     inline float getSize() const;
     
-    inline void setSize(float size);
+    inline ConvexRegularPolygonShapeNode& setSize(float size);
     
 private:
     constexpr float getRadiusFromSize(float size);

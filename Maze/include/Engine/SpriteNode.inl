@@ -27,17 +27,20 @@ inline sf::IntRect const& SpriteNode::getTextureRect() const {
     return m_sprite.getTextureRect();
 }
 
-inline void SpriteNode::setColor(sf::Color const& color) {
+inline SpriteNode& SpriteNode::setColor(sf::Color const& color) {
     m_sprite.setColor(color);
+    return *this;
 }
 
-inline void SpriteNode::setTexture(std::shared_ptr<sf::Texture> const& texture, bool resetRect) {
+inline SpriteNode& SpriteNode::setTexture(std::shared_ptr<sf::Texture> const& texture, bool resetRect) {
     m_texture = texture;
     m_sprite.setTexture(*texture, resetRect);
+    return *this;
 }
 
-inline void SpriteNode::setTextureRect(sf::IntRect const& rectangle) {
+inline SpriteNode& SpriteNode::setTextureRect(sf::IntRect const& rectangle) {
     m_sprite.setTextureRect(rectangle);
+    return *this;
 }
 
 }

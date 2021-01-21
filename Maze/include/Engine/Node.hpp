@@ -65,7 +65,7 @@ public:
     
     inline void setPaused(bool isPaused);
     
-    inline void setSpeed(float speed);
+    inline Node& setSpeed(float speed);
     
     virtual void update(std::uint64_t timeElapsed) override;
     

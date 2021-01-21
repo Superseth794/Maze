@@ -11,8 +11,9 @@ inline sf::Vector2f const& RectangleShapeNode::getSize() const {
     return m_shape.getSize();
 }
 
-inline void RectangleShapeNode::setSize(sf::Vector2f const& size) {
+inline RectangleShapeNode& RectangleShapeNode::setSize(sf::Vector2f const& size) {
     m_shape.setSize(size);
+    return *this;
 }
 
 }
