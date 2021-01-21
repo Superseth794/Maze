@@ -20,38 +20,46 @@ inline bool Action::isPaused() const {
     return m_isPaused;
 }
 
-inline void Action::setCallback(CompletionCallback && callback) {
+inline Action& Action::setCallback(CompletionCallback && callback) {
     m_completionCallback = std::make_optional(std::forward<CompletionCallback>(callback));
+    return *this;
 }
 
-inline void Action::setDuration(std::uint64_t duration) {
+inline Action& Action::setDuration(std::uint64_t duration) {
     m_duration = std::max(duration, static_cast<std::uint64_t>(1));
+    return *this;
 }
 
-inline void Action::setDuration(sf::Time duration) {
+inline Action& Action::setDuration(sf::Time duration) {
     m_duration = std::max(static_cast<std::uint64_t>(duration.asMicroseconds()), static_cast<std::uint64_t>(1));
+    return *this;
 }
 
 template <typename DurationT, typename _>
-inline void Action::setDuration(DurationT duration) {
+inline Action& Action::setDuration(DurationT duration) {
     m_duration = std::max(static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(duration).count()), static_cast<std::uint64_t>(1));
+    return *this;
 }
 
-inline void Action::setPaused(bool isPaused) {
+inline Action& Action::setPaused(bool isPaused) {
     m_isPaused = isPaused;
+    return *this;
 }
 
-inline void Action::setRelativeToParent(bool isRelativeToParent) {
+inline Action& Action::setRelativeToParent(bool isRelativeToParent) {
     m_isRelativeToParent = isRelativeToParent;
+    return *this;
 }
 
-inline void Action::setSpeed(float speed) {
+inline Action& Action::setSpeed(float speed) {
     assert(speed > 0.f);
     m_speed = speed;
+    return *this;
 }
 
-inline void Action::setTimingMode(TimingMode timingMode) {
+inline Action& Action::setTimingMode(TimingMode timingMode) {
     m_timingMode = timingMode;
+    return *this;
 }
 
 inline sf::Vector2f const& Action::getOwnerCurrentPosition() const {

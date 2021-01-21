@@ -139,22 +139,22 @@ public:
     
     inline bool isPaused() const;
     
-    void inline setCallback(CompletionCallback && callback);
+    inline Action& setCallback(CompletionCallback && callback);
     
-    inline void setDuration(std::uint64_t duration);
+    inline Action& setDuration(std::uint64_t duration);
     
-    inline void setDuration(sf::Time duration);
+    inline Action& setDuration(sf::Time duration);
     
     template <typename DurationT, typename _ = typename std::enable_if<mz::is_duration<DurationT>::value>::type>
-    inline void setDuration(DurationT duration);
+    inline Action& setDuration(DurationT duration);
     
-    inline void setPaused(bool isPaused);
+    inline Action& setPaused(bool isPaused);
     
-    inline void setRelativeToParent(bool isRelativeToParent = true);
+    inline Action& setRelativeToParent(bool isRelativeToParent = true);
     
-    inline void setSpeed(float speed);
+    inline Action& setSpeed(float speed);
     
-    inline void setTimingMode(TimingMode timingMode);
+    inline Action& setTimingMode(TimingMode timingMode);
     
     static Action Empty();
     
