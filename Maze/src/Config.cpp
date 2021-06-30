@@ -1,42 +1,13 @@
 //
-//  Config.hpp
+//  Config.cpp
 //  Maze
 //
-//  Created by Jaraxus on 09/07/2020.
+//  Created by Jaraxus on 04/05/2021.
 //
 
-#ifndef Config_h
-#define Config_h
+#include "../include/Config.hpp"
 
-#define MAZE_MAJOR_VERSION 0
-#define MAZE_MINOR_VERSION 1
-#define MAZE_PATCH_VERSION 0
-
-#if defined(_WIN32) || defined(__WIN32__)
-
-#   define MAZE_PLATFORM_WINDOWS
-
-#elif defined(linux) || defined(__linux__) || defined(__linux)
-
-#   define MAZE_PLATFORM_LINUX
-
-#elif defined(__APPLE__) || defined(__MACH__)
-
-#   define MAZE_PLATFORM_APPLE
-
-#else
-
-#   error Platform not suported
-
-#endif
-
-#if !defined(NDEBUG)
-
-#   define MAZE_DEBUG
-
-#endif
-
-#if defined(MAZE_DEBUG) && defined(MAZE_PLATFORM_APPLE) && defined(__apple_build_version__)
+#if defined(MAZE_DEBUG) && defined(MAZE_PLATFORM_APPLE) && defined(MAZE_COMPILER_CLANG) && defined(__apple_build_version__)
 
 #   include <assert.h>
 #   include <stdbool.h>
@@ -44,8 +15,9 @@
 #   include <unistd.h>
 #   include <sys/sysctl.h> // this header will only compile with AppleClang compiler (XCode)
 
+// Code was originally found in https://github.com/catchorg/Catch2/blob/devel/src/catch2/internal/catch_debugger.cpp
 // Returns true if the current process is being debugged (either running under the debugger or has a debugger attached post facto).
-// Code is integrally taken from https://developer.apple.com/library/archive/qa/qa1361/_index.html
+// Code is integrally taken from the technical note https://developer.apple.com/library/archive/qa/qa1361/_index.html
 [[maybe_unused]] static bool isBeingDebugged() {
     int                 junk;
     int                 mib[4];
@@ -76,13 +48,4 @@
     return ( (info.kp_proc.p_flag & P_TRACED) != 0 );
 }
 
-#else
-
-// unable to detect if a debugger is currently beging used
-static constexpr bool isBeingDebugged() {
-    return false;
-}
-
 #endif
-
-#endif /* Config_h */

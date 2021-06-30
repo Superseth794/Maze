@@ -45,12 +45,30 @@ template <typename T, template <typename> class array_T> constexpr sf::Vector2<T
     return resultPoint;
 }
 
+/**
+ https://quick-bench.com/q/d2hY2HRADbhxAOP_3mNsptOXC1Y
+ */
+template <std::size_t N> constexpr std::size_t findFirstFreeBit(std::bitset<N> const& bitset) {
+//#if defined MAZE_STDLIB_LIBSTDCPP || (defined(MAZE_COMPILER_CLANG) && __has_builtin(__builtin_ctzl))
+#if defined(MAZE_COMPILER_CLANG) && __has_builtin(__builtin_ctzl)
+    return bset._Find_first();
+#else // default implementation without optimization
+    if (bitset.none())
+        return std::numeric_limits<std::size_t>::max();
+    for (std::size_t i = 0; i < N; ++i) {
+        if (bitset[i])
+            return i;
+    }
+    return std::numeric_limits<std::size_t>::max();
+#endif
+}
+
 template<typename T> constexpr T fromDegreesToRadian(T angle) {
     return (angle * M_PI / 180.0);
 }
 
 template<typename T> constexpr T fromRadianToDegrees(T angle) {
-    return (angle * 180.0 / M_PI);
+    return (angle * static_cast<T>(180.0 / M_PI));
 }
 
 template<typename T> constexpr T getScalarProduct(sf::Vector2<T> const& vect1, sf::Vector2<T> const& vect2) {

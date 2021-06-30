@@ -14,12 +14,16 @@
 #include "Layer.hpp"
 #include "Node.hpp"
 #include "Updatable.hpp"
+
 #include "../Physics/PhysicsWorld.hpp"
-#include "../../Config.hpp"
+#include "../System/ObjectPool.hpp"
+#include "../Config.hpp"
 
 namespace mz {
 
 class GameScene : Updatable {
+    using ActionPool = ObjectPool<Action>;
+    
 public:
     GameScene(unsigned int width, unsigned int height);
     GameScene(GameScene const& scene) = delete;

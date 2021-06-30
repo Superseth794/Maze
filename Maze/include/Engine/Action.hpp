@@ -22,6 +22,7 @@
 #include "../Core/Logs.hpp"
 #include "../System/Callback.hpp"
 #include "../System/MathsExt.hpp"
+#include "../System/ObjectPool.hpp"
 
 namespace mz {
 class Action;
@@ -123,6 +124,8 @@ public:
     };
     
 public:
+    Action() = default; // TODO: Fix after ObjectPool tests are complete
+    
     Action(Action const& action) noexcept;
     Action(Action && action) noexcept;
     
