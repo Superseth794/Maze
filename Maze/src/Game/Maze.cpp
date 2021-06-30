@@ -214,7 +214,9 @@ void Maze::lauch() {
     originCircleRef.setFillColor(sf::Color::White);
     
     auto moveAction = Action::MoveByX(100);
-    moveAction.setDuration(400000);
+    moveAction
+        .setDuration(400000)
+        .setTimingMode(mz::Action::TimingMode::EASE_IN_OUT);
     auto pauseAction = Action::Pause(400000);
     auto sequenceAction = Action::Sequence({std::move(moveAction), std::move(pauseAction)});
     sequenceAction.setCallback(mz::Action::CompletionCallback{[]() {
@@ -234,8 +236,9 @@ void Maze::lauch() {
     
     auto circle = std::make_unique<CircleShapeNode>(40);
     auto& circleRef = shapesLayerRef.addChild(std::move(circle));
-    circleRef.setFillColor(sf::Color::Red);
-    circleRef.setPosition(sf::Vector2f{150, 100});
+    circleRef
+        .setFillColor(sf::Color::Red)
+        .setPosition(sf::Vector2f{150, 100});
     
     originCircleRef.run(std::move(finalSequenceAction), mz::Action::CompletionCallback{[&circleRef]() {
         mz::Logs::Global.display("All actions ended !", SUCCESS);
@@ -249,16 +252,23 @@ void Maze::lauch() {
     }});
     
     auto triangle = std::make_unique<TriangleShapeNode>(80);
-    triangle->setFillColor(sf::Color::Cyan);
-    triangle->setPosition(150, 300);
+    (*triangle)
+        .setFillColor(sf::Color::Cyan)
+        .setPosition(150, 300);
+    auto longMove = mz::Action::MoveByX(1200);
+    longMove
+        .setDuration(sf::seconds(10))
+        .setTimingMode(mz::Action::TimingMode::EASE_OUT);
+    triangle->run(std::move(longMove));
     shapesLayerRef.addChild(std::move(triangle));
     
     auto rectangle = std::make_unique<RectangleShapeNode>(sf::Vector2f{225, 75});
     auto& rectangleRef = shapesLayerRef.addChild(std::move(rectangle));
-    rectangleRef.setFillColor(sf::Color::Blue);
-    rectangleRef.setOutlineColor(sf::Color::Yellow);
-    rectangleRef.setOutlineThickness(-5.f);
-    rectangleRef.setPosition(150, 500);
+    rectangleRef
+        .setFillColor(sf::Color::Blue)
+        .setOutlineColor(sf::Color::Yellow)
+        .setOutlineThickness(-5.f)
+        .setPosition(150, 500);
     rectangleRef.setOrigin(rectangleRef.getSize().x / 2.f, rectangleRef.getSize().y / 2.f);
     
     auto pentagon = std::make_unique<PentagonShapeNode>(80);

@@ -9,7 +9,7 @@
 #include <time.h>
 
 //#define RUN_UNIT_TESTS
-//#define VISUAL_TESTS
+//#define RUN_VISUAL_TESTS
 
 #include "include/Core/Logs.hpp"
 
@@ -33,7 +33,7 @@ int main(int argc, const char * argv[]) {
     return 0;
 }
 
-#elif !defined(VISUAL_TESTS)
+#elif !defined(RUN_VISUAL_TESTS)
 
 #   include "tests/UnitTests/UnitTestsSession.hpp"
 
