@@ -1,5 +1,5 @@
 //
-//  ExtraMaths.cpp
+//  MathsExt.cpp
 //  Maze
 //
 //  Created by Jaraxus on 15/03/2020.
