@@ -71,25 +71,45 @@ Action Action::FollowPath(Vertexes && ...vertexes) {
     static_assert(((std::is_same_v<Vertexes, sf::Vector2f> || std::is_convertible_v<Vertexes, sf::Vector2f>), ...), "Vertexes must be (convertible to) sf::Vector2f");
     
     Action followAction {ActionType::FOLLOW_PATH, true};
-    (followAction.m_data.pathData.positions.emplace_back(std::forward<Vertexes>(vertexes)), ...);
+    (std::get<PathData>(followAction.m_data).positions.emplace_back(std::forward<Vertexes>(vertexes)), ...);
     return followAction;
 }
 
 template <typename ...Actions>
 Action Action::Group(Actions && ...actions) {
-    static_assert((std::is_same_v<Actions, Action>, ...), "Actions must all be of type Action");
+    constexpr bool allActionsUnhandled = (std::is_same_v<Actions, Action> && ...);
+    constexpr bool allActionsHandled = (std::is_same_v<Actions, ActionHandler> && ...);
+    
+    static_assert(allActionsUnhandled || allActionsHandled, "Actions must all be of type Action");
     
     Action groupAction {ActionType::GROUP, true};
-    (groupAction.m_data.groupData.actions.emplace_back(std::forward<Actions>(actions)), ...);
+    ActionsList& actionsList = std::get<GroupData>(groupAction.m_data).actionsList;
+    if constexpr (allActionsUnhandled) {
+        actionsList.actionsHandled = false;
+        (std::get<UnhandledActions>(actionsList.actions).emplace_back(std::forward<Actions>(actions)), ...);
+    } else {
+        actionsList.actionsHandled = true;
+        (std::get<HandledActions>(actionsList.actions).emplace_back(std::forward<Actions>(actions)), ...);
+    }
     return groupAction;
 }
 
 template <typename ...Actions>
 Action Action::Sequence(Actions && ...actions) {
-    static_assert((std::is_same_v<Actions, Action>, ...), "Actions must all be of type Action");
+    constexpr bool allActionsUnhandled = (std::is_same_v<Actions, Action> && ...);
+    constexpr bool allActionsHandled = (std::is_same_v<Actions, ActionHandler> && ...);
+    
+    static_assert(allActionsUnhandled || allActionsHandled, "Actions must all be of type Action");
     
     Action sequenceAction {ActionType::SEQUENCE, true};
-    (sequenceAction.m_data.sequenceData.actions.emplace_back(std::forward<Actions>(actions)), ...);
+    ActionsList& actionsList = std::get<SequenceData>(sequenceAction.m_data).actionsList;
+    if constexpr (allActionsUnhandled) {
+        actionsList.actionsHandled = false;
+        (std::get<UnhandledActions>(actionsList.actions).emplace_back(std::forward<Actions>(actions)), ...);
+    } else {
+        actionsList.actionsHandled = true;
+        (std::get<HandledActions>(actionsList.actions).emplace_back(std::forward<Actions>(actions)), ...);
+    }
     return sequenceAction;
 }
 

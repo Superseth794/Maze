@@ -213,17 +213,27 @@ void Maze::lauch() {
     auto& originCircleRef = shapesLayerRef.addChild(std::move(originCircle));
     originCircleRef.setFillColor(sf::Color::White);
     
-    auto moveAction = Action::MoveByX(100);
-    moveAction
-        .setDuration(400000)
+    std::function<Action(float)> buildMoveActionAction = [](float f) -> Action {
+        return Action::MoveByX(f);
+    };
+    auto moveAction = m_scene.buildActionHandler(buildMoveActionAction, 100);
+    auto moveActionHandler = m_scene.getActionHandler(Action::MoveByX(100.f));
+    moveActionHandler
+        ->setDuration(400000)
         .setTimingMode(mz::Action::TimingMode::EASE_IN_OUT);
-    auto pauseAction = Action::Pause(400000);
-    auto sequenceAction = Action::Sequence({std::move(moveAction), std::move(pauseAction)});
-    sequenceAction.setCallback(mz::Action::CompletionCallback{[]() {
+    auto pauseAction = m_scene.getActionHandler(Action::Pause(400000));
+    std::function<Action(ActionPool*, std::vector<ActionHandler>)> sequenceConstruct = [](ActionPool* pool, std::vector<ActionHandler> && handlers) -> Action {
+        return Action::Sequence(pool, std::move(handlers));
+    };
+    std::vector<ActionHandler> seqActions {};
+    seqActions.emplace_back(std::move(moveActionHandler));
+    seqActions.emplace_back(std::move(pauseAction));
+    auto sequenceAction = m_scene.buildActionHandler(sequenceConstruct, std::move(seqActions)); // TODO: update
+    sequenceAction->setCallback(mz::Action::CompletionCallback{[]() {
         mz::Logs::Global.display("Action ended !", SUCCESS);
     }});
     
-    auto repeatAction = Action::Repeat(std::move(sequenceAction), 4, false);
+    auto repeatAction = Action::Repeat(std::move(*sequenceAction), 4, false); // TODO: !!!!!
     repeatAction.setCallback(mz::Action::CompletionCallback{[]() {
         mz::Logs::Global.display("Repeat action ended !", SUCCESS);
     }});

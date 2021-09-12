@@ -56,8 +56,8 @@
 #   error Unsuported cpp standart lib
 #endif
 
-#if defined(MAZE_DEBUG) && defined(MAZE_PLATFORM_APPLE) && defined(MAZE_COMPILER_CLANG) && defined(__apple_build_version__)
-[[maybe_unused]] static bool isBeingDebugged();
+#if defined(MAZE_DEBUG) && defined(MAZE_PLATFORM_APPLE) && defined(__apple_build_version__)
+[[maybe_unused]] bool isBeingDebugged();
 #else
 static constexpr bool isBeingDebugged() {return false;}; // unable to detect if a debugger is currently beging used
 #endif

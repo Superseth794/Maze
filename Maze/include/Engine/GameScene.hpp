@@ -14,6 +14,7 @@
 #include "Layer.hpp"
 #include "Node.hpp"
 #include "Updatable.hpp"
+#include "TraitsExt.hpp"
 
 #include "../Physics/PhysicsWorld.hpp"
 #include "../System/ObjectPool.hpp"
@@ -22,7 +23,12 @@
 namespace mz {
 
 class GameScene : Updatable {
-    using ActionPool = ObjectPool<Action>;
+    template <typename F, typename R, typename ...Args>
+    using enable_if_building = typename
+        std::enable_if<
+            std::is_invocable<F, Args...>::value &&
+            std::is_same_v<typename mz::function_trait<F>::return_type, R>
+        , mz::ActionHandler>::type;
     
 public:
     GameScene(unsigned int width, unsigned int height);
@@ -34,16 +40,32 @@ public:
     
     void display(sf::RenderTarget& texture);
     
-    Layer & getMainLayer();
+    inline ActionHandler getActionHandler(Action const& action);
+    
+    inline ActionHandler getActionHandler(Action && action);
+    
+    template <typename F, typename ...Args>
+    enable_if_building<F, Action, Args...> buildActionHandler(F const& constructionFunc, Args && ...args);
+    
+    template <typename F, typename ...Args>
+    enable_if_building<F, Action, ActionPool*, Args...> buildActionHandler(F const& constructionFunc, Args && ...args);
+    
+//    template <typename F, typename ...Args>
+//    ActionHandler getActionHandler(std::function<Action(ActionPool*, Args...)>& constructionFunc, Args && ...args);
+    
+    Layer& getMainLayer();
     
     virtual void update(std::uint64_t timeElapsed) override;
     
 private:
-    Camera              m_camera; // TODO: return reference to handle it outside
-    Layer               m_mainLayer;
-    PhysicsWorld        m_physicsWorld;
+    ActionPool      m_actionPool;
+    Camera          m_camera; // TODO: return reference to handle it outside
+    Layer           m_mainLayer;
+    PhysicsWorld    m_physicsWorld;
 };
 
 }
+
+#include "GameScene.inl"
 
 #endif /* GameScene_hpp */

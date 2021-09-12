@@ -72,7 +72,7 @@ private:
     void stableRemoveChild(std::size_t childId);
     
 private:
-    std::vector<std::unique_ptr<Layer>>         m_childs;
+    std::vector<std::unique_ptr<Layer>>         m_childs; // TODO: remove unique_ptr
     sf::Transformable                           m_globalTransform; // TODO: fix rotation
     std::size_t                                 m_idInParentHierarchy   = 0;
     mutable Layer*                              m_parent;

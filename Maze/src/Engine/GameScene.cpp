@@ -8,6 +8,7 @@
 #include "../../include/Engine/GameScene.hpp"
 
 mz::GameScene::GameScene(unsigned int width, unsigned int height) :
+m_actionPool(),
 m_camera(width, height)
 {
 }
@@ -30,7 +31,7 @@ void mz::GameScene::display(sf::RenderTarget& texture) {
     return m_camera.display(texture);
 }
 
-mz::Layer & mz::GameScene::getMainLayer() {
+mz::Layer& mz::GameScene::getMainLayer() {
     return m_mainLayer;
 }
 

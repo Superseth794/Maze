@@ -10,18 +10,13 @@
 namespace std {
 
 void swap(mz::Action& lhs, mz::Action& rhs) noexcept {
-    mz::Action::DataType tmpData {};
-    mz::Action::ActionType tmpDataType = lhs.m_type;
-    
-    mz::Action::DataType::exchange(lhs.m_type,  lhs.m_data, tmpData);
-    mz::Action::DataType::exchange(rhs.m_type,  rhs.m_data, lhs.m_data);
-    mz::Action::DataType::exchange(tmpDataType, tmpData,    rhs.m_data);
-    
     std::swap(lhs.m_completionCallback,         rhs.m_completionCallback);
+    std::swap(lhs.m_data,                       rhs.m_data);
     std::swap(lhs.m_duration,                   rhs.m_duration);
     std::swap(lhs.m_isRelativeToInitialState,   rhs.m_isRelativeToInitialState);
     std::swap(lhs.m_isRelativeToParent,         rhs.m_isRelativeToParent);
     std::swap(lhs.m_owner,                      rhs.m_owner);
+    std::swap(lhs.m_parentPool,                 rhs.m_parentPool);
     std::swap(lhs.m_speed,                      rhs.m_speed);
     std::swap(lhs.m_timeElapsed,                rhs.m_timeElapsed);
     std::swap(lhs.m_timingMode,                 rhs.m_timingMode);
@@ -32,47 +27,6 @@ void swap(mz::Action& lhs, mz::Action& rhs) noexcept {
 
 namespace mz {
 
-Action::DataType::DataType() {
-    std::memset(this, 0, sizeof(DataType));
-}
-
-Action::DataType::~DataType() {}
-
-void Action::DataType::exchange(mz::Action::ActionType type, mz::Action::DataType& inputData, mz::Action::DataType& outputData) {
-    switch (type) {
-        case mz::Action::ActionType::MOVE :
-            outputData.moveData = std::move(inputData.moveData);
-            break;
-        case mz::Action::ActionType::ROTATE :
-            outputData.rotateData.rotation = inputData.rotateData.rotation;
-            break;
-        case mz::Action::ActionType::SCALE :
-            outputData.scaleData = std::move(inputData.scaleData);
-            break;
-        case mz::Action::ActionType::FOLLOW_PATH :
-            outputData.pathData = std::move(inputData.pathData);
-            break;
-        case mz::Action::ActionType::HIDE :
-            outputData.hideData = std::move(inputData.hideData);
-            break;
-        case mz::Action::ActionType::REMOVE_FROM_PARENT : break;
-        case mz::Action::ActionType::SEQUENCE :
-            outputData.sequenceData = std::move(inputData.sequenceData);
-            break;
-        case mz::Action::ActionType::GROUP :
-            outputData.groupData = std::move(inputData.groupData);
-            break;
-        case mz::Action::ActionType::REPEAT :
-            outputData.repeatData = std::move(inputData.repeatData);
-            break;
-        case mz::Action::ActionType::SPEED :
-            outputData.speedData.speed = inputData.speedData.speed;
-            break;
-        case mz::Action::ActionType::PAUSE : break;
-        case mz::Action::ActionType::EMPTY : break;
-    }
-}
-
 Action::Action(Action const& action) noexcept :
 m_completionCallback(std::nullopt),
 m_data(),
@@ -81,6 +35,7 @@ m_isPaused(action.isPaused()),
 m_isRelativeToInitialState(action.m_isRelativeToInitialState),
 m_isRelativeToParent(action.m_isRelativeToParent),
 m_owner(action.m_owner),
+m_parentPool(action.m_parentPool),
 m_speed(action.m_speed),
 m_timeElapsed(action.m_timeElapsed),
 m_timingMode(action.m_timingMode),
@@ -88,87 +43,93 @@ m_type(action.m_type)
 {
     switch (m_type) {
         case ActionType::MOVE :
-            m_data.moveData.position = action.m_data.moveData.position;
+            m_data.emplace<MoveData>(std::get<MoveData>(action.m_data));
             break;
         case ActionType::ROTATE :
-            m_data.rotateData.rotation = action.m_data.rotateData.rotation;
+            m_data.emplace<RotateData>(std::get<RotateData>(action.m_data));
             break;
         case ActionType::SCALE :
-            m_data.scaleData.scaleFactor = action.m_data.scaleData.scaleFactor;
+            m_data.emplace<ScaleData>(std::get<ScaleData>(action.m_data));
             break;
         case ActionType::FOLLOW_PATH :
-            m_data.pathData.positions = action.m_data.pathData.positions;
+            m_data.emplace<PathData>(std::get<PathData>(action.m_data));
             break;
         case ActionType::HIDE :
-            m_data.hideData.hidden = action.m_data.hideData.hidden;
+            m_data.emplace<HideData>(std::get<HideData>(action.m_data));
             break;
-        case ActionType::REMOVE_FROM_PARENT : break;
+        case ActionType::REMOVE_FROM_PARENT :
+            m_data.emplace<RemoveData>();
+            break;
         case ActionType::SEQUENCE :
-            for (auto const& action : action.m_data.sequenceData.actions)
-                m_data.sequenceData.actions.emplace_back(action);
+        {
+            m_data.emplace<SequenceData>();
+            ActionsList const& actionsList = std::get<SequenceData>(action.m_data).actionsList;
+            ActionsList& constructedActionsList = std::get<SequenceData>(m_data).actionsList;
+            constructedActionsList.actionsHandled = actionsList.actionsHandled;
+            
+            if (constructedActionsList.actionsHandled) {
+                for (auto const& action : constructedActionsList.actions.emplace<HandledActions>())
+                    std::get<HandledActions>(constructedActionsList.actions).emplace_back(m_parentPool->New(*action));
+            } else {
+                for (auto const& action : constructedActionsList.actions.emplace<UnhandledActions>())
+                    std::get<UnhandledActions>(constructedActionsList.actions).push_back(action);
+            }
+        }
             break;
         case ActionType::GROUP :
-            for (auto const& action : action.m_data.sequenceData.actions)
-                m_data.sequenceData.actions.emplace_back(action);
+        {
+            m_data.emplace<GroupData>();
+            ActionsList const& actionsList = std::get<GroupData>(action.m_data).actionsList;
+            ActionsList& constructedActionsList = std::get<GroupData>(m_data).actionsList;
+            constructedActionsList.actionsHandled = actionsList.actionsHandled;
+            
+            if (constructedActionsList.actionsHandled) {
+                constructedActionsList.actions.emplace<HandledActions>();
+                for (auto const& action : std::get<HandledActions>(actionsList.actions))
+                    std::get<HandledActions>(constructedActionsList.actions).emplace_back(m_parentPool->New(*action));
+            } else {
+                constructedActionsList.actions.emplace<UnhandledActions>();
+                for (auto const& action : std::get<UnhandledActions>(actionsList.actions))
+                    std::get<UnhandledActions>(constructedActionsList.actions).push_back(action);
+            }
+        }
             break;
         case ActionType::REPEAT :
-            m_data.repeatData.callCompletionCallbackEveryRestart = action.m_data.repeatData.callCompletionCallbackEveryRestart;
-            m_data.repeatData.initialAction = std::make_unique<Action>(*action.m_data.repeatData.initialAction);
-            m_data.repeatData.repeatCount = action.m_data.repeatData.repeatCount;
-            m_data.repeatData.repeatForever = action.m_data.repeatData.repeatForever;
+        {
+            RepeatData repeatData{};
+            repeatData.callCompletionCallbackEveryRestart = std::get<RepeatData>(action.m_data).callCompletionCallbackEveryRestart;
+            repeatData.initialAction = std::make_unique<Action>(*std::get<RepeatData>(action.m_data).initialAction); // TODO: use parentPool
+            repeatData.repeatCount = std::get<RepeatData>(action.m_data).repeatCount;
+            repeatData.repeatForever = std::get<RepeatData>(action.m_data).repeatForever;
+            m_data.emplace<RepeatData>(std::move(repeatData));
+        }
             break;
         case ActionType::SPEED :
-            m_data.speedData.speed = action.m_data.speedData.speed;
+            m_data.emplace<SpeedData>(std::get<SpeedData>(action.m_data));
             break;
-        case ActionType::PAUSE : break;
-        case ActionType::EMPTY : break;
+        case ActionType::PAUSE :
+            m_data.emplace<PauseData>();
+            break;
+        case ActionType::EMPTY :
+            m_data.emplace<EmptyData>();
+            break;
     }
 }
 
 Action::Action(Action && action) noexcept :
 m_completionCallback(std::move(action.m_completionCallback)),
-m_data(),
-m_duration(std::move(action.m_duration)),
-m_isPaused(std::move(action.isPaused())),
-m_isRelativeToInitialState(std::move(action.m_isRelativeToInitialState)),
-m_isRelativeToParent(std::move(action.m_isRelativeToParent)),
-m_owner(std::move(action.m_owner)),
-m_speed(std::move(action.m_speed)),
-m_timeElapsed(std::move(action.m_timeElapsed)),
-m_timingMode(std::move(action.m_timingMode)),
-m_type(std::move(action.m_type))
+m_data(std::move(action.m_data)),
+m_duration(action.m_duration),
+m_isPaused(action.isPaused()),
+m_isRelativeToInitialState(action.m_isRelativeToInitialState),
+m_isRelativeToParent(action.m_isRelativeToParent),
+m_owner(action.m_owner),
+m_parentPool(action.m_parentPool),
+m_speed(action.m_speed),
+m_timeElapsed(action.m_timeElapsed),
+m_timingMode(action.m_timingMode),
+m_type(action.m_type)
 {
-    DataType::exchange(m_type, action.m_data, m_data);
-}
-
-Action::~Action() {
-    switch (m_type) {
-        case ActionType::MOVE :
-            m_data.moveData.position.~Vector2();
-            break;
-        case ActionType::ROTATE : break;
-        case ActionType::SCALE :
-            m_data.scaleData.scaleFactor.~Vector2();
-            break;
-        case ActionType::FOLLOW_PATH :
-            m_data.pathData.positions.~vector();
-            break;
-        case ActionType::HIDE : break;
-        case ActionType::REMOVE_FROM_PARENT : break;
-        case ActionType::SEQUENCE :
-            m_data.sequenceData.actions.~vector();
-            break;
-        case ActionType::GROUP :
-            m_data.groupData.actions.~vector();
-            break;
-        case ActionType::REPEAT :
-            m_data.repeatData.currentAction.~unique_ptr();
-            m_data.repeatData.initialAction.~unique_ptr();
-            break;
-        case ActionType::SPEED : break;
-        case ActionType::PAUSE : break;
-        case ActionType::EMPTY : break;
-    }
 }
 
 Action Action::getReversed(Node* node) const {
@@ -190,219 +151,342 @@ Action Action::Empty() {
 
 Action Action::FollowPath(std::vector<sf::Vector2f> const& path) {
     Action followAction {ActionType::FOLLOW_PATH, true};
-    followAction.m_data.pathData.positions = path;
+    followAction.m_data.emplace<PathData>();
+    std::get<PathData>(followAction.m_data).positions = path;
     return followAction;
 }
 
 Action Action::FollowPath(std::vector<sf::Vector2f> && path) {
     Action followAction {ActionType::FOLLOW_PATH, true};
-    followAction.m_data.pathData.positions = std::forward<std::vector<sf::Vector2f>>(path);
+    followAction.m_data.emplace<PathData>();
+    std::get<PathData>(followAction.m_data).positions = std::move(path);
     return followAction;
 }
 
 Action Action::Group(std::vector<Action> const& actions) {
     Action groupAction {ActionType::GROUP, true};
+    groupAction.m_data.emplace<GroupData>();
+    
+    ActionsList& actionsList = std::get<GroupData>(groupAction.m_data).actionsList;
+    actionsList.actions.emplace<UnhandledActions>();
+    actionsList.actionsHandled = false;
+    
     for (auto const& action : actions)
-        groupAction.m_data.sequenceData.actions.emplace_back(action);
+        std::get<UnhandledActions>(actionsList.actions).emplace_back(action);
+    
+    return groupAction;
+}
+
+Action Action::Group(ActionPool* parentPool, std::vector<Action> const& actions) {
+    assert(parentPool);
+    Action groupAction = Group(actions);
+    groupAction.m_parentPool = parentPool;
+    return groupAction;
+}
+
+Action Action::Group(ActionPool* parentPool, std::vector<ActionHandler> const& actions) {
+    assert(parentPool);
+    Action groupAction {ActionType::GROUP, true};
+    groupAction.m_data.emplace<GroupData>();
+    
+    ActionsList& actionsList = std::get<GroupData>(groupAction.m_data).actionsList;
+    actionsList.actions.emplace<HandledActions>();
+    actionsList.actionsHandled = true;
+    
+    for (auto const& action : actions)
+        std::get<HandledActions>(actionsList.actions).emplace_back(parentPool->New(*action));
+    
+    groupAction.m_parentPool = parentPool;
     return groupAction;
 }
 
 Action Action::Group(std::vector<Action> && actions) {
     Action groupAction {ActionType::GROUP, true};
-    groupAction.m_data.groupData.actions = std::forward<std::vector<Action>>(actions);
+    groupAction.m_data.emplace<GroupData>();
+    
+    ActionsList& actionsList = std::get<GroupData>(groupAction.m_data).actionsList;
+    actionsList.actions.emplace<UnhandledActions>(std::move(actions));
+    actionsList.actionsHandled = false;
+    
+    return groupAction;
+}
+
+Action Action::Group(ActionPool* parentPool, std::vector<Action> && actions) {
+    assert(parentPool);
+    Action groupAction = Group(std::move(actions));
+    groupAction.m_parentPool = parentPool;
+    return groupAction;
+}
+
+Action Action::Group(ActionPool* parentPool, std::vector<ActionHandler> && actions) {
+    assert(parentPool);
+    Action groupAction {ActionType::GROUP, true};
+    groupAction.m_data.emplace<GroupData>();
+    
+    ActionsList& actionsList = std::get<GroupData>(groupAction.m_data).actionsList;
+    actionsList.actions.emplace<HandledActions>(std::move(actions));
+    actionsList.actionsHandled = false;
+    
+    groupAction.m_parentPool = parentPool;
     return groupAction;
 }
 
 Action Action::Hide() {
     Action hideAction {ActionType::HIDE, false};
-    hideAction.m_data.hideData.hidden = true;
+    hideAction.m_data.emplace<HideData>(HideData{true});
     return hideAction;
 }
 
 Action Action::Action::MoveBy(sf::Vector2f const& deltaPos) {
     Action moveAction {ActionType::MOVE, false};
-    moveAction.m_data.moveData.position = deltaPos;
+    moveAction.m_data.emplace<MoveData>(MoveData{deltaPos});
     return moveAction;
 }
 
 Action Action::MoveBy(float x, float y) {
     Action moveAction {ActionType::MOVE, false};
-    moveAction.m_data.moveData.position = sf::Vector2f{x, y};
+    moveAction.m_data.emplace<MoveData>(MoveData{sf::Vector2f{x, y}});
     return moveAction;
 }
 
 Action Action::MoveByX(float x) {
     Action moveAction {ActionType::MOVE, false};
-    moveAction.m_data.moveData.position = sf::Vector2f{x, 0.f};
+    moveAction.m_data.emplace<MoveData>(MoveData{sf::Vector2f{x, 0.f}});
     return moveAction;
 }
 
 Action Action::MoveByY(float y) {
     Action moveAction {ActionType::MOVE, false};
-    moveAction.m_data.moveData.position = sf::Vector2f{0.f, y};
+    moveAction.m_data.emplace<MoveData>(MoveData{sf::Vector2f{0.f, y}});
     return moveAction;
 }
 
 Action Action::MoveTo(sf::Vector2f const& position) {
     Action moveAction {ActionType::MOVE, true};
-    moveAction.m_data.moveData.position = position;
+    moveAction.m_data.emplace<MoveData>(MoveData{position});
     return moveAction;
 }
 
 Action Action::MoveTo(float x, float y) {
     Action moveAction {ActionType::MOVE, true};
-    moveAction.m_data.moveData.position = sf::Vector2f{x, y};
+    moveAction.m_data.emplace<MoveData>(MoveData{sf::Vector2f{x, y}});
     return moveAction;
 }
 
 Action Action::MoveToX(float x) {
     Action moveAction {ActionType::MOVE, true};
-    moveAction.m_data.moveData.position = sf::Vector2f{x, 0.f};
+    moveAction.m_data.emplace<MoveData>(MoveData{sf::Vector2f{x, 0.f}});
     return moveAction;
 }
 
 Action Action::MoveToY(float y) {
     Action moveAction {ActionType::MOVE, true};
-    moveAction.m_data.moveData.position = sf::Vector2f{0.f, y};
+    moveAction.m_data.emplace<MoveData>(MoveData{sf::Vector2f{0.f, y}});
     return moveAction;
 }
 
 Action Action::Pause(std::uint64_t duration) {
     Action pauseAction {ActionType::PAUSE, false};
+    pauseAction.m_data.emplace<PauseData>();
     pauseAction.setDuration(duration);
     return pauseAction;
 }
 
 Action Action::RemoveFromParent() {
-    return Action{ActionType::REMOVE_FROM_PARENT, false};
+    Action removeAction {ActionType::REMOVE_FROM_PARENT, false};
+    removeAction.m_data.emplace<RemoveData>();
+    return removeAction;
 }
 
 Action Action::Repeat(Action && action, std::size_t count, bool callCompletionCallbackEveryRestart) {
     Action repeatAction {ActionType::REPEAT, false};
-    repeatAction.m_data.repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
-    repeatAction.m_data.repeatData.repeatCount = count;
-    repeatAction.m_data.repeatData.repeatForever = false;
-    repeatAction.m_data.repeatData.initialAction = std::make_unique<Action>(std::forward<Action>(action));
+    
+    RepeatData repeatData {};
+    repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
+    repeatData.repeatCount = count;
+    repeatData.repeatForever = false;
+    repeatData.initialAction = std::make_unique<Action>(std::forward<Action>(action));
+    
+    repeatAction.m_data.emplace<RepeatData>(std::move(repeatData));
     return repeatAction;
 }
 
 Action Action::Repeat(std::unique_ptr<Action> && action, std::size_t count, bool callCompletionCallbackEveryRestart) {
     Action repeatAction {ActionType::REPEAT, false};
-    repeatAction.m_data.repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
-    repeatAction.m_data.repeatData.repeatCount = count;
-    repeatAction.m_data.repeatData.repeatForever = false;
-    repeatAction.m_data.repeatData.initialAction = std::forward<std::unique_ptr<Action>>(action);
+    
+    RepeatData repeatData {};
+    repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
+    repeatData.repeatCount = count;
+    repeatData.repeatForever = false;
+    repeatData.initialAction = std::forward<std::unique_ptr<Action>>(action);
+    
+    repeatAction.m_data.emplace<RepeatData>(std::move(repeatData));
     return repeatAction;
 }
 
 Action Action::RepeatForever(Action && action, bool callCompletionCallbackEveryRestart) {
     Action repeatAction {ActionType::REPEAT, false};
-    repeatAction.m_data.repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
-    repeatAction.m_data.repeatData.repeatForever = true;
-    repeatAction.m_data.repeatData.initialAction = std::make_unique<Action>(std::forward<Action>(action));
+    
+    RepeatData repeatData {};
+    repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
+    repeatData.repeatForever = true;
+    repeatData.initialAction = std::make_unique<Action>(std::forward<Action>(action));
+    
+    repeatAction.m_data.emplace<RepeatData>(std::move(repeatData));
     return repeatAction;
 }
 
 Action Action::RepeatForever(std::unique_ptr<Action> && action, bool callCompletionCallbackEveryRestart) {
     Action repeatAction {ActionType::REPEAT, false};
-    repeatAction.m_data.repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
-    repeatAction.m_data.repeatData.repeatForever = true;
-    repeatAction.m_data.repeatData.initialAction = std::forward<std::unique_ptr<Action>>(action);
+    
+    RepeatData repeatData {};
+    repeatData.callCompletionCallbackEveryRestart = callCompletionCallbackEveryRestart;
+    repeatData.repeatForever = true;
+    repeatData.initialAction = std::forward<std::unique_ptr<Action>>(action);
+    
+    repeatAction.m_data.emplace<RepeatData>(std::move(repeatData));
     return repeatAction;
 }
 
 Action Action::RotateBy(float rotation) {
     Action rotateAction {ActionType::ROTATE, false};
-    rotateAction.m_data.rotateData.rotation = rotation;
+    rotateAction.m_data.emplace<RotateData>(RotateData{rotation});
     return rotateAction;
 }
 
 Action Action::RotateTo(float rotation) {
     Action rotateAction {ActionType::ROTATE, true};
-    rotateAction.m_data.rotateData.rotation = rotation;
+    rotateAction.m_data.emplace<RotateData>(RotateData{rotation});
     return rotateAction;
 }
 
 Action Action::ScaleBy(sf::Vector2f const& scaleFactor) {
     Action scaleAction {ActionType::SCALE, false};
-    scaleAction.m_data.scaleData.scaleFactor = scaleFactor;
+    scaleAction.m_data.emplace<ScaleData>(ScaleData{scaleFactor});
     return scaleAction;
 }
 
 Action Action::ScaleBy(float x, float y) {
     Action scaleAction {ActionType::SCALE, false};
-    scaleAction.m_data.scaleData.scaleFactor = sf::Vector2f{x, y};
+    scaleAction.m_data.emplace<ScaleData>(ScaleData{sf::Vector2f{x, y}});
     return scaleAction;
 }
 
 Action Action::ScaleByX(float x) {
     Action scaleAction {ActionType::SCALE, false};
-    scaleAction.m_data.scaleData.scaleFactor = sf::Vector2f{x, 0.f};
+    scaleAction.m_data.emplace<ScaleData>(ScaleData{sf::Vector2f{x, 0.f}});
     return scaleAction;
 }
 
 Action Action::ScaleByY(float y) {
     Action scaleAction {ActionType::SCALE, false};
-    scaleAction.m_data.scaleData.scaleFactor = sf::Vector2f{0.f, y};
+        scaleAction.m_data.emplace<ScaleData>(ScaleData{sf::Vector2f{0.f, y}});
     return scaleAction;
 }
 
 Action Action::ScaleTo(sf::Vector2f const& scaleFactor) {
     Action scaleAction {ActionType::SCALE, true};
-    scaleAction.m_data.scaleData.scaleFactor = scaleFactor;
+    scaleAction.m_data.emplace<ScaleData>(ScaleData{scaleFactor});
     return scaleAction;
 }
 
 Action Action::ScaleTo(float x, float y) {
     Action scaleAction {ActionType::SCALE, true};
-    scaleAction.m_data.scaleData.scaleFactor = sf::Vector2f{x, y};
+    scaleAction.m_data.emplace<ScaleData>(ScaleData{sf::Vector2f{x, y}});
     return scaleAction;
 }
 
 Action Action::ScaleToX(float x) {
     Action scaleAction {ActionType::SCALE, true};
-    scaleAction.m_data.scaleData.scaleFactor = sf::Vector2f{x, 0.f};
+    scaleAction.m_data.emplace<ScaleData>(ScaleData{sf::Vector2f{x, 0.f}});
     return scaleAction;
 }
 
 Action Action::ScaleToY(float y) {
     Action scaleAction {ActionType::SCALE, true};
-    scaleAction.m_data.scaleData.scaleFactor = sf::Vector2f{0.f, y};
+    scaleAction.m_data.emplace<ScaleData>(ScaleData{sf::Vector2f{0.f, y}});
     return scaleAction;
 }
 
 Action Action::Sequence(std::vector<Action> const& actions) {
     Action sequenceAction {ActionType::SEQUENCE, true};
+    sequenceAction.m_data.emplace<SequenceData>();
+    
+    ActionsList& actionsList = std::get<SequenceData>(sequenceAction.m_data).actionsList;
+    actionsList.actions.emplace<UnhandledActions>();
+    actionsList.actionsHandled = false;
+    
     for (auto const& action : actions)
-        sequenceAction.m_data.sequenceData.actions.emplace_back(action);
+        std::get<UnhandledActions>(actionsList.actions).emplace_back(action);
+    
+    return sequenceAction;
+}
+
+Action Action::Sequence(ActionPool* pool, std::vector<Action> const& actions) {
+    Action sequenceAction = Sequence(actions);
+    sequenceAction.m_parentPool = pool;
+    return sequenceAction;
+}
+
+Action Action::Sequence(ActionPool* pool, std::vector<ActionHandler> const& actions) {
+    Action sequenceAction {ActionType::SEQUENCE, true};
+    sequenceAction.m_data.emplace<SequenceData>();
+    
+    ActionsList& actionsList = std::get<SequenceData>(sequenceAction.m_data).actionsList;
+    actionsList.actions.emplace<UnhandledActions>();
+    actionsList.actionsHandled = true;
+    
+    for (auto const& action : actions)
+        std::get<HandledActions>(actionsList.actions).emplace_back(pool->New(*action));
+    
+    sequenceAction.m_parentPool = pool;
     return sequenceAction;
 }
 
 Action Action::Sequence(std::vector<Action> && actions) {
     Action sequenceAction {ActionType::SEQUENCE, true};
-    sequenceAction.m_data.sequenceData.actions = std::forward<std::vector<Action>>(actions);
+    sequenceAction.m_data.emplace<SequenceData>();
+    
+    ActionsList& actionsList = std::get<SequenceData>(sequenceAction.m_data).actionsList;
+    actionsList.actions.emplace<UnhandledActions>(std::move(actions));
+    actionsList.actionsHandled = false;
+    
+    return sequenceAction;
+}
+
+Action Action::Sequence(ActionPool* pool, std::vector<ActionHandler> && actions) {
+    Action sequenceAction {ActionType::SEQUENCE, true};
+    sequenceAction.m_data.emplace<SequenceData>();
+    
+    ActionsList& actionsList = std::get<SequenceData>(sequenceAction.m_data).actionsList;
+    actionsList.actions.emplace<HandledActions>(std::move(actions));
+    actionsList.actionsHandled = true;
+    
+    sequenceAction.m_parentPool = pool;
     return sequenceAction;
 }
 
 Action Action::SpeedBy(float speedFactor) {
     Action speedAction {ActionType::SPEED, false};
-    speedAction.m_data.speedData.speed = speedFactor;
+    speedAction.m_data.emplace<SpeedData>(SpeedData{speedFactor});
     return speedAction;
 }
 
 Action Action::SpeedTo(float speedFactor) {
     Action speedAction {ActionType::SPEED, true};
-    speedAction.m_data.speedData.speed = speedFactor;
+    speedAction.m_data.emplace<SpeedData>(SpeedData{speedFactor});
     return speedAction;
 }
 
 Action Action::SwitchHidden() {
-    return Action {ActionType::HIDE, true};
+    Action hideAction {ActionType::HIDE, true};
+    hideAction.m_data.emplace<HideData>();
+    return hideAction;
 }
 
 Action Action::Unhide() {
     Action unhideAction {ActionType::HIDE, false};
-    unhideAction.m_data.hideData.hidden = false;
+    unhideAction.m_data.emplace<HideData>(HideData{false});
     return unhideAction;
 }
     
@@ -415,20 +499,75 @@ m_owner(nullptr),
 m_timeElapsed(0),
 m_type(type)
 {
+    switch (m_type) {
+        case ActionType::MOVE :
+            m_data.emplace<MoveData>();
+            break;
+        case ActionType::ROTATE :
+            m_data.emplace<RotateData>();
+            break;
+        case ActionType::SCALE :
+            m_data.emplace<ScaleData>();
+            break;
+        case ActionType::FOLLOW_PATH :
+            m_data.emplace<PathData>();
+            break;
+        case ActionType::HIDE :
+            m_data.emplace<HideData>();
+            break;
+        case ActionType::REMOVE_FROM_PARENT :
+            m_data.emplace<RemoveData>();
+            break;
+        case ActionType::SEQUENCE :
+            m_data.emplace<SequenceData>();
+            break;
+        case ActionType::GROUP :
+            m_data.emplace<GroupData>();
+            break;
+        case ActionType::REPEAT :
+            m_data.emplace<RepeatData>();
+            break;
+        case ActionType::SPEED :
+            m_data.emplace<SpeedData>();
+            break;
+        case ActionType::PAUSE :
+            m_data.emplace<PauseData>();
+            break;
+        case ActionType::EMPTY :
+            m_data.emplace<EmptyData>();
+            break;
+    }
 }
 
 void Action::callSubActionsCallbacks() {
     if (m_type == ActionType::SEQUENCE) {
-        for (std::size_t actionId = m_data.sequenceData.playedActionId; actionId < m_data.sequenceData.actions.size(); ++actionId)
-            m_data.sequenceData.actions[actionId].callCompletionCallbacks();
+        SequenceData& sequenceData = std::get<SequenceData>(m_data);
+        if (sequenceData.actionsList.actionsHandled) {
+            HandledActions& actions = std::get<HandledActions>(sequenceData.actionsList.actions);
+            for (std::size_t actionId = sequenceData.playedActionId; actionId < actions.size(); ++actionId)
+                actions[actionId]->callCompletionCallbacks();
+        } else {
+            UnhandledActions& actions = std::get<UnhandledActions>(sequenceData.actionsList.actions);
+            for (std::size_t actionId = sequenceData.playedActionId; actionId < actions.size(); ++actionId)
+                actions[actionId].callCompletionCallbacks();
+        }
     } else if (m_type == ActionType::GROUP) {
-        for (auto& action : m_data.groupData.actions) {
-            if (!action.isCompleted())
-                action.callCompletionCallbacks();
+        ActionsList& actionsList = std::get<GroupData>(m_data).actionsList;
+        if (actionsList.actionsHandled) {
+            for (auto& action : std::get<HandledActions>(actionsList.actions)) {
+                if (!action->isCompleted())
+                    action->callCompletionCallbacks();
+            }
+        } else {
+            for (auto& action : std::get<UnhandledActions>(actionsList.actions)) {
+                if (!action.isCompleted())
+                    action.callCompletionCallbacks();
+            }
         }
     } else if (m_type == ActionType::REPEAT) {
-        if (!m_data.repeatData.currentAction->isCompleted())
-            m_data.repeatData.currentAction->callCompletionCallbacks();
+        RepeatData& repeatData = std::get<RepeatData>(m_data);
+        if (!repeatData.currentAction->isCompleted())
+            repeatData.currentAction->callCompletionCallbacks();
     }
 }
 
@@ -475,102 +614,146 @@ void Action::completeInit(Node* owner) {
 void Action::completeInitFollowPath() {
     sf::Vector2f previousPosition = getOwnerCurrentPosition();
     float distance = 0.f;
-    for (auto const& nextPosition : m_data.pathData.positions) {
+    PathData& pathData = std::get<PathData>(m_data);
+    for (auto const& nextPosition : pathData.positions) {
         distance += getVectorLength(nextPosition - previousPosition);
         previousPosition = nextPosition;
     }
-    m_data.pathData.distance = distance;
-    m_data.pathData.targetPositionId = std::size_t(0);
+    pathData.distance = distance;
+    pathData.targetPositionId = std::size_t(0);
 }
 
 void Action::completeInitGroup() {
-    completeInitOfActions(m_data.groupData.actions);
+    GroupData& groupData = std::get<GroupData>(m_data);
+    
+    completeInitOfActions(groupData.actionsList);
     m_duration = 0;
-    for (auto& action : m_data.groupData.actions)
-        m_duration = std::max(static_cast<std::uint64_t>(std::ceil(action.m_duration / action.m_speed)), m_duration);
+    
+    if (groupData.actionsList.actionsHandled) {
+        for (auto& action : std::get<HandledActions>(groupData.actionsList.actions))
+            m_duration = std::max(static_cast<std::uint64_t>(std::ceil(action->m_duration / action->m_speed)), m_duration);
+    } else {
+        for (auto& action : std::get<UnhandledActions>(groupData.actionsList.actions))
+            m_duration = std::max(static_cast<std::uint64_t>(std::ceil(action.m_duration / action.m_speed)), m_duration);
+    }
 }
 
 void Action::completeInitHide() {
     if (m_isRelativeToInitialState)
-        m_data.hideData.hidden = !m_owner->isHidden();
+        std::get<HideData>(m_data).hidden = !m_owner->isHidden();
 }
 
 void Action::completeInitMove() {
+    MoveData& moveData = std::get<MoveData>(m_data);
     if (m_isRelativeToInitialState)
-        m_data.moveData.position = getOwnerCurrentPosition() - m_data.moveData.position;
+        moveData.position = getOwnerCurrentPosition() - moveData.position;
 }
 
-void Action::completeInitOfActions(std::vector<Action>& actions) {
-    for (auto& action : actions)
-        action.completeInit(m_owner);
+void Action::completeInitOfActions(ActionsList& actionsList) {
+    if (actionsList.actionsHandled) {
+        for (auto& action : std::get<HandledActions>(actionsList.actions))
+            action->completeInit(m_owner);
+    } else {
+        for (auto& action : std::get<UnhandledActions>(actionsList.actions))
+            action.completeInit(m_owner);
+    }
 }
 
 void Action::completeInitRepeat() {
-    m_data.repeatData.currentAction = std::make_unique<Action>(*m_data.repeatData.initialAction);
-    m_data.repeatData.currentAction->m_completionCallback = std::move(m_data.repeatData.initialAction->m_completionCallback);
-    m_data.repeatData.currentAction->completeInit(m_owner);
+    RepeatData& repeatData = std::get<RepeatData>(m_data);
     
-    if (m_data.repeatData.repeatForever) {
+    repeatData.currentAction = std::make_unique<Action>(*repeatData.initialAction);
+    repeatData.currentAction->m_completionCallback = std::move(repeatData.initialAction->m_completionCallback);
+    repeatData.currentAction->completeInit(m_owner);
+    
+    if (repeatData.repeatForever) {
         m_timingMode = TimingMode::LINEAR;
         m_duration = std::numeric_limits<decltype(m_duration)>::max();
-        m_data.repeatData.repeatCount = 0;
+        repeatData.repeatCount = 0;
     } else {
-        m_duration = m_data.repeatData.currentAction->m_duration * m_data.repeatData.repeatCount;
+        m_duration = repeatData.currentAction->m_duration * repeatData.repeatCount;
     }
     
-    assert(!(m_data.repeatData.callCompletionCallbackEveryRestart && !m_completionCallback));
+    assert(!(repeatData.callCompletionCallbackEveryRestart && !m_completionCallback));
 }
 
 void Action::completeInitRotate() {
+    RotateData& rotateData = std::get<RotateData>(m_data);
     if (m_isRelativeToParent)
-        m_data.rotateData.rotation = getOwnerCurrentTransform().getRotation() - m_data.rotateData.rotation;
+        rotateData.rotation = getOwnerCurrentTransform().getRotation() - rotateData.rotation;
 }
 
 void Action::completeInitScale() {
+    ScaleData& scaleData = std::get<ScaleData>(m_data);
     if (m_isRelativeToParent)
-        m_data.scaleData.scaleFactor = getOwnerCurrentTransform().getScale() - m_data.scaleData.scaleFactor;
+        scaleData.scaleFactor = getOwnerCurrentTransform().getScale() - scaleData.scaleFactor;
 }
 
 void Action::completeInitSequence() {
-    completeInitOfActions(m_data.sequenceData.actions);
-    m_data.sequenceData.playedActionId = 0;
+    SequenceData& sequenceData = std::get<SequenceData>(m_data);
+    
+    completeInitOfActions(sequenceData.actionsList);
+    sequenceData.playedActionId = 0;
     m_duration = 0.f;
-    for (auto const& action : m_data.sequenceData.actions)
-        m_duration += static_cast<std::uint64_t>(std::ceil(action.m_duration / action.m_speed));
+    
+    if (sequenceData.actionsList.actionsHandled) {
+        for (auto const& action : std::get<HandledActions>(sequenceData.actionsList.actions))
+            m_duration += static_cast<std::uint64_t>(std::ceil(action->m_duration / action->m_speed));
+    } else {
+        for (auto const& action : std::get<UnhandledActions>(sequenceData.actionsList.actions))
+            m_duration += static_cast<std::uint64_t>(std::ceil(action.m_duration / action.m_speed));
+    }
 }
 
 void Action::completeInitSpeed() {
     if (m_isRelativeToInitialState)
-        m_data.speedData.speed -= m_owner->getSpeed();
+        std::get<SpeedData>(m_data).speed -= m_owner->getSpeed();
 }
 
-std::vector<Action> Action::getActionsReversed(std::vector<Action> const& actions, Node* node) const {
-    std::vector<Action> reversedActions;
-    for (std::size_t i = 0; i < actions.size(); ++i)
-        reversedActions.emplace_back(actions[actions.size() - i - 1].getReversed(node));
-    return reversedActions;
+Action::ActionsList Action::getActionsReversed(ActionsList const& actionsList, Node* node) const {
+    ActionsList reversedActionsList {};
+    
+    if (actionsList.actionsHandled) {
+        HandledActions const& actions = std::get<HandledActions>(actionsList.actions);
+        HandledActions reversedActions {};
+        for (auto actionIt = std::rbegin(actions); actionIt != std::rend(actions); ++actionIt)
+            reversedActions.emplace_back(m_parentPool->New((*actionIt)->getReversed(node)));
+    } else {
+        UnhandledActions const& actions = std::get<UnhandledActions>(actionsList.actions);
+        UnhandledActions reversedActions {};
+        for (auto actionIt = std::rbegin(actions); actionIt != std::rend(actions); ++actionIt)
+            reversedActions.emplace_back((*actionIt).getReversed(node));
+    }
+
+    return reversedActionsList;
 }
 
 Action Action::getDataUnrelativeToNodeReversed() const {
     switch (m_type) {
         case ActionType::MOVE :
-            return Action::MoveBy(-m_data.moveData.position);
+            return Action::MoveBy(-std::get<MoveData>(m_data).position);
         case ActionType::ROTATE :
-            return Action::RotateBy(-m_data.rotateData.rotation);
+            return Action::RotateBy(-std::get<RotateData>(m_data).rotation);
         case ActionType::SCALE :
-            assert(m_data.scaleData.scaleFactor.x > 0.f && m_data.scaleData.scaleFactor.y > 0.f);
-            return Action::ScaleBy(1.f / m_data.scaleData.scaleFactor.x, 1.f / m_data.scaleData.scaleFactor.y);
+        {
+            ScaleData const& scaleData = std::get<ScaleData>(m_data);
+            assert(scaleData.scaleFactor.x > 0.f && scaleData.scaleFactor.y > 0.f);
+            return Action::ScaleBy(1.f / scaleData.scaleFactor.x, 1.f / scaleData.scaleFactor.y);
+        }
         case ActionType::FOLLOW_PATH : break;
         case ActionType::HIDE :
-            return (m_data.hideData.hidden ? Action::Unhide() : Action::Hide());
+            return (std::get<HideData>(m_data).hidden ? Action::Unhide() : Action::Hide());
         case ActionType::REMOVE_FROM_PARENT : break;
         case ActionType::SEQUENCE : break;
         case ActionType::GROUP : break;
         case ActionType::REPEAT :
-            return (m_data.repeatData.repeatForever ? Action::RepeatForever(m_data.repeatData.initialAction->getReversed()) : Action::Repeat(m_data.repeatData.initialAction->getReversed(), m_data.repeatData.repeatCount));
+        {
+            RepeatData const& repeatData = std::get<RepeatData>(m_data);
+            return (repeatData.repeatForever ? Action::RepeatForever(repeatData.initialAction->getReversed()) : Action::Repeat(repeatData.initialAction->getReversed(), repeatData.repeatCount));
+        }
         case ActionType::SPEED :
-            assert(m_data.speedData.speed > 0.f);
-            return Action::SpeedBy(-m_data.speedData.speed);
+            assert(std::get<SpeedData>(m_data).speed > 0.f);
+            return Action::SpeedBy(-std::get<SpeedData>(m_data).speed);
         case ActionType::PAUSE :
             return Action::Pause(m_duration);
         case ActionType::EMPTY : break;
@@ -582,23 +765,35 @@ Action Action::getDataRelativeToNodeReversed(Node* node) const {
     auto& nodeTransform = (m_isRelativeToParent ? node->getRelativeTransform() : node->getGlobalTransform());
     switch (m_type) {
         case ActionType::MOVE :
-            return Action::MoveBy(nodeTransform.getPosition() - m_data.moveData.position);
+            return Action::MoveBy(nodeTransform.getPosition() - std::get<MoveData>(m_data).position);
         case ActionType::ROTATE :
-            return Action::RotateBy(nodeTransform.getRotation() - m_data.rotateData.rotation);
+            return Action::RotateBy(nodeTransform.getRotation() - std::get<RotateData>(m_data).rotation);
         case ActionType::SCALE :
-            return Action::ScaleBy(nodeTransform.getScale() - m_data.scaleData.scaleFactor);
+            return Action::ScaleBy(nodeTransform.getScale() - std::get<ScaleData>(m_data).scaleFactor);
         case ActionType::FOLLOW_PATH :
-            return Action::FollowPath(getPathReversed(m_data.pathData.positions, node));
+            return Action::FollowPath(getPathReversed(std::get<PathData>(m_data).positions, node));
         case ActionType::HIDE :
             return (node->isHidden() ? Action::Unhide() : Action::Hide());
         case ActionType::REMOVE_FROM_PARENT : break;
         case ActionType::SEQUENCE :
-            return Action::Sequence(getActionsReversed(m_data.sequenceData.actions, node));
+        {
+            ActionsList list = getActionsReversed(std::get<SequenceData>(m_data).actionsList, node);
+            if (list.actionsHandled)
+                return Action::Sequence(m_parentPool, std::move(std::get<HandledActions>(list.actions)));
+            else
+                return Action::Sequence(std::move(std::get<UnhandledActions>(list.actions)));
+        }
         case ActionType::GROUP :
-            return  Action::Group(getActionsReversed(m_data.groupData.actions, node));
+        {
+            ActionsList list = getActionsReversed(std::get<SequenceData>(m_data).actionsList, node);
+            if (list.actionsHandled)
+                return Action::Group(m_parentPool, std::move(std::get<HandledActions>(list.actions)));
+            else
+                return Action::Group(std::move(std::get<UnhandledActions>(list.actions)));
+        }
         case ActionType::REPEAT : break;
         case ActionType::SPEED :
-            return Action::SpeedBy(node->getSpeed() - m_data.speedData.speed);
+            return Action::SpeedBy(node->getSpeed() - std::get<SpeedData>(m_data).speed);
         case ActionType::PAUSE : break;
         case ActionType::EMPTY : break;
     }
@@ -721,17 +916,18 @@ std::uint64_t Action::update(std::uint64_t timeElapsed) {
 }
 
 void Action::updateFollowPath(float progress) {
-    float movingDistanceLeft = progress * m_data.pathData.distance;
+    PathData& pathData = std::get<PathData>(m_data);
+    float movingDistanceLeft = progress * pathData.distance;
     
-    while (m_data.pathData.targetPositionId < m_data.pathData.positions.size()) {
+    while (pathData.targetPositionId < pathData.positions.size()) {
         auto const& currentPosition = getOwnerCurrentPosition();
-        const sf::Vector2f deltaPos = m_data.pathData.positions[m_data.pathData.targetPositionId] - currentPosition;
+        const sf::Vector2f deltaPos = pathData.positions[pathData.targetPositionId] - currentPosition;
         const float distanceToTarget = getVectorLength(deltaPos);
         
         if (movingDistanceLeft > distanceToTarget) {
             m_owner->move(deltaPos);
             movingDistanceLeft -= distanceToTarget;
-            ++m_data.pathData.targetPositionId;
+            ++pathData.targetPositionId;
         } else {
             m_owner->move(deltaPos * (movingDistanceLeft / distanceToTarget));
             break;
@@ -741,18 +937,27 @@ void Action::updateFollowPath(float progress) {
 
 void Action::updateGroup(float progress) {
     std::uint64_t timeElapsed = static_cast<std::uint64_t>(progress * m_duration);
-    for (auto& action : m_data.groupData.actions) {
-        if (!action.isCompleted())
-            action.update(timeElapsed);
+    ActionsList& actionsList = std::get<GroupData>(m_data).actionsList;
+    
+    if (actionsList.actionsHandled) {
+        for (auto& action : std::get<HandledActions>(actionsList.actions)) {
+            if (!action->isCompleted())
+                action->update(timeElapsed);
+        }
+    } else {
+        for (auto& action : std::get<UnhandledActions>(actionsList.actions)) {
+            if (!action.isCompleted())
+                action.update(timeElapsed);
+        }
     }
 }
 
 void Action::updateHide() {
-    m_owner->setHidden(m_data.hideData.hidden);
+    m_owner->setHidden(std::get<HideData>(m_data).hidden);
 }
 
 void Action::updateMove(float progress) {
-    m_owner->move(progress * m_data.moveData.position);
+    m_owner->move(progress * std::get<MoveData>(m_data).position);
 }
 
 void Action::updateRemove() {
@@ -760,50 +965,66 @@ void Action::updateRemove() {
 }
 
 void Action::updateRepeat(std::uint64_t timeElapsed, float progress) {
-    std::uint64_t timeUsed = (m_data.repeatData.repeatForever ? timeElapsed : static_cast<std::uint64_t>(std::round(progress * m_duration))); // distinction is made because if action repeats forever the duration is (2^64 - 1) which leads to floating-point errors as (timeElapsed << duration -> progress << 1)
-    std::uint64_t timeLeft = m_data.repeatData.currentAction->update(timeUsed);
+    RepeatData& repeatData = std::get<RepeatData>(m_data);
+    std::uint64_t timeUsed = (repeatData.repeatForever ? timeElapsed : static_cast<std::uint64_t>(std::round(progress * m_duration))); // distinction is made because if action repeats forever the duration is (2^64 - 1) which leads to floating-point errors as (timeElapsed << duration -> progress << 1)
+    std::uint64_t timeLeft = repeatData.currentAction->update(timeUsed);
     
     if (timeLeft == 0)
         return;
     
-    if (!m_data.repeatData.repeatForever && --m_data.repeatData.repeatCount == 0)
+    if (!repeatData.repeatForever && --repeatData.repeatCount == 0)
         return;
     
-    if (m_data.repeatData.callCompletionCallbackEveryRestart)
+    if (repeatData.callCompletionCallbackEveryRestart)
         m_completionCallback.value()();
     
-    auto callback = std::move(m_data.repeatData.currentAction->m_completionCallback);
-    m_data.repeatData.currentAction = std::make_unique<Action>(*m_data.repeatData.initialAction);
-    m_data.repeatData.currentAction->m_completionCallback = std::move(callback);
-    m_data.repeatData.currentAction->completeInit(m_owner);
+    auto callback = std::move(repeatData.currentAction->m_completionCallback);
+    repeatData.currentAction = std::make_unique<Action>(*repeatData.initialAction);
+    repeatData.currentAction->m_completionCallback = std::move(callback);
+    repeatData.currentAction->completeInit(m_owner);
     
     update(timeElapsed - timeUsed);
 }
 
 void Action::updateRotate(float progress) {
-    float rotation = progress * m_data.rotateData.rotation;
+    float rotation = progress * std::get<RotateData>(m_data).rotation;
     m_owner->rotate(rotation);
 }
 
 void Action::updateScale(float progress) {
-    auto scale =  sf::Vector2f(1.f, 1.f) - progress * m_data.scaleData.scaleFactor;
+    auto scale =  sf::Vector2f(1.f, 1.f) - progress * std::get<ScaleData>(m_data).scaleFactor;
     m_owner->scale(scale);
 }
 
 void Action::updateSequence(float progress) {
     std::uint64_t timeLeft = static_cast<std::uint64_t>(progress * m_duration);
-    while (m_data.sequenceData.playedActionId < m_data.sequenceData.actions.size()) {
-        auto& action = m_data.sequenceData.actions[m_data.sequenceData.playedActionId];
-        timeLeft = action.update(timeLeft);
-        if (action.isCompleted())
-            ++m_data.sequenceData.playedActionId;
-        else
-            break;
+    SequenceData& sequenceData = std::get<SequenceData>(m_data);
+    
+    if (sequenceData.actionsList.actionsHandled) {
+        HandledActions& actions = std::get<HandledActions>(sequenceData.actionsList.actions);
+        while (sequenceData.playedActionId < actions.size()) {
+            auto& action = actions[sequenceData.playedActionId];
+            timeLeft = action->update(timeLeft);
+            if (action->isCompleted())
+                ++sequenceData.playedActionId;
+            else
+                break;
+        }
+    } else {
+        UnhandledActions& actions = std::get<UnhandledActions>(sequenceData.actionsList.actions);
+        while (sequenceData.playedActionId < actions.size()) {
+            auto& action = actions[sequenceData.playedActionId];
+            timeLeft = action.update(timeLeft);
+            if (action.isCompleted())
+                ++sequenceData.playedActionId;
+            else
+                break;
+        }
     }
 }
 
 void Action::updateSpeed(float progress) {
-    m_owner->setSpeed(m_owner->getSpeed() + m_data.speedData.speed * progress);
+    m_owner->setSpeed(m_owner->getSpeed() + std::get<SpeedData>(m_data).speed * progress);
 }
 
 }

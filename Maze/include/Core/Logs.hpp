@@ -15,7 +15,8 @@
 
 #include <iostream>
 
-#include "../../Config.hpp"
+#include "../Config.hpp"
+#include "../System/Date.hpp"
 
 #ifdef MAZE_PLATFORM_WINDOWS
 #   include <windows.h>

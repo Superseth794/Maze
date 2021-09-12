@@ -19,13 +19,15 @@ void mz::Logs::display(std::string const& text, LogMessageType type, std::string
 void mz::Logs::display(std::string const& text, LogMessageType type, bool displayLogMessageType, bool displayTime, std::string && fileLocation, bool displayAbsolutePath, std::string && logColor) {
     std::lock_guard<std::mutex> lock(m_mutex);
     
-    if (displayTime) {
-        m_outputStream << __DATE__ << " " << __TIME__ << (!fileLocation.empty() ? " ": " : ");
+    if (displayTime) { // 2021-06-30 -- 2015/Mar/Sun[4]
+        // TODO: class to encapsulate chrono
+//        m_outputStream << date::year_month_day{date::floor<date::days>(std::chrono::system_clock::now())} << " " << __TIME__ << (!fileLocation.empty() ? " ": " : ");
+        m_outputStream << "-- time display not fixed yet --" << std::endl;
     }
     
     if (!fileLocation.empty()) {
         if (!displayAbsolutePath)
-            fileLocation.erase(fileLocation.begin(), fileLocation.begin() + fileLocation.rfind("Maze/"));
+            fileLocation.erase(fileLocation.begin(), fileLocation.begin() + fileLocation.rfind("Maze/")); // TODO: place in config constant
         m_outputStream << fileLocation << ": ";
     }
     

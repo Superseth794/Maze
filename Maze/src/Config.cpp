@@ -7,7 +7,7 @@
 
 #include "../include/Config.hpp"
 
-#if defined(MAZE_DEBUG) && defined(MAZE_PLATFORM_APPLE) && defined(MAZE_COMPILER_CLANG) && defined(__apple_build_version__)
+#if defined(MAZE_DEBUG) && defined(MAZE_PLATFORM_APPLE) && defined(__apple_build_version__)
 
 #   include <assert.h>
 #   include <stdbool.h>
@@ -18,7 +18,7 @@
 // Code was originally found in https://github.com/catchorg/Catch2/blob/devel/src/catch2/internal/catch_debugger.cpp
 // Returns true if the current process is being debugged (either running under the debugger or has a debugger attached post facto).
 // Code is integrally taken from the technical note https://developer.apple.com/library/archive/qa/qa1361/_index.html
-[[maybe_unused]] static bool isBeingDebugged() {
+[[maybe_unused]] bool isBeingDebugged() {
     int                 junk;
     int                 mib[4];
     struct kinfo_proc   info;

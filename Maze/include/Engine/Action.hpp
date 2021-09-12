@@ -13,7 +13,9 @@
 #include <chrono>
 #include <cmath>
 #include <cstring>
+#include <functional>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include <SFML/Graphics.hpp>
@@ -34,14 +36,16 @@ void swap(mz::Action& lhs, mz::Action& rhs) noexcept;
 
 namespace mz {
 
+using ActionPool    = ObjectPool<Action>;
+using ActionHandler = ObjectHandler<Action>;
+
 class Node;
 
-class Action { // TODO: maybe use a poolObject
+class Action {
     friend class Node;
-    
     friend void std::swap(Action& lhs, Action& rhs) noexcept; // TODO: update for C++20
     
-    enum ActionType : std::uint16_t { // TODO: Add repeat
+    enum ActionType : std::uint16_t {
         MOVE,
         ROTATE,
         SCALE,
@@ -56,62 +60,91 @@ class Action { // TODO: maybe use a poolObject
         EMPTY
     };
     
-    union DataType {
-        struct {
-            sf::Vector2f position;
-        } moveData;
-
-        struct {
-            float rotation;
-        } rotateData;
-
-        struct {
-            sf::Vector2f scaleFactor;
-        } scaleData;
-
-        struct {
-            float                       distance;
-            std::vector<sf::Vector2f>   positions;
-            std::size_t                 targetPositionId;
-        } pathData;
-        
-        struct {
-            bool hidden;
-        } hideData;
-        
-        struct {} removeData;
-        
-        struct {
-            std::vector<Action> actions;
-            std::size_t         playedActionId;
-        } sequenceData;
-        
-        struct {
-            std::vector<Action> actions;
-        } groupData;
-        
-        struct {
-            bool                    callCompletionCallbackEveryRestart;
-            std::unique_ptr<Action> currentAction;
-            std::unique_ptr<Action> initialAction;
-            std::size_t             repeatCount;
-            bool                    repeatForever;
-        } repeatData;
-        
-        struct {
-            float speed;
-        } speedData;
-
-        struct {} pauseData;
-        
-        struct {} emptyData;
-        
-        DataType();
-        
-        ~DataType();
-        
-        static void exchange(mz::Action::ActionType inputType, mz::Action::DataType& inputData, mz::Action::DataType& outputData);
+    using ActionPtr         = std::unique_ptr<Action>;
+    using UnhandledActions  = std::vector<Action>;
+    using HandledActions    = std::vector<ActionHandler>;
+    
+    struct ActionDataMember {
+        std::variant<
+            ActionPtr,
+            ActionHandler
+        >       action;
+        bool    actionHandled;
     };
+    
+    struct ActionsList {
+        std::variant<
+            UnhandledActions,
+            HandledActions
+        >       actions;
+        bool    actionsHandled;
+    };
+    
+    struct MoveData {
+        sf::Vector2f position;
+    };
+
+    struct RotateData {
+        float rotation;
+    };
+
+    struct ScaleData {
+        sf::Vector2f scaleFactor;
+    };
+
+    struct PathData {
+        float                       distance;
+        std::vector<sf::Vector2f>   positions;
+        std::size_t                 targetPositionId;
+    };
+    
+    struct HideData {
+        bool hidden;
+    };
+    
+    struct RemoveData {};
+    
+    struct SequenceData {
+        ActionsList actionsList;
+        std::size_t playedActionId;
+    };
+    
+    struct GroupData {
+        ActionsList actionsList;
+    };
+    
+    struct RepeatData {
+        bool                callCompletionCallbackEveryRestart;
+//        ActionDataMember    currentAction;
+//        ActionDataMember    initialAction;
+        std::unique_ptr<Action>    currentAction;
+        std::unique_ptr<Action>    initialAction;
+        std::size_t         repeatCount;
+        bool                repeatForever;
+    };
+    
+    struct SpeedData {
+        float speed;
+    };
+
+    struct PauseData {};
+    
+    struct EmptyData {};
+    
+    using DataType = std::variant<
+        MoveData,
+        RotateData,
+        ScaleData,
+        PathData,
+        HideData,
+        RemoveData,
+        SequenceData,
+        GroupData,
+        RepeatData,
+        SpeedData,
+        PauseData,
+        EmptyData
+    >;
     
 public:
     using CompletionCallback = Callback<void()>;
@@ -124,15 +157,13 @@ public:
     };
     
 public:
-    Action() = default; // TODO: Fix after ObjectPool tests are complete
+    Action() = delete; // TODO: Fix after ObjectPool tests are complete
     
     Action(Action const& action) noexcept;
     Action(Action && action) noexcept;
     
     Action& operator=(Action const& action) = delete;
     Action& operator=(Action && action) = delete;
-    
-    ~Action();
     
     inline float getCurrentProgress();
     
@@ -170,7 +201,15 @@ public:
     
     static Action Group(std::vector<Action> const& actions);
     
+    static Action Group(ActionPool* parentPool, std::vector<Action> const& actions);
+    
+    static Action Group(ActionPool* parentPool, std::vector<ActionHandler> const& actions);
+    
     static Action Group(std::vector<Action> && actions);
+    
+    static Action Group(ActionPool* parentPool, std::vector<Action> && actions);
+    
+    static Action Group(ActionPool* parentPool, std::vector<ActionHandler> && actions);
     
     template <typename... Actions> // TODO: use C++20 concepts
     static Action Group(Actions && ...actions);
@@ -201,9 +240,17 @@ public:
     
     static Action Repeat(std::unique_ptr<Action> && action, std::size_t count, bool callCompletionCallbackEveryRestart = false);
     
+    static Action Repeat(ActionPool& pool, Action && action, std::size_t count, bool callCompletionCallbackEveryRestart = false);
+    
+    static Action Repeat(ActionPool& pool, ActionHandler && action, std::size_t count, bool callCompletionCallbackEveryRestart = false);
+    
     static Action RepeatForever(Action && action, bool callCompletionCallbackEveryRestart = false);
     
     static Action RepeatForever(std::unique_ptr<Action> && action, bool callCompletionCallbackEveryRestart = false);
+    
+    static Action RepeatForever(ActionPool& pool, Action && action, bool callCompletionCallbackEveryRestart = false);
+    
+    static Action RepeatForever(ActionPool& pool, ActionHandler && action, bool callCompletionCallbackEveryRestart = false);
     
     static Action RotateBy(float rotation);
     
@@ -227,7 +274,13 @@ public:
     
     static Action Sequence(std::vector<Action> const& actions);
     
+    static Action Sequence(ActionPool* pool, std::vector<Action> const& actions);
+    
+    static Action Sequence(ActionPool* pool, std::vector<ActionHandler> const& actions);
+    
     static Action Sequence(std::vector<Action> && actions);
+    
+    static Action Sequence(ActionPool* pool, std::vector<ActionHandler> && actions);
     
     template <typename ...Actions> // TODO: use C++20 concepts
     static Action Sequence(Actions && ...actions);
@@ -257,7 +310,7 @@ private:
     
     void completeInitMove();
     
-    void completeInitOfActions(std::vector<Action>& actions);
+    void completeInitOfActions(ActionsList& actionsList);
     
     void completeInitRepeat();
     
@@ -269,7 +322,7 @@ private:
     
     void completeInitSpeed();
     
-    std::vector<Action> getActionsReversed(std::vector<Action> const& actions, Node* node) const;
+    ActionsList getActionsReversed(ActionsList const& actionsList, Node* node) const;
     
     Action getDataUnrelativeToNodeReversed() const;
     
@@ -319,6 +372,7 @@ private:
     bool                                m_isRelativeToInitialState;
     bool                                m_isRelativeToParent;
     Node*                               m_owner;
+    ActionPool*                         m_parentPool;
     float                               m_speed                     = 1.f;
     std::uint64_t                       m_timeElapsed;
     TimingMode                          m_timingMode                = TimingMode::LINEAR;
