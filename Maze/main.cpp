@@ -19,16 +19,20 @@ mz::Logs mz::Logs::Global(std::cerr, true);
 
 #   include "include/Game/Maze.hpp"
 
-int main(int argc, const char * argv[]) {
+#include "examples/ActionsDemo.hpp"
+
+int main(int /*argc*/, const char ** /*argv*/) {
     
     srand(static_cast<unsigned int>(time(nullptr)));
     
-    constexpr unsigned int windowWidth = 2800;
+    constexpr unsigned int windowWidth  = 2800;
     constexpr unsigned int windowHeight = 1600;
     
-    mz::Maze maze(windowWidth, windowHeight);
+//    mz::Maze maze(windowWidth, windowHeight);
+//    maze.lauch();
     
-    maze.lauch();
+    ActionsDemo demonstration(windowWidth, windowHeight);
+    demonstration.run();
     
     return 0;
 }

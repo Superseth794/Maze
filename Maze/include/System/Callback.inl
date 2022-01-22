@@ -27,7 +27,9 @@ m_callback(static_cast<Function_type>(callback))
 
 template <class F>
 Callback<F>::Callback(std::function<F> && callback) noexcept :
-m_callback(static_cast<Function_type>(std::forward<std::function<F>>(callback)))
+m_callback(static_cast<Function_type>(std::forward<std::function<F>>(callback))),
+m_callbackArgs(),
+m_callbackResult() // TODO: fix
 {
 }
 
